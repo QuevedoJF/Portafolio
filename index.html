@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quevedo Hernández | Desarrollador Web</title>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --accent: #3b82f6;
+        --bg: var(--light);
+        --bg-secondary: white;
+        --text: var(--dark);
+        --text-secondary: var(--gray);
+        --border: #e2e8f0;
+      }
+
+      [data-theme="dark"] {
+        --bg: #0f172a;
+        --bg-secondary: #1e293b;
+        --text: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--bg);
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: var(--bg-secondary);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: background 0.3s;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: var(--primary);
+      }
+
+      section {
+        padding: 5rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        text-align: center;
+        color: var(--text);
+      }
+
+      #hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding-top: 80px;
+      }
+
+      #hero h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      #hero h1 span {
+        color: var(--primary);
+      }
+
+      #hero p {
+        font-size: 1.25rem;
+        color: var(--gray);
+        max-width: 600px;
+      }
+
+      .hero-buttons {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-outline {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-outline:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      #about {
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        margin: 2rem auto;
+        max-width: 900px;
+        transition: background 0.3s;
+      }
+
+      .about-content {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 3rem;
+        align-items: center;
+      }
+
+      .about-text h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .about-text p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+      }
+
+      .avatar {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      #tech-stack {
+        background: var(--bg-secondary);
+        transition: background 0.3s;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .tech-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background: var(--bg);
+        transition:
+          transform 0.3s,
+          background 0.3s;
+      }
+
+      .tech-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .tech-item span {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .tech-icon {
+        width: 48px;
+        height: 48px;
+      }
+
+      #projects {
+        max-width: 1200px;
+      }
+
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+      }
+
+      .project-card {
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s,
+          background 0.3s;
+        cursor: pointer;
+      }
+
+      .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .project-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: var(--bg);
+      }
+
+      .project-content {
+        padding: 1.5rem;
+      }
+
+      .project-content h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .project-content p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      .project-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        background: var(--bg);
+        color: var(--primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+
+      #certifications {
+        background: var(--bg-secondary);
+        transition: background 0.3s;
+      }
+
+      .cert-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .cert-card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background: var(--bg-secondary);
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        text-align: left;
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s,
+          background 0.3s;
+      }
+
+      .cert-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .cert-image {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 0.5rem;
+      }
+
+      .cert-card h3 {
+        font-size: 1rem;
+        color: var(--text);
+      }
+
+      #contact {
+        max-width: 600px;
+      }
+
+      .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-group label {
+        font-weight: 600;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        padding: 0.75rem;
+        border: 2px solid var(--border);
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-family: inherit;
+        background: var(--bg);
+        color: var(--text);
+        transition:
+          border-color 0.3s,
+          background 0.3s,
+          color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 150px;
+      }
+
+      .contact-info {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+      }
+
+      .contact-info a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .contact-info a:hover {
+        text-decoration: underline;
+      }
+
+      footer {
+        background: var(--dark);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        margin-top: 4rem;
+      }
+
+      .mobile-menu {
+        display: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .theme-toggle {
+        background: none;
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+        font-size: 1.4rem;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .theme-toggle:hover {
+        background: var(--bg);
+        transform: scale(1.1);
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+
+        .nav-links.active {
+          display: flex;
+          flex-direction: column;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: var(--bg-secondary);
+          padding: 1rem;
+          gap: 1rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle {
+          position: absolute;
+          right: 4rem;
+        }
+
+        #hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .about-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .avatar {
+          margin: 0 auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu {
+          display: block;
+        }
+      }
+
+      .lightbox {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        cursor: pointer;
+      }
+
+      .lightbox.active {
+        display: flex;
+      }
+
+      .lightbox img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">QH</div>
+      <ul class="nav-links">
+        <li><a href="#about">Acerca de</a></li>
+        <li><a href="#tech-stack">Tecnologías</a></li>
+        <li><a href="#projects">Proyectos</a></li>
+        <li><a href="#certifications">Certificaciones</a></li>
+        <li><a href="#contact">Contacto</a></li>
+      </ul>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+      </button>
+      <div class="mobile-menu">☰</div>
+    </nav>
+
+    <section id="hero">
+      <h1>Hola, soy <span>Quevedo Hernández</span></h1>
+      <p>
+        Desarrollo sitios y aplicaciones web. Principalmente trabajo con React,
+        Node.js y bases de datos.
+      </p>
+      <div class="hero-buttons">
+        <a href="#projects" class="btn btn-primary">Ver proyectos</a>
+        <a href="#contact" class="btn btn-outline">Hablar conmigo</a>
+      </div>
+    </section>
+
+    <section id="about">
+      <h2>Acerca de mí</h2>
+      <div class="about-content">
+        <div class="avatar">
+          <img src="img/Perfil/foto.jpeg" alt="Quevedo Hernández" />
+        </div>
+        <div class="about-text">
+          <h3>Desarrollador web</h3>
+          <p>
+            Me encargo de crear sitios y aplicaciones que funcionan bien y se
+            ven bien. No uso frameworks de más ni complico las cosas sin
+            necesidad.
+          </p>
+          <p>
+            Si necesitas un sitio web, una app o mejorar lo que ya tienes,
+            contáctame y vemos cómo ayudarte.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tech-stack">
+      <h2>Tecnologías</h2>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" fill="#f7df1e" />
+            <path
+              d="M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.637-1.295-1.284-1.695l.001-.001c-.537-.337-1.035-.758-1.035-1.389 0-1.113.943-1.473 1.409-1.672.147-.061.281-.127.281-.259 0-.177-.165-.323-.409-.323-.337 0-.576.163-.739.5-.439.913-.996 1.605-2.039 1.605-1.211 0-1.969-.876-1.969-2.109 0-1.534.99-2.6 2.574-2.6 1.021 0 1.721.239 2.232.665.012.009.023.019.033.028l.017-.005c-.029-.201-.048-.364-.048-.493 0-.963.604-1.509 1.863-1.509 1.169 0 1.945.536 2.074 1.522.139.139.243.317.243.523 0 .291-.168.515-.444.663-.166.083-.377.185-.377.349 0 .163.19.276.435.276.337 0 .665-.192.933-.58.627-.913 1.051-1.537 1.842-1.537 1.113 0 1.99.877 1.99 2.178 0 1.478-.909 2.572-2.318 2.883l.002.001c-.854.336-1.545.96-1.545 1.875 0 .794.425 1.374 1.183 1.672.105.042.207.083.307.121l.001-.001c.58.249 1.055.637 1.055 1.256 0 .812-.689 1.355-1.699 1.355-1.105 0-1.873-.579-2.29-1.439-.18-.352-.293-.741-.293-1.163 0-.43.116-.808.309-1.142l.004-.001c.011-.017.021-.035.032-.054l-.029.009zm-7.189-1.715c0 .66.416 1.151 1.096 1.151.661 0 1.154-.472 1.154-1.105 0-.663-.493-1.15-1.154-1.15-.68 0-1.096.487-1.096 1.15v-.046z"
+              fill="#000"
+            />
+          </svg>
+          <span>JavaScript</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              fill="none"
+              stroke="#61dafb"
+              stroke-width="2"
+            />
+            <circle cx="12" cy="12" r="4" fill="#61dafb" />
+          </svg>
+          <span>React</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="4" fill="#68a063" />
+            <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2" />
+          </svg>
+          <span>Node.js</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="2" fill="#3776ab" />
+            <text
+              x="12"
+              y="16"
+              text-anchor="middle"
+              fill="#fff"
+              font-size="10"
+              font-weight="bold"
+            >
+              Py
+            </text>
+          </svg>
+          <span>Python</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="2" fill="#3178c6" />
+            <text
+              x="12"
+              y="16"
+              text-anchor="middle"
+              fill="#fff"
+              font-size="8"
+              font-weight="bold"
+            >
+              TS
+            </text>
+          </svg>
+          <span>TypeScript</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#f05032" />
+            <path
+              d="M12 2c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2"
+            />
+          </svg>
+          <span>Git</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="2" fill="#336791" />
+            <text
+              x="12"
+              y="16"
+              text-anchor="middle"
+              fill="#fff"
+              font-size="7"
+              font-weight="bold"
+            >
+              SQL
+            </text>
+          </svg>
+          <span>SQL</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <rect width="24" height="24" rx="2" fill="#000" />
+            <text
+              x="12"
+              y="16"
+              text-anchor="middle"
+              fill="#fff"
+              font-size="8"
+              font-weight="bold"
+            >
+              Next
+            </text>
+          </svg>
+          <span>Next.js</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>Proyectos</h2>
+      <div class="projects-grid">
+        <div class="project-card" data-url="#">
+          <img
+            src="img/pagina_cafeteria.png"
+            alt="Página Cafetería"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Cafetería</h3>
+            <p>Sitio web para cafetería.</p>
+            <div class="project-tags">
+              <span class="tag">Web</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card" data-url="#">
+          <img
+            src="img/pagina_bulma.png"
+            alt="Página Bulma"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Bulma</h3>
+            <p>Sitio web con framework Bulma.</p>
+            <div class="project-tags">
+              <span class="tag">Web</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="project-card"
+          data-url="https://pagina-de-eventos-one.vercel.app/"
+        >
+          <img
+            src="img/pagina_eventos.png"
+            alt="Página Eventos"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Eventos</h3>
+            <p>Sitio para gestión de eventos.</p>
+            <div class="project-tags">
+              <span class="tag">Web</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card" data-url="#">
+          <img
+            src="img/registro_tienda.png"
+            alt="Registro Tienda"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Registro Tienda</h3>
+            <p>Sistema de registro para tienda.</p>
+            <div class="project-tags">
+              <span class="tag">Sistema</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card" data-url="#">
+          <img
+            src="img/pagina_tec.png"
+            alt="Página Tec"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Tec</h3>
+            <p>Sitio tecnológico.</p>
+            <div class="project-tags">
+              <span class="tag">Web</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card" data-url="#">
+          <img
+            src="img/pagina_noticias.png"
+            alt="Página Noticias"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Noticias</h3>
+            <p>Sitio de noticias.</p>
+            <div class="project-tags">
+              <span class="tag">Web</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="certifications">
+      <h2>Certificaciones</h2>
+      <div class="cert-grid">
+        <div class="cert-card">
+          <img
+            src="img/cursos/hackathon-2025.jpeg"
+            alt="Hackathon 2025"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Hackathon 2025</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/hackathon-2026.jpeg"
+            alt="Hackathon 2026"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Hackathon 2026</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/tecnico-en-seguridad-perimetral.png"
+            alt="Técnico en Seguridad Perimetral"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Técnico en Seguridad Perimetral</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/tecnico-en-seguridad.png"
+            alt="Técnico en Seguridad"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Técnico en Seguridad</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/tecnico-en-redes-ip.png"
+            alt="Técnico en Redes IP"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Técnico en Redes IP</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/fundamentos-de-seguridad.png"
+            alt="Fundamentos de Seguridad"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Fundamentos de Seguridad</h3>
+        </div>
+        <div class="cert-card">
+          <img
+            src="img/cursos/administrador-de-servidores.png"
+            alt="Administrador de Servidores"
+            class="cert-image"
+            onclick="openLightbox(this)"
+          />
+          <h3>Administrador de Servidores</h3>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>Contacto</h2>
+      <form
+        class="contact-form"
+        id="contactForm"
+        action="https://formspree.io/f/quevedohernandezj126@gmail.com"
+        method="POST"
+      >
+        <div class="form-group">
+          <label for="name">Nombre</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="message">Mensaje</label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+      </form>
+      <div class="contact-info">
+        <a href="mailto:quevedohernandezj126@gmail.com"
+          >quevedohernandezj126@gmail.com</a
+        >
+      </div>
+    </section>
+
+    <footer>
+      <p>2026 Quevedo Hernández. Todos los derechos reservados.</p>
+    </footer>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+      <img id="lightbox-img" src="" alt="Imagen expandida" />
+    </div>
+
+    <script>
+      const themeToggle = document.getElementById("themeToggle");
+      const html = document.documentElement;
+
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        html.setAttribute("data-theme", savedTheme);
+        updateThemeIcon(savedTheme);
+      }
+
+      function updateThemeIcon(theme) {
+        if (theme === "dark") {
+          themeToggle.innerHTML = "☀️";
+        } else {
+          themeToggle.innerHTML = "🌙";
+        }
+      }
+
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeIcon(newTheme);
+      });
+
+      document.querySelector(".mobile-menu").addEventListener("click", () => {
+        document.querySelector(".nav-links").classList.toggle("active");
+      });
+
+      document.querySelectorAll(".nav-links a").forEach((link) => {
+        link.addEventListener("click", () => {
+          document.querySelector(".nav-links").classList.remove("active");
+        });
+      });
+
+      function openLightbox(img) {
+        event.stopPropagation();
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        lightboxImg.src = img.src;
+        lightbox.classList.add("active");
+      }
+
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("active");
+      }
+
+      document.querySelectorAll(".project-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          const url = card.getAttribute("data-url");
+          if (url && url !== "#") {
+            window.open(url, "_blank");
+          }
+        });
+      });
+
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const button = form.querySelector('button[type="submit"]');
+          const originalText = button.textContent;
+          button.textContent = "Enviando...";
+          button.disabled = true;
+
+          try {
+            const response = await fetch(form.action, {
+              method: "POST",
+              body: new FormData(form),
+              headers: { Accept: "application/json" },
+            });
+
+            if (response.ok) {
+              alert("Mensaje enviado. Te respondere pronto.");
+              form.reset();
+            } else {
+              alert("Hubo un problema. Intenta de nuevo.");
+            }
+          } catch (error) {
+            alert("Hubo un problema. Intenta de nuevo.");
+          } finally {
+            button.textContent = originalText;
+            button.disabled = false;
+          }
+        });
+
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll("section").forEach((section) => {
+        section.style.opacity = "0";
+        section.style.transform = "translateY(20px)";
+        section.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(section);
+      });
+    </script>
+  </body>
+</html>
