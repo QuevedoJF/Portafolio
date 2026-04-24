@@ -16,6 +16,11 @@
         --text: var(--dark);
         --text-secondary: var(--gray);
         --border: #e2e8f0;
+        --nav-height: 70px;
+        --section-padding: clamp(2rem, 5vw, 5rem);
+        --h2-size: clamp(1.75rem, 4vw, 2.5rem);
+        --h1-size: clamp(2rem, 6vw, 4rem);
+        --p-size: clamp(0.9rem, 2vw, 1.25rem);
       }
 
       [data-theme="dark"] {
@@ -47,15 +52,17 @@
         transition:
           background 0.3s,
           color 0.3s;
+        overflow-x: hidden;
       }
 
       nav {
         position: fixed;
         top: 0;
         width: 100%;
+        height: var(--nav-height);
         background: var(--bg-secondary);
         backdrop-filter: blur(10px);
-        padding: 1rem 2rem;
+        padding: 0 clamp(1rem, 3vw, 2rem);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -65,14 +72,14 @@
       }
 
       .logo {
-        font-size: 1.5rem;
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
         font-weight: 700;
         color: var(--primary);
       }
 
       .nav-links {
         display: flex;
-        gap: 2rem;
+        gap: clamp(1rem, 3vw, 2rem);
         list-style: none;
       }
 
@@ -80,7 +87,9 @@
         text-decoration: none;
         color: var(--text);
         font-weight: 500;
+        font-size: clamp(0.85rem, 2vw, 1rem);
         transition: color 0.3s;
+        padding: 0.5rem;
       }
 
       .nav-links a:hover {
@@ -88,31 +97,33 @@
       }
 
       section {
-        padding: 5rem 2rem;
-        max-width: 1200px;
+        padding: var(--section-padding) clamp(0.5rem, 3vw, 2rem);
+        max-width: 1400px;
         margin: 0 auto;
       }
 
       h2 {
-        font-size: 2.5rem;
-        margin-bottom: 3rem;
+        font-size: var(--h2-size);
+        margin-bottom: clamp(1.5rem, 4vw, 3rem);
         text-align: center;
         color: var(--text);
       }
 
       #hero {
         min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
-        padding-top: 80px;
+        padding-top: var(--nav-height);
       }
 
       #hero h1 {
-        font-size: 4rem;
+        font-size: var(--h1-size);
         margin-bottom: 1rem;
+        line-height: 1.1;
       }
 
       #hero h1 span {
@@ -120,22 +131,26 @@
       }
 
       #hero p {
-        font-size: 1.25rem;
+        font-size: var(--p-size);
         color: var(--gray);
-        max-width: 600px;
+        max-width: min(600px, 90vw);
+        padding: 0 1rem;
       }
 
       .hero-buttons {
-        margin-top: 2rem;
+        margin-top: clamp(1rem, 3vw, 2rem);
         display: flex;
-        gap: 1rem;
+        gap: clamp(0.5rem, 2vw, 1rem);
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       .btn {
-        padding: 0.75rem 1.5rem;
+        padding: clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
         border-radius: 0.5rem;
         text-decoration: none;
         font-weight: 600;
+        font-size: clamp(0.85rem, 2vw, 1rem);
         transition: all 0.3s;
       }
 
@@ -162,21 +177,22 @@
 
       #about {
         background: var(--bg-secondary);
-        border-radius: 1rem;
+        border-radius: clamp(0.5rem, 2vw, 1rem);
         margin: 2rem auto;
-        max-width: 900px;
+        max-width: min(900px, 95vw);
         transition: background 0.3s;
       }
 
       .about-content {
         display: grid;
-        grid-template-columns: 250px 1fr;
-        gap: 3rem;
+        grid-template-columns: minmax(150px, 250px) 1fr;
+        gap: clamp(1.5rem, 4vw, 3rem);
         align-items: center;
+        padding: clamp(1rem, 3vw, 2rem);
       }
 
       .about-text h3 {
-        font-size: 1.5rem;
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
         margin-bottom: 1rem;
       }
 
@@ -186,11 +202,12 @@
       }
 
       .avatar {
-        width: 250px;
-        height: 250px;
+        width: clamp(120px, 25vw, 250px);
+        height: clamp(120px, 25vw, 250px);
         border-radius: 50%;
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
       }
 
       .avatar img {
@@ -206,9 +223,9 @@
 
       .tech-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 2rem;
-        max-width: 900px;
+        grid-template-columns: repeat(auto-fit, minmax(clamp(80px, 15vw, 120px), 1fr));
+        gap: clamp(1rem, 3vw, 2rem);
+        max-width: min(900px, 95vw);
         margin: 0 auto;
       }
 
@@ -217,7 +234,7 @@
         flex-direction: column;
         align-items: center;
         gap: 0.5rem;
-        padding: 1.5rem;
+        padding: clamp(0.75rem, 2vw, 1.5rem);
         border-radius: 1rem;
         background: var(--bg);
         transition:
@@ -231,27 +248,28 @@
 
       .tech-item span {
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+        text-align: center;
       }
 
       .tech-icon {
-        width: 48px;
-        height: 48px;
+        width: clamp(32px, 8vw, 48px);
+        height: clamp(32px, 8vw, 48px);
       }
 
       #projects {
-        max-width: 1200px;
+        max-width: min(1400px, 95vw);
       }
 
       .projects-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(350px, 90vw), 1fr));
+        gap: clamp(1rem, 3vw, 2rem);
       }
 
       .project-card {
         background: var(--bg-secondary);
-        border-radius: 1rem;
+        border-radius: clamp(0.5rem, 2vw, 1rem);
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition:
@@ -268,23 +286,23 @@
 
       .project-image {
         width: 100%;
-        height: 200px;
+        height: clamp(140px, 25vw, 200px);
         object-fit: cover;
         background: var(--bg);
       }
 
       .project-content {
-        padding: 1.5rem;
+        padding: clamp(1rem, 2vw, 1.5rem);
       }
 
       .project-content h3 {
-        font-size: 1.25rem;
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
         margin-bottom: 0.5rem;
       }
 
       .project-content p {
         color: var(--text-secondary);
-        font-size: 0.9rem;
+        font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         margin-bottom: 1rem;
       }
 
@@ -297,9 +315,9 @@
       .tag {
         background: var(--bg);
         color: var(--primary);
-        padding: 0.25rem 0.75rem;
+        padding: 0.25rem clamp(0.5rem, 2vw, 0.75rem);
         border-radius: 999px;
-        font-size: 0.75rem;
+        font-size: clamp(0.65rem, 1.5vw, 0.75rem);
         font-weight: 600;
         transition:
           background 0.3s,
@@ -313,20 +331,20 @@
 
       .cert-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        max-width: 900px;
+        grid-template-columns: repeat(auto-fit, minmax(min(280px, 90vw), 1fr));
+        gap: clamp(1rem, 3vw, 2rem);
+        max-width: min(1100px, 95vw);
         margin: 0 auto;
       }
 
       .cert-card {
-        padding: 1.5rem;
-        border-radius: 1rem;
+        padding: clamp(1rem, 2vw, 1.5rem);
+        border-radius: clamp(0.5rem, 2vw, 1rem);
         background: var(--bg-secondary);
         border: 2px solid var(--border);
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: clamp(1rem, 2vw, 1.5rem);
         text-align: left;
         transition:
           transform 0.3s,
@@ -340,25 +358,26 @@
       }
 
       .cert-image {
-        width: 60px;
-        height: 60px;
+        width: clamp(45px, 10vw, 60px);
+        height: clamp(45px, 10vw, 60px);
         object-fit: contain;
         border-radius: 0.5rem;
+        flex-shrink: 0;
       }
 
       .cert-card h3 {
-        font-size: 1rem;
+        font-size: clamp(0.85rem, 2vw, 1rem);
         color: var(--text);
       }
 
       #contact {
-        max-width: 600px;
+        max-width: min(600px, 95vw);
       }
 
       .contact-form {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: clamp(1rem, 3vw, 1.5rem);
       }
 
       .form-group {
@@ -369,14 +388,15 @@
 
       .form-group label {
         font-weight: 600;
+        font-size: clamp(0.85rem, 2vw, 1rem);
       }
 
       .form-group input,
       .form-group textarea {
-        padding: 0.75rem;
+        padding: clamp(0.6rem, 2vw, 0.75rem);
         border: 2px solid var(--border);
         border-radius: 0.5rem;
-        font-size: 1rem;
+        font-size: clamp(0.9rem, 2vw, 1rem);
         font-family: inherit;
         background: var(--bg);
         color: var(--text);
@@ -394,19 +414,20 @@
 
       .form-group textarea {
         resize: vertical;
-        min-height: 150px;
+        min-height: clamp(100px, 20vw, 150px);
       }
 
       .contact-info {
         display: flex;
         justify-content: center;
-        margin-top: 3rem;
+        margin-top: clamp(1.5rem, 4vw, 3rem);
       }
 
       .contact-info a {
         color: var(--primary);
         text-decoration: none;
         font-weight: 500;
+        font-size: clamp(0.85rem, 2vw, 1rem);
       }
 
       .contact-info a:hover {
@@ -417,24 +438,29 @@
         background: var(--dark);
         color: white;
         text-align: center;
-        padding: 2rem;
+        padding: clamp(1.5rem, 4vw, 2rem) clamp(0.5rem, 3vw, 2rem);
         margin-top: 4rem;
+        font-size: clamp(0.75rem, 1.5vw, 0.9rem);
       }
 
       .mobile-menu {
         display: none;
-        font-size: 1.5rem;
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
         cursor: pointer;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--text);
       }
 
       .theme-toggle {
         background: none;
         border: none;
         border-radius: 50%;
-        width: 44px;
-        height: 44px;
+        width: clamp(36px, 10vw, 44px);
+        height: clamp(36px, 10vw, 44px);
         cursor: pointer;
-        font-size: 1.4rem;
+        font-size: clamp(1.2rem, 3vw, 1.4rem);
         transition: all 0.3s;
         display: flex;
         align-items: center;
@@ -444,49 +470,6 @@
       .theme-toggle:hover {
         background: var(--bg);
         transform: scale(1.1);
-      }
-
-      @media (max-width: 768px) {
-        .nav-links {
-          display: none;
-        }
-
-        .nav-links.active {
-          display: flex;
-          flex-direction: column;
-          position: absolute;
-          top: 100%;
-          left: 0;
-          width: 100%;
-          background: var(--bg-secondary);
-          padding: 1rem;
-          gap: 1rem;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .theme-toggle {
-          position: absolute;
-          right: 4rem;
-        }
-
-        #hero h1 {
-          font-size: 2.5rem;
-        }
-
-        .about-content {
-          grid-template-columns: 1fr;
-          text-align: center;
-        }
-
-        .avatar {
-          margin: 0 auto;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .mobile-menu {
-          display: block;
-        }
       }
 
       .lightbox {
@@ -501,6 +484,7 @@
         align-items: center;
         z-index: 2000;
         cursor: pointer;
+        padding: 1rem;
       }
 
       .lightbox.active {
@@ -508,13 +492,199 @@
       }
 
       .lightbox img {
-        max-width: 90%;
-        max-height: 90%;
+        max-width: min(90vw, 1200px);
+        max-height: 90vh;
         object-fit: contain;
         border-radius: 0.5rem;
       }
-    </style>
-  </head>
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+
+        .nav-links.active {
+          display: flex;
+          flex-direction: column;
+          position: absolute;
+          top: var(--nav-height);
+          left: 0;
+          width: 100%;
+          background: var(--bg-secondary);
+          padding: 1rem;
+          gap: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links.active li {
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 0.5rem;
+        }
+
+        .nav-links.active li:last-child {
+          border-bottom: none;
+        }
+
+        .theme-toggle {
+          position: absolute;
+          right: clamp(2.5rem, 12vw, 4rem);
+        }
+
+        .mobile-menu {
+          display: block;
+        }
+
+        .about-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .avatar {
+          margin: 0 auto;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-buttons {
+          flex-direction: column;
+          width: min(280px, 85vw);
+        }
+
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+
+        .projects-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .cert-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .cert-card {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .about-text p {
+          text-align: left;
+        }
+      }
+
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .projects-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .cert-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .about-content {
+          gap: 2rem;
+        }
+      }
+
+      @media (min-width: 1025px) and (max-width: 1440px) {
+        .about-content {
+          gap: 3rem;
+        }
+
+        .projects-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (min-width: 1441px) {
+        section {
+          max-width: 1600px;
+        }
+
+        #hero h1 {
+          font-size: clamp(3.5rem, 5vw, 5rem);
+        }
+
+        .projects-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .cert-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media (min-width: 1921px) {
+        :root {
+          --nav-height: 80px;
+        }
+
+        #hero h1 {
+          font-size: 6rem;
+        }
+
+        #hero p {
+          font-size: 1.5rem;
+          max-width: 900px;
+        }
+
+        .about-content {
+          grid-template-columns: 350px 1fr;
+          gap: 4rem;
+        }
+
+        .avatar {
+          width: 300px;
+          height: 300px;
+        }
+
+        h2 {
+          font-size: 3rem;
+        }
+
+        .tech-grid {
+          grid-template-columns: repeat(4, 1fr);
+          max-width: 1100px;
+        }
+      }
+
+      @media (max-height: 600px) and (orientation: landscape) {
+        #hero {
+          min-height: auto;
+          padding: calc(var(--nav-height) + 1rem) 2rem 2rem;
+        }
+
+        #hero h1 {
+          font-size: clamp(1.5rem, 5vh, 2.5rem);
+        }
+
+        #hero p {
+          font-size: clamp(0.8rem, 2vh, 1rem);
+        }
+
+        .hero-buttons {
+          margin-top: 1rem;
+        }
+      }
+
+      @media (hover: none) and (pointer: coarse) {
+        .btn {
+          padding: 0.85rem 1.5rem;
+        }
+
+        .tech-item,
+        .project-card,
+        .cert-card {
+          transition: none;
+        }
+
+        .tech-item:active,
+        .project-card:active,
+        .cert-card:active {
+          transform: scale(0.98);
+        }
+      }
   <body>
     <nav>
       <div class="logo">QH</div>
@@ -684,7 +854,10 @@
     <section id="projects">
       <h2>Proyectos</h2>
       <div class="projects-grid">
-        <div class="project-card" data-url="#">
+        <div
+          class="project-card"
+          data-url="https://pagina-cafeteria-gray.vercel.app"
+        >
           <img
             src="img/pagina_cafeteria.png"
             alt="Página Cafetería"
@@ -698,20 +871,7 @@
             </div>
           </div>
         </div>
-        <div class="project-card" data-url="#">
-          <img
-            src="img/pagina_bulma.png"
-            alt="Página Bulma"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Página Bulma</h3>
-            <p>Sitio web con framework Bulma.</p>
-            <div class="project-tags">
-              <span class="tag">Web</span>
-            </div>
-          </div>
-        </div>
+
         <div
           class="project-card"
           data-url="https://pagina-de-eventos-one.vercel.app/"
@@ -725,24 +885,12 @@
             <h3>Página Eventos</h3>
             <p>Sitio para gestión de eventos.</p>
             <div class="project-tags">
-              <span class="tag">Web</span>
+              <span class="tag">sistema</span>
             </div>
           </div>
         </div>
-        <div class="project-card" data-url="#">
-          <img
-            src="img/registro_tienda.png"
-            alt="Registro Tienda"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Registro Tienda</h3>
-            <p>Sistema de registro para tienda.</p>
-            <div class="project-tags">
-              <span class="tag">Sistema</span>
-            </div>
-          </div>
-        </div>
+
+        <!-- 
         <div class="project-card" data-url="#">
           <img
             src="img/pagina_tec.png"
@@ -757,6 +905,23 @@
             </div>
           </div>
         </div>
+        -->
+
+        <div class="project-card" data-url="#">
+          <img
+            src="img/pagina_dentista.png"
+            alt="Página Dentista"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Página Dentista</h3>
+            <p>Sitio web para dentistas.</p>
+            <div class="project-tags">
+              <span class="tag">Sistema</span>
+            </div>
+          </div>
+        </div>
+
         <div class="project-card" data-url="#">
           <img
             src="img/pagina_noticias.png"
@@ -767,7 +932,7 @@
             <h3>Página Noticias</h3>
             <p>Sitio de noticias.</p>
             <div class="project-tags">
-              <span class="tag">Web</span>
+              <span class="tag">sistema</span>
             </div>
           </div>
         </div>
