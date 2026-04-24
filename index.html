@@ -692,6 +692,7 @@
         <li><a href="#about">Acerca de</a></li>
         <li><a href="#tech-stack">Tecnologías</a></li>
         <li><a href="#projects">Proyectos</a></li>
+        <li><a href="#school-events">Eventos Escolares</a></li>
         <li><a href="#certifications">Certificaciones</a></li>
         <li><a href="#contact">Contacto</a></li>
       </ul>
@@ -939,6 +940,22 @@
       </div>
     </section>
 
+    <section id="school-events">
+      <h2>Eventos Escolares</h2>
+      <div class="projects-grid">
+        <div class="project-card" data-url="https://pagina-de-eventos-one.vercel.app/">
+          <img src="img/pagina_eventos.png" alt="Sistema de Eventos" class="project-image" />
+          <div class="project-content">
+            <h3>Sistema de Eventos</h3>
+            <p>Gestión de eventos escolares y actividades.</p>
+            <div class="project-tags">
+              <span class="tag">Sistema</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="certifications">
       <h2>Certificaciones</h2>
       <div class="cert-grid">
@@ -1082,7 +1099,6 @@
       });
 
       function openLightbox(img) {
-        event.stopPropagation();
         const lightbox = document.getElementById("lightbox");
         const lightboxImg = document.getElementById("lightbox-img");
         lightboxImg.src = img.src;
