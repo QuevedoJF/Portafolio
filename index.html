@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quevedo Hernández | Desarrollador Web</title>
+    <title>José Francisco Quevedo Hernández | Desarrollador Web</title>
     <style>
       :root {
         --primary: #2563eb;
@@ -367,6 +367,33 @@
       .cert-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .hidden-card {
+        display: none;
+      }
+
+      .ver-mas-container {
+        display: flex;
+        justify-content: center;
+        margin-top: clamp(1.5rem, 4vw, 2.5rem);
+      }
+
+      .btn-ver-mas {
+        padding: 0.75rem 2rem;
+        background: var(--bg);
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-ver-mas:hover {
+        background: var(--primary);
+        color: white;
       }
 
       .cert-image {
@@ -766,20 +793,21 @@
           </svg>
           <span>JavaScript</span>
         </div>
+
         <div class="tech-item">
           <svg class="tech-icon" viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              fill="none"
-              stroke="#61dafb"
-              stroke-width="2"
+            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#092e20" />
+            <path d="M12 6l4.5 2.5v5L12 16l-4.5-2.5v-5L12 6z" fill="#fff" />
+            <path
+              d="M12 6v10l4.5 2.5M12 6l-4.5 2.5"
+              stroke="#092e20"
+              stroke-width="0.5"
             />
-            <circle cx="12" cy="12" r="4" fill="#61dafb" />
+            <circle cx="12" cy="12" r="2" fill="#092e20" />
           </svg>
-          <span>React</span>
+          <span>Django</span>
         </div>
+
         <div class="tech-item">
           <svg class="tech-icon" viewBox="0 0 24 24">
             <rect width="24" height="24" rx="4" fill="#68a063" />
@@ -849,6 +877,100 @@
         </div>
         <div class="tech-item">
           <svg class="tech-icon" viewBox="0 0 24 24">
+            <path d="M12 2L2 8.5l1.5 11.5h17L22 8.5 12 2z" fill="#777bb3" />
+            <path d="M12 2L2 8.5h20L12 2z" fill="#858eb8" />
+            <path d="M7 11.5v7l4.5-4 4.5 4v-7l-4.5-3-4.5 3z" fill="#fff" />
+            <path
+              d="M12 18.5v-7l4.5-3-4.5-3v4.5l-4.5 3 4.5 3v2.5h4.5"
+              fill="#fff"
+            />
+            <circle cx="12" cy="11.5" r="1.5" fill="#777bb3" />
+          </svg>
+          <span>php</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#ff5d01" />
+            <path
+              d="M12 2v20l9-5-9-5-9 5 9 5V2l-9 5 9 5 9-5-9-5z"
+              fill="#ff5d01"
+            />
+            <path d="M12 7l-4 10h3v4l4-6v-8h-3z" fill="#fff" />
+          </svg>
+          <span>astro</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <path
+              d="M8.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S12 1 10.5 1 8 2 8 3.5"
+              fill="#e76f00"
+            />
+            <path
+              d="M8.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S12 1 10.5 1 8 2 8 3.5z"
+              fill="none"
+              stroke="#e76f00"
+              stroke-width="0.5"
+            />
+            <path
+              d="M6 8.5c1.5 0 2.5 1 2.5 2.5v8c0 1.5-1 2.5-2.5 2.5s-2.5-1-2.5-2.5v-8c0-1.5 1-2.5 2.5-2.5z"
+              fill="#e76f00"
+            />
+            <path
+              d="M17.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S21 1 19.5 1 17 2 17 3.5"
+              fill="#e76f00"
+            />
+            <path
+              d="M17.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S21 1 19.5 1 17 2 17 3.5z"
+              fill="none"
+              stroke="#e76f00"
+              stroke-width="0.5"
+            />
+            <path
+              d="M15 8.5c1.5 0 2.5 1 2.5 2.5v8c0 1.5-1 2.5-2.5 2.5s-2.5-1-2.5-2.5v-8c0-1.5 1-2.5 2.5-2.5z"
+              fill="#e76f00"
+            />
+            <path
+              d="M9 17h6"
+              stroke="#fff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M12 14v6"
+              stroke="#fff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Java</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <path d="M3 2h18v20H3V2z" fill="#e34f26" />
+            <path d="M5 4h14l-1.5 16.5L12 22l-5.5-1.5L5 4z" fill="#fff" />
+            <path d="M12 5.5l4.5 12h-9L12 5.5z" fill="#e34f26" />
+            <path d="M12 5.5l-4.5 12h3l1-3h3l1 3h3L12 5.5z" fill="#fff" />
+          </svg>
+          <span>HTML</span>
+        </div>
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
+            <path d="M3 2h18v20H3V2z" fill="#1572b6" />
+            <path d="M5 4h14l-1.5 16.5L12 22l-5.5-1.5L5 4z" fill="#fff" />
+            <path d="M12 5.5l4.5 12h-9L12 5.5z" fill="#1572b6" />
+            <path d="M12 5.5l-4.5 12h3l1-3h3l1 3h3L12 5.5z" fill="#fff" />
+            <path
+              d="M9 11l3 3 3-3"
+              stroke="#33a9dc"
+              stroke-width="1.5"
+              fill="none"
+            />
+          </svg>
+          <span>css</span>
+        </div>
+
+        <div class="tech-item">
+          <svg class="tech-icon" viewBox="0 0 24 24">
             <rect width="24" height="24" rx="2" fill="#000" />
             <text
               x="12"
@@ -905,7 +1027,10 @@
           </div>
         </div>
 
-        <div class="project-card" data-url="#">
+        <div
+          class="project-card"
+          data-url="https://pagina-de-dentista.vercel.app"
+        >
           <img
             src="img/pagina_dentista.png"
             alt="Página Dentista"
@@ -920,7 +1045,7 @@
           </div>
         </div>
 
-        <div class="project-card" data-url="#">
+        <div class="project-card hidden-card" data-url="#">
           <img
             src="img/pagina_noticias.png"
             alt="Página Noticias"
@@ -935,6 +1060,11 @@
           </div>
         </div>
       </div>
+      <div class="ver-mas-container">
+        <button type="button" class="btn-ver-mas" data-target="projects">
+          Ver más
+        </button>
+      </div>
     </section>
 
     <section id="events">
@@ -942,19 +1072,19 @@
       <div class="projects-grid">
         <div class="project-card">
           <img
-            src="img/eventos/hackathon.png"
-            alt="Talent Hackathon"
+            src="img/eventos/opentec.jpeg"
+            alt="OpenTec"
             class="project-image"
           />
           <div class="project-content">
-            <h3>Talent Hackathon</h3>
-            <span class="event-date">Marzo 2026</span>
+            <h3>Open Tec</h3>
+            <span class="event-date">10 Marzo 2026</span>
             <p>
-              Participación junto al equipo NextCode en el desarrollo del
-              proyecto Siresa durante la competencia.
+              Participación junto al equipo NextCode en evento de Open Tec 2026.
             </p>
+
             <div class="project-tags">
-              <span class="tag">Hackathon</span>
+              <span class="tag">Evento</span>
               <span class="tag">Equipo NextCode</span>
             </div>
           </div>
@@ -962,13 +1092,13 @@
 
         <div class="project-card">
           <img
-            src="img/eventos/brigada.png"
+            src="img/eventos/brigada.jpeg"
             alt="Brigada Plantel 28"
             class="project-image"
           />
           <div class="project-content">
             <h3>Brigada Plantel 28</h3>
-            <span class="event-date">Enero - Abril 2026</span>
+            <span class="event-date">26 Febrero 2026</span>
             <p>
               Apoyo técnico en el evento de la preparatoria como parte del
               servicio social.
@@ -979,6 +1109,51 @@
             </div>
           </div>
         </div>
+
+        <div class="project-card">
+          <img
+            src="img/eventos/istmo.jpeg"
+            alt="Curso a Tec de Oaxaca"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Curso a Tec de Oaxaca</h3>
+            <span class="event-date">13 Marzo 2026</span>
+            <p>
+              Apoyo técnico en el curso para la universidad tecnológica de istmo
+              como parte del servicio social.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Soporte</span>
+              <span class="tag">Comunidad</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-card hidden-card">
+          <img
+            src="img/eventos/cursotec.jpeg"
+            alt="Curso a Tec"
+            class="project-image"
+          />
+          <div class="project-content">
+            <h3>Curso a Tec estudiantes del tec y prepa</h3>
+            <span class="event-date">23 abril 2026</span>
+            <p>
+              Apoyo técnico en el curso para la universidad tecnológica de
+              villahermosa y preparatoria como parte del servicio social.
+            </p>
+            <div class="project-tags">
+              <span class="tag">Soporte</span>
+              <span class="tag">Comunidad</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ver-mas-container">
+        <button type="button" class="btn-ver-mas" data-target="events">
+          Ver más
+        </button>
       </div>
     </section>
 
@@ -1021,7 +1196,7 @@
           />
           <h3>Técnico en Seguridad</h3>
         </div>
-        <div class="cert-card">
+        <div class="cert-card hidden-card">
           <img
             src="img/cursos/tecnico-en-redes-ip.png"
             alt="Técnico en Redes IP"
@@ -1030,7 +1205,7 @@
           />
           <h3>Técnico en Redes IP</h3>
         </div>
-        <div class="cert-card">
+        <div class="cert-card hidden-card">
           <img
             src="img/cursos/fundamentos-de-seguridad.png"
             alt="Fundamentos de Seguridad"
@@ -1039,7 +1214,7 @@
           />
           <h3>Fundamentos de Seguridad</h3>
         </div>
-        <div class="cert-card">
+        <div class="cert-card hidden-card">
           <img
             src="img/cursos/administrador-de-servidores.png"
             alt="Administrador de Servidores"
@@ -1048,6 +1223,11 @@
           />
           <h3>Administrador de Servidores</h3>
         </div>
+      </div>
+      <div class="ver-mas-container">
+        <button type="button" class="btn-ver-mas" data-target="certifications">
+          Ver más
+        </button>
       </div>
     </section>
 
@@ -1135,6 +1315,29 @@
       function closeLightbox() {
         document.getElementById("lightbox").classList.remove("active");
       }
+
+      document.querySelectorAll(".btn-ver-mas").forEach((btn) => {
+        let expanded = false;
+
+        // CORRECCIÓN: Guardamos la lista de tarjetas que se pueden alternar desde el inicio
+        const section = btn.closest("section");
+        const toggleableCards = section.querySelectorAll(".hidden-card");
+
+        btn.addEventListener("click", () => {
+          expanded = !expanded;
+
+          // Usamos la lista guardada en lugar de buscarla cada vez
+          toggleableCards.forEach((card) => {
+            if (expanded) {
+              card.classList.remove("hidden-card");
+            } else {
+              card.classList.add("hidden-card");
+            }
+          });
+
+          btn.textContent = expanded ? "Ver menos" : "Ver más";
+        });
+      });
 
       document.querySelectorAll(".project-card").forEach((card) => {
         card.addEventListener("click", () => {
