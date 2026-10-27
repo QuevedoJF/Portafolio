@@ -256,9 +256,30 @@ function isAiOrScraperBot(req) {
     'gptbot', 'chatgpt', 'ccbot', 'claude', 'anthropic', 'google-extended',
     'bytespider', 'diffbot', 'facebookbot', 'meta-externalagent', 'perplexity',
     'cohere', 'applebot-extended', 'amazonbot', 'scrapy', 'python-requests',
-    'aiohttp', 'curl', 'wget', 'urllib', 'headlesschrome', 'puppeteer', 'selenium'
+    'aiohttp', 'curl', 'wget', 'urllib', 'headlesschrome', 'puppeteer', 'selenium',
+    'timpibot', 'youbot', 'webzio', 'dataminr', 'brightedge', 'postman'
   ];
   return aiSignatures.some(sig => ua.includes(sig));
+}
+
+function isAllowedOrigin(req) {
+  const origin = req.headers.origin || req.headers.referer;
+  if (!origin) return true;
+  try {
+    const url = new URL(origin);
+    const host = url.host.toLowerCase();
+    return host.includes('vercel.app') || host.includes('localhost') || host.includes('127.0.0.1');
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeString(str, maxLength = 1000) {
+  if (typeof str !== 'string') return '';
+  return str
+    .slice(0, maxLength)
+    .replace(/[<>]/g, '')
+    .trim();
 }
 
 module.exports = {
@@ -271,5 +292,7 @@ module.exports = {
   toPublicPortfolio,
   readStorageFile,
   writeStorageFile,
-  isAiOrScraperBot
+  isAiOrScraperBot,
+  isAllowedOrigin,
+  sanitizeString
 };

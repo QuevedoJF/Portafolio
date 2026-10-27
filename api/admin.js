@@ -4,13 +4,24 @@ const {
   issueAdminToken,
   verifyAdminRequest,
   readStorageFile,
-  writeStorageFile
+  writeStorageFile,
+  isAllowedOrigin,
+  isAiOrScraperBot
 } = require('./_lib/security');
 
 const loginAttempts = new Map();
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noai, noimageai, noarchive');
+
+  if (isAiOrScraperBot(req)) {
+    return res.status(403).json({ error: 'Acceso denegado' });
+  }
+
+  if (!isAllowedOrigin(req)) {
+    return res.status(403).json({ error: 'Origen no autorizado' });
+  }
 
   if (req.method === 'GET') {
     if (!verifyAdminRequest(req)) {

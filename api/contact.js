@@ -1,7 +1,9 @@
 const {
   readStorageFile,
   writeStorageFile,
-  isAiOrScraperBot
+  isAiOrScraperBot,
+  isAllowedOrigin,
+  sanitizeString
 } = require('./_lib/security');
 
 const rateMap = new Map();
@@ -9,6 +11,10 @@ const rateMap = new Map();
 module.exports = async function handler(req, res) {
   if (isAiOrScraperBot(req)) {
     return res.status(403).json({ error: 'Acceso denegado a sistemas de scraping o entrenamiento de IA.' });
+  }
+
+  if (!isAllowedOrigin(req)) {
+    return res.status(403).json({ error: 'Origen no autorizado.' });
   }
 
   if (req.method !== 'POST') {
@@ -30,9 +36,15 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const name = String(body.name || '').trim().slice(0, 100);
-    const email = String(body.email || '').trim().slice(0, 150);
-    const message = String(body.message || '').trim().slice(0, 2000);
+
+    // Silent honeypot check for bots
+    if (body._hp_security_check) {
+      return res.status(200).json({ ok: true });
+    }
+
+    const name = sanitizeString(body.name || '', 100);
+    const email = sanitizeString(body.email || '', 150);
+    const message = sanitizeString(body.message || '', 2000);
 
     if (!name || !email || !message || !email.includes('@')) {
       return res.status(400).json({ error: 'Datos de contacto inválidos.' });

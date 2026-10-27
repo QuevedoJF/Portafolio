@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "obfuscate": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings true --transform-object-keys true --debug-protection false",
+    "obfuscate": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings true --transform-object-keys true --debug-protection false && npx javascript-obfuscator admin.src.js --output admin.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings true --transform-object-keys true --debug-protection false",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

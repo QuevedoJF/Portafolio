@@ -1,4 +1,4 @@
-const { BUNDLED_PORTFOLIO, readStorageFile, toPublicPortfolio, isAiOrScraperBot } = require('./_lib/security');
+const { BUNDLED_PORTFOLIO, readStorageFile, toPublicPortfolio, isAiOrScraperBot, isAllowedOrigin } = require('./_lib/security');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
@@ -6,6 +6,10 @@ module.exports = async function handler(req, res) {
 
   if (isAiOrScraperBot(req)) {
     return res.status(403).json({ error: 'Acceso denegado a sistemas de scraping o entrenamiento de IA.' });
+  }
+
+  if (!isAllowedOrigin(req)) {
+    return res.status(403).json({ error: 'Origen no autorizado.' });
   }
 
   if (req.method !== 'GET') {

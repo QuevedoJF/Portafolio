@@ -1,7 +1,9 @@
 # Bloqueo total de scrapers de Inteligencia Artificial y entrenamiento de modelos
 User-agent: *
 Disallow: /admin.html
+Disallow: /admin.min.js
 Disallow: /api/
+Disallow: /*.json
 
 User-agent: GPTBot
 Disallow: /

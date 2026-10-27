@@ -6,16 +6,29 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "X-Robots-Tag", "value": "noindex, nofollow, noai, noimageai, noarchive" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), ambient-light-sensor=(), autoplay=(), display-capture=(), encrypted-media=(), midi=(), picture-in-picture=(), screen-wake-lock=(), web-share=(), xr-spatial-tracking=()" }
+      ]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noai, noimageai, noarchive, nosnippet" },
+        { "key": "X-Frame-Options", "value": "DENY" }
       ]
     },
     {
       "source": "/api/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, max-age=0" },
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noai, noimageai, noarchive" }
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noai, noimageai, noarchive" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
   ]
