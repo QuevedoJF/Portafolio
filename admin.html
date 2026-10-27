@@ -1,0 +1,2631 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline';" />
+  <title>Panel de Administración | QH Portafolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09090b;
+      --bg-sidebar: #111113;
+      --bg-card: #141417;
+      --bg-input: #09090b;
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --border: #27272a;
+      --border-strong: #3f3f46;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --sidebar-w: 270px;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* ─── LOGIN SCREEN ─── */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2.25rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--text);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin: 0 auto 1rem;
+    }
+
+    .login-brand h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .login-brand p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+    }
+
+    .login-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-group label {
+      font-weight: 500;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .pw-wrap {
+      position: relative;
+    }
+
+    .login-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0.8rem 2.8rem 0.8rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--text);
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .login-btn:hover {
+      opacity: 0.9;
+    }
+
+    .login-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.84rem;
+      margin-bottom: 1.1rem;
+      display: none;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .shake {
+      animation: shake 0.4s ease;
+    }
+
+    /* ─── ADMIN LAYOUT ─── */
+    #adminPanel {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 1.35rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--text);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sidebar-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.9rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--bg-card);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .nav-icon {
+      font-size: 1rem;
+      width: 22px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .storage-box {
+      margin: 0 0.5rem 0.65rem;
+      padding: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .storage-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.45rem;
+    }
+
+    .storage-bar-fill {
+      height: 100%;
+      width: 5%;
+      background: var(--success);
+      transition: width 0.3s ease;
+    }
+
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      padding: 2rem clamp(1.25rem, 3.5vw, 2.75rem);
+      max-width: 1320px;
+    }
+
+    .topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.15rem;
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .ham-admin {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .overlay-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 150;
+    }
+
+    /* ─── SECTIONS & HEADERS ─── */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 0.86rem;
+      margin-top: 0.2rem;
+    }
+
+    /* ─── CARDS & STAT TILES ─── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      margin-top: 0.35rem;
+    }
+
+    .stat-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .stat-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    .quick-link {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .quick-link:hover {
+      border-color: var(--text-muted);
+    }
+
+    /* ─── FORMS & INPUTS ─── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.15rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .form-input,
+    .form-textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.7rem 0.95rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--text);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.35rem;
+    }
+
+    /* ─── SWITCHES & VISIBILITY PILLS ─── */
+    .toggles-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .switch-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text);
+      user-select: none;
+    }
+
+    .switch-input {
+      appearance: none;
+      width: 40px;
+      height: 22px;
+      background: #27272a;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .switch-input::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s ease;
+    }
+
+    .switch-input:checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .switch-input:checked::after {
+      transform: translateX(18px);
+    }
+
+    .vis-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.32rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .vis-pill.on {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .vis-pill.off {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border-color: var(--border);
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: var(--bg-input);
+      border-color: var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.76rem;
+      border-radius: 6px;
+    }
+
+    /* ─── TABLES ─── */
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .list-table th {
+      text-align: left;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .list-table td {
+      padding: 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      font-size: 0.86rem;
+    }
+
+    .list-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .list-table tr.row-muted td:not(:last-child) {
+      opacity: 0.42;
+    }
+
+    .list-thumb {
+      width: 58px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .list-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem;
+      font-size: 0.88rem;
+    }
+
+    /* ─── PHOTO UPLOAD ─── */
+    .photo-upload-area {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .photo-preview-circle {
+      width: 82px;
+      height: 82px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      flex-shrink: 0;
+    }
+
+    .photo-preview-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-preview-rect {
+      width: 115px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .photo-preview-rect img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .file-input-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .file-input-label:hover {
+      border-color: var(--text);
+    }
+
+    input[type=file] {
+      display: none;
+    }
+
+    /* ─── TECH PREVIEW & ROW ─── */
+    .tech-badge-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.86rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+    }
+
+    .tech-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .tech-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .tech-item-row:last-child {
+      border-bottom: none;
+    }
+
+    /* ─── COLLAPSIBLE FORM ─── */
+    .form-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+
+    .form-panel.open {
+      display: block;
+    }
+
+    .form-panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1.15rem;
+      color: var(--text);
+    }
+
+    /* ─── TOAST & MODAL ─── */
+    #toastContainer {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 0.75rem 1.1rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .toast.success { border-color: var(--success); color: #34d399; }
+    .toast.error { border-color: var(--danger); color: #fca5a5; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      z-index: 8000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      max-width: 410px;
+      width: 100%;
+    }
+
+    .modal-box h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .modal-box p { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.35rem; }
+    .modal-actions { display: flex; gap: 0.65rem; justify-content: flex-end; }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; padding: 1.25rem; }
+      .topbar { display: flex; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-mark">QH</div>
+      <h1>Panel de Control</h1>
+      <p>Gestiona tu portafolio, fotos y visibilidad</p>
+    </div>
+    <div class="login-error" id="loginError">Contraseña incorrecta.</div>
+    <div class="login-group">
+      <label for="pwInput">Contraseña de administrador</label>
+      <div class="pw-wrap">
+        <input type="password" class="login-input" id="pwInput" placeholder="••••••••" />
+        <button class="pw-toggle" id="pwToggle" type="button">👁️</button>
+      </div>
+    </div>
+    <button class="login-btn" id="loginBtn">Ingresar al Panel →</button>
+  </div>
+</div>
+
+<!-- ─── ADMIN PANEL ─── -->
+<div id="adminPanel">
+  <div class="overlay-bg" id="overlayBg"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-mark">QH</div>
+      <div>
+        <div class="sidebar-logo">QH Admin</div>
+        <div class="sidebar-sub">Gestión Local Segura</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item active" data-section="dashboard"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" data-section="profile"><span class="nav-icon">👤</span> Perfil & Foto</div>
+      <div class="nav-item" data-section="projects"><span class="nav-icon">🚀</span> Proyectos</div>
+      <div class="nav-item" data-section="events"><span class="nav-icon">📅</span> Eventos</div>
+      <div class="nav-item" data-section="certifications"><span class="nav-icon">🏆</span> Certificaciones</div>
+      <div class="nav-item" data-section="technologies"><span class="nav-icon">🛠️</span> Tecnologías</div>
+      <div class="nav-item" data-section="contact"><span class="nav-icon">📬</span> Contacto & Bandeja</div>
+      <div class="nav-item" data-section="backup"><span class="nav-icon">💾</span> Publicar / Respaldo</div>
+    </nav>
+
+    <div class="storage-box">
+      <div style="display:flex;justify-content:space-between;font-size:0.74rem;color:var(--text-secondary)">
+        <span>Almacenamiento local</span>
+        <span id="storageText">0 KB / 5 MB</span>
+      </div>
+      <div class="storage-bar-bg">
+        <div class="storage-bar-fill" id="storageFill"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a class="nav-item" href="index.html" target="_blank"><span class="nav-icon">🌐</span> Ver portafolio</a>
+      <div class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span> Cerrar sesión</div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR (mobile) -->
+  <div class="topbar">
+    <button class="ham-admin" id="hamAdmin">☰</button>
+    <span style="font-weight:700">QH Admin</span>
+    <a href="index.html" target="_blank" class="btn btn-ghost btn-sm">Ver sitio ↗</a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="s-dashboard">
+      <div class="page-header">
+        <div>
+          <h2>📊 Resumen General</h2>
+          <p>Controla qué elementos y fotografías están públicos u ocultos en tiempo real.</p>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="goBackupBtn">⚡ Preparar para Git</button>
+          <a href="index.html" target="_blank" class="btn btn-primary">🌐 Abrir Portafolio ↗</a>
+        </div>
+      </div>
+      <div class="stat-grid" id="dashStats"></div>
+      <div class="card">
+        <h3 style="margin-bottom:1rem;font-size:0.95rem">Accesos directos</h3>
+        <div class="quick-links">
+          <div class="quick-link" data-section="profile">👤 Editar perfil y foto</div>
+          <div class="quick-link" data-section="projects">🚀 Gestionar proyectos (incluye Página Tec y Registro Tienda)</div>
+          <div class="quick-link" data-section="events">📅 Gestionar eventos</div>
+          <div class="quick-link" data-section="certifications">🏆 Certificaciones y cursos</div>
+          <div class="quick-link" data-section="technologies">🛠️ Stack tecnológico</div>
+          <div class="quick-link" data-section="contact">📬 Correo, Instagram y Mensajes</div>
+          <div class="quick-link" data-section="backup">💾 Exportar para Git / Respaldo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="section" id="s-profile">
+      <div class="page-header">
+        <div>
+          <h2>👤 Información de Perfil</h2>
+          <p>Las fotos subidas se comprimen automáticamente para nunca saturar la memoria del navegador.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="form-group" style="margin-bottom:1.5rem">
+          <label>Fotografía de perfil</label>
+          <div class="photo-upload-area">
+            <div class="photo-preview-circle">
+              <img id="profilePhotoPreview" src="img/Perfil/foto.jpeg" alt="Foto" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.65rem">
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+                <label class="file-input-label" for="profilePhotoInput">📷 Subir nueva foto</label>
+                <input type="file" id="profilePhotoInput" accept="image/*" />
+                <label class="switch-label">
+                  <input type="checkbox" class="switch-input" id="pPhotoVisible" checked />
+                  <span>Mostrar foto en el portafolio</span>
+                </label>
+              </div>
+              <p class="form-hint">Compresión inteligente WebP/JPEG activa (máx. 1200px).</p>
+            </div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre completo</label><input type="text" class="form-input" id="pName" /></div>
+          <div class="form-group"><label>Título / Especialidad</label><input type="text" class="form-input" id="pTitle" /></div>
+          <div class="form-group full"><label>Subtítulo principal (Hero)</label><input type="text" class="form-input" id="pHeroSub" /></div>
+          <div class="form-group full"><label>Sobre mí (Párrafo 1)</label><textarea class="form-textarea" id="pDesc1"></textarea></div>
+          <div class="form-group full"><label>Sobre mí (Párrafo 2)</label><textarea class="form-textarea" id="pDesc2"></textarea></div>
+          <div class="form-group"><label>Email de contacto</label><input type="email" class="form-input" id="pEmail" /></div>
+          <div class="form-group"><label>Usuario de Instagram</label><input type="text" class="form-input" id="pIgHandle" placeholder="@tu_usuario" /></div>
+          <div class="form-group full"><label>Enlace de Instagram</label><input type="text" class="form-input" id="pIgUrl" placeholder="https://instagram.com/tu_usuario" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveProfileBtn">💾 Guardar cambios de perfil</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="section" id="s-projects">
+      <div class="page-header">
+        <div>
+          <h2>🚀 Proyectos</h2>
+          <p>Incluye tus 6 proyectos (Página Tec y Registro Tienda están ocultos por defecto; actívalos con un clic si los necesitas).</p>
+        </div>
+        <button class="btn btn-primary" id="addProjectBtn">➕ Nuevo proyecto</button>
+      </div>
+
+      <div class="form-panel" id="projectFormPanel">
+        <div class="form-panel-title" id="projectFormTitle">Agregar proyecto</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Título del proyecto</label><input type="text" class="form-input" id="projTitle" /></div>
+          <div class="form-group"><label>URL (https://... o # si es local)</label><input type="text" class="form-input" id="projUrl" placeholder="https://..." /></div>
+          <div class="form-group full"><label>Descripción</label><textarea class="form-textarea" id="projDesc"></textarea></div>
+          <div class="form-group"><label>Etiquetas (separadas por coma)</label><input type="text" class="form-input" id="projTags" placeholder="Web, React, Sistema" /></div>
+          <div class="form-group">
+            <label>Imagen del proyecto</label>
+            <div class="photo-upload-area">
+              <div class="photo-preview-rect"><img id="projImgPreview" src="" alt="" style="display:none" /></div>
+              <label class="file-input-label" for="projImgInput">🖼️ Seleccionar imagen</label>
+              <input type="file" id="projImgInput" accept="image/*" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Opciones de visibilidad</label>
+            <div class="toggles-row">
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="projVisible" checked />
+                <span>Card visible en el portafolio</span>
+              </label>
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="projImgVisible" checked />
+                <span>Mostrar foto/captura en la card</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="projEditId" />
+        <input type="hidden" id="projImgData" />
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveProjectBtn">💾 Guardar proyecto</button>
+          <button class="btn btn-ghost" id="cancelProjectBtn">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table class="list-table" id="projectsList">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Proyecto</th>
+              <th>Visibilidad Card</th>
+              <th>Visibilidad Foto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="section" id="s-events">
+      <div class="page-header">
+        <div>
+          <h2>📅 Eventos Participados</h2>
+          <p>Administra tus eventos y controla individualmente si se muestra cada tarjeta o su fotografía.</p>
+        </div>
+        <button class="btn btn-primary" id="addEventBtn">➕ Nuevo evento</button>
+      </div>
+
+      <div class="form-panel" id="eventFormPanel">
+        <div class="form-panel-title" id="eventFormTitle">Agregar evento</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre del evento</label><input type="text" class="form-input" id="evTitle" /></div>
+          <div class="form-group"><label>Fecha</label><input type="text" class="form-input" id="evDate" placeholder="ej: 10 Marzo 2026" /></div>
+          <div class="form-group full"><label>Descripción de participación</label><textarea class="form-textarea" id="evDesc"></textarea></div>
+          <div class="form-group"><label>Etiquetas (separadas por coma)</label><input type="text" class="form-input" id="evTags" placeholder="Soporte, Comunidad" /></div>
+          <div class="form-group">
+            <label>Fotografía del evento</label>
+            <div class="photo-upload-area">
+              <div class="photo-preview-rect"><img id="evImgPreview" src="" alt="" style="display:none" /></div>
+              <label class="file-input-label" for="evImgInput">🖼️ Seleccionar foto</label>
+              <input type="file" id="evImgInput" accept="image/*" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Opciones de visibilidad</label>
+            <div class="toggles-row">
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="evVisible" checked />
+                <span>Card visible en el portafolio</span>
+              </label>
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="evImgVisible" checked />
+                <span>Mostrar fotografía del evento</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="evEditId" />
+        <input type="hidden" id="evImgData" />
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveEventBtn">💾 Guardar evento</button>
+          <button class="btn btn-ghost" id="cancelEventBtn">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table class="list-table" id="eventsList">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Evento & Fecha</th>
+              <th>Visibilidad Card</th>
+              <th>Visibilidad Foto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <div class="section" id="s-certifications">
+      <div class="page-header">
+        <div>
+          <h2>🏆 Certificaciones y Cursos</h2>
+          <p>Sube tus diplomas o reconocimientos y elige cuáles mostrar u ocultar en el sitio.</p>
+        </div>
+        <button class="btn btn-primary" id="addCertBtn">➕ Nueva certificación</button>
+      </div>
+
+      <div class="form-panel" id="certFormPanel">
+        <div class="form-panel-title" id="certFormTitle">Agregar certificación</div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Título de la certificación o curso</label><input type="text" class="form-input" id="certTitle" /></div>
+          <div class="form-group full">
+            <label>Imagen del certificado</label>
+            <div class="photo-upload-area">
+              <div class="photo-preview-rect"><img id="certImgPreview" src="" alt="" style="display:none" /></div>
+              <label class="file-input-label" for="certImgInput">🖼️ Subir certificado</label>
+              <input type="file" id="certImgInput" accept="image/*" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Opciones de visibilidad</label>
+            <div class="toggles-row">
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="certVisible" checked />
+                <span>Certificación visible en el portafolio</span>
+              </label>
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="certImgVisible" checked />
+                <span>Mostrar imagen del diploma</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="certEditId" />
+        <input type="hidden" id="certImgData" />
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveCertBtn">💾 Guardar certificación</button>
+          <button class="btn btn-ghost" id="cancelCertBtn">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table class="list-table" id="certsList">
+          <thead>
+            <tr>
+              <th>Diploma</th>
+              <th>Título</th>
+              <th>Visibilidad Card</th>
+              <th>Visibilidad Foto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TECHNOLOGIES -->
+    <div class="section" id="s-technologies">
+      <div class="page-header">
+        <div>
+          <h2>🛠️ Stack Tecnológico</h2>
+          <p>Agrega o muestra/oculta las tecnologías que dominas.</p>
+        </div>
+        <button class="btn btn-primary" id="addTechBtn">➕ Nueva tecnología</button>
+      </div>
+
+      <div class="form-panel" id="techFormPanel">
+        <div class="form-panel-title">Agregar tecnología</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nombre</label><input type="text" class="form-input" id="tName" placeholder="ej: React" /></div>
+          <div class="form-group"><label>Abreviatura (máx. 4 letras)</label><input type="text" class="form-input" id="tLabel" placeholder="ej: Re" maxlength="4" /></div>
+          <div class="form-group"><label>Color distintivo</label><input type="color" class="form-input" id="tColor" value="#3b82f6" style="height:44px;padding:.25rem" /></div>
+          <div class="form-group">
+            <label>Contraste del texto</label>
+            <div style="display:flex;gap:1rem;align-items:center;margin-top:.55rem">
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;color:var(--text)"><input type="radio" name="tTextColor" value="#fff" checked /> Blanco</label>
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;color:var(--text)"><input type="radio" name="tTextColor" value="#000" /> Negro</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Vista previa</label>
+            <div id="techPreview" style="margin-top:.35rem"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveTechBtn">💾 Guardar tecnología</button>
+          <button class="btn btn-ghost" id="cancelTechBtn">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card" id="techListCard"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="section" id="s-contact">
+      <div class="page-header">
+        <div>
+          <h2>📬 Correo, Instagram & Bandeja</h2>
+          <p>Configura tus canales de contacto y revisa los mensajes enviados desde el formulario.</p>
+        </div>
+      </div>
+      <div class="card" style="max-width:680px">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>✉️ Correo electrónico receptor</label>
+            <input type="email" class="form-input" id="contactEmail" placeholder="tucorreo@gmail.com" />
+          </div>
+          <div class="form-group">
+            <label>📸 Usuario de Instagram (visible)</label>
+            <input type="text" class="form-input" id="contactIgHandle" placeholder="@quevedo" />
+          </div>
+          <div class="form-group">
+            <label>🔗 Enlace de tu Instagram</label>
+            <input type="text" class="form-input" id="contactIgUrl" placeholder="https://instagram.com/tu_usuario" />
+          </div>
+          <div class="form-group full">
+            <label>Visibilidad de redes y contacto</label>
+            <div class="toggles-row">
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="contactEmailVis" checked />
+                <span>Mostrar botón de Correo</span>
+              </label>
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="contactIgVis" checked />
+                <span>Mostrar botón de Instagram</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="saveContactBtn">💾 Guardar Correo e Instagram</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+          <h3 style="font-size:1.05rem">📥 Mensajes recibidos</h3>
+          <button class="btn btn-danger btn-sm" id="clearMsgsBtn">🗑️ Vaciar bandeja</button>
+        </div>
+        <div id="messagesList"></div>
+      </div>
+    </div>
+
+    <!-- BACKUP / PUBLISH TO GIT -->
+    <div class="section" id="s-backup">
+      <div class="page-header">
+        <div>
+          <h2>💾 Publicar a Git / Respaldo y Seguridad</h2>
+          <p>Herramientas para que tus cambios locales se guarden permanentemente cuando decidas subir tu página a GitHub.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="card">
+          <h3 style="font-size:1.05rem;margin-bottom:.5rem">⚡ 1. Copiar código de datos para Git</h3>
+          <p style="color:var(--text-secondary);font-size:.86rem;margin-bottom:1.15rem">
+            Como <code>localStorage</code> solo vive en tu navegador, si algún día quieres subir tus cambios actuales a GitHub Pages para que todo el mundo los vea, copia este bloque o descarga el respaldo JSON:
+          </p>
+          <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+            <button class="btn btn-primary" id="copyDefaultDataBtn">📋 Copiar bloque defaultData actualizado</button>
+            <button class="btn btn-ghost" id="exportJsonBtn">📥 Descargar respaldo (.json)</button>
+            <label class="btn btn-ghost" for="importJsonInput">📤 Importar respaldo (.json)</label>
+            <input type="file" id="importJsonInput" accept="application/json" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:1.05rem;margin-bottom:.5rem">🔐 2. Cambiar contraseña del Admin</h3>
+          <p style="color:var(--text-secondary);font-size:.86rem;margin-bottom:1rem">
+            La contraseña protege la bóveda criptográfica con PBKDF2 y AES-256-GCM.
+          </p>
+          <div class="form-group" style="margin-bottom:.85rem">
+            <label>Nueva contraseña</label>
+            <input type="password" class="form-input" id="newAdminPass" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+            <button class="btn btn-primary" id="savePassBtn">🔑 Actualizar contraseña</button>
+            <button class="btn btn-danger" id="resetDefaultBtn">🔄 Restaurar portafolio de fábrica</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <h3>¿Confirmar acción?</h3>
+    <p id="confirmModalMsg">Recuerda que si solo quieres esconder un elemento temporalmente puedes usar el botón de Visibilidad.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="confirmCancel">Cancelar</button>
+      <button class="btn btn-danger" id="confirmOk">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ── 1. DETACH ADMIN PANEL FROM DOM UNTIL CRYPTOGRAPHIC UNLOCK ── */
+  const adminPanelTemplateEl = document.getElementById('adminPanel');
+  if (adminPanelTemplateEl) {
+    adminPanelTemplateEl.remove();
+  }
+
+  /* ── 2. ANTI-DEVTOOLS & ANTI-INSPECTION SHIELD ── */
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    const k = e.key ? e.key.toUpperCase() : '';
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(k)) ||
+      (e.ctrlKey && ['U', 'S'].includes(k))
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
+  /* ── 3. ZERO-KNOWLEDGE CRYPTO VAULT (PBKDF2 150k + AES-GCM-256 + RSA-OAEP-2048) ── */
+  const DEFAULT_VAULT = {
+    saltB64: '/YXBdhDN8u2XYSepTnY03Q==',
+    ivB64: '5hGZO/emYY8jfaiH',
+    encPrivB64: 'Okloc5Az0GD+UEVOTgkBbRY5e5cO4vswkLMYN0V9UFyYhKurEDHrhMAgaIvKAPAz/1lSenR96iYGVNFaUy22hsz1yERiT9NBym90Sxh8sutusk8Ce8wBMhwxJ5JgylO9H5+QkpMWeYVzVkO+Ys7uP3zNokz7mLX9Md6FDNRBpxI18h4JD/U6gG+RBVnGh1B0FqfPValhOsKl1nGmYkV95z1kACB4y8w3MKgcL5cs9UkqOPwjnDhPzHyqUdWG/+dc3fDkETwFlKGScHxNJ5LTt0daBr5cM7AQUhP4V+d/dwMYfk+/4cPxI2YYW1IT4F8/o7hB7MkBr0q8fby4Ua+IpIrNWbOLWC6HWtaHiSYh3gaaEfrODHv4KyQ6WYFsLVwrblAameZ8lZKQbutWpGSHqr3NBlm69yjuFEDX3OIf6HfLhxjzyktLQcZE+iFfssOo5Mw+8nEpZZRInR4diKv7yiMBsUzNWSeHx/3QvfkTH3vgnotLaQjHW0/8QUs/QMiytI9tpRn+9FijSENhHDoAuY8KxW1osscM6NEbMrbNPOm9Q0xOA/KnHZ2petoEqkRa3+kqokHheIRIhdd4vDwTCSGmOZv6AbluYDu7m8G/+KT1TglXdj3yONv8la/5igCVCH2ijE0gxI124Xmd32YRyR5A8RsY4JLqHOxw9KfGLA8+Gkr9jQ3UCy7sEZ9yUiKBLsuQQaoVp1HzSOPfrIC6FZ5R0FKe/MX0MqfGEdB9wBxeOAWvoWaeWVB8ITFcBioyn+EJ7VO0OZykByuPVKk6Y+KKVItXjSH0oFZXiXVDzmkpC3ZFBULVgfQOUcEa4yjkct5/KmjJHsIiy5XW87N+ZXCwudqJADsIylW2LCNW8IKgRIs/1mdhqFOitCR1YkiKHt3UzdBfY19d5YuVYhjRVfGZzpfKAF5NRVo50usuywyzXF8erN6c8a4WWrlbtAQleTl6tEvsJGZs3rEwehXXRpTKoJQrY0VtYnnHEnY8oGRK+OmWoT3koHb8Xb8tViQJgiY2uam87/xWKxsezJrMzc2nGBoOgUVhbZCoXF7niOAkbf93luaSiqQC5hFDrutEb9ahQaj+lBV7oXJIz9I2CI/U+2FQe7Bv9GIe+2Yzw7iABYeWtp2YeA1aw9YKBjzWRSTGKxI+QmWr3S6UcOHSH3IEyVXLd1bPci9pfVIQWMvdihPS9NaVm/FF/Sm5LoS8acftkrj2dAJzS6/dVUY0g4XRXoeqIdFDnCCl+Yy84uHcPKhfSWxY/oaYmEJN+PepvfsmBUCUUdNQ6nnLkJ71yrkomaa8fgp3uuSh41r4Iyr2dhGSYMcy+WX4Ef53vvtOsaZ46qQkhhELdtnatVPLtP1KdP0OvGNHLgr9o1wU2JOz4PTvv9SICN+XIEspLjLJLh4sObuTYUvOY9h20OP3yj1dz8vLPWUfljCmvI0OBoE8M11Q5nFmI4W+olzPxFMzFG9Q19DluDKs3HIQuR7Z0QTNR9cs3M1R3VwAVTZlNQl5cbg48m6etw88hlPMbNQiscZNxGLz3U6PivohhQ1SsbI77aWbe2yt2nfFi1PzuRAEgW1Y3alzPOj5aAhzm0QhNQbALOPk5AgZFUNmYBlW+grd574lEfDfQyMnOvZ/wD7nvs4=',
+    iterations: 150000
+  };
+
+  let unlockedRsaPrivateKey = null;
+  let unlockedRawPkcs8 = null;
+
+  function b64ToBytes(b64) {
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr;
+  }
+
+  function bytesToB64(bytes) {
+    let bin = '';
+    const arr = new Uint8Array(bytes);
+    for (let i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+    return btoa(bin);
+  }
+
+  async function deriveVaultKey(password, saltBytes, iterations) {
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function unlockVaultWithPassword(password) {
+    let vault = DEFAULT_VAULT;
+    try {
+      const customVault = localStorage.getItem('adminCryptoVault');
+      if (customVault) vault = JSON.parse(customVault);
+    } catch {}
+    const salt = b64ToBytes(vault.saltB64);
+    const iv = b64ToBytes(vault.ivB64);
+    const encPriv = b64ToBytes(vault.encPrivB64);
+    const aesKey = await deriveVaultKey(password, salt, vault.iterations || 150000);
+    const pkcs8Buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, encPriv);
+    const rsaPrivKey = await crypto.subtle.importKey(
+      'pkcs8',
+      pkcs8Buf,
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['decrypt']
+    );
+    unlockedRawPkcs8 = new Uint8Array(pkcs8Buf);
+    unlockedRsaPrivateKey = rsaPrivKey;
+    return true;
+  }
+
+  async function rewrapVaultWithNewPassword(newPassword) {
+    if (!unlockedRawPkcs8) throw new Error('Vault locked');
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const iterations = 150000;
+    const aesKey = await deriveVaultKey(newPassword, salt, iterations);
+    const encBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, unlockedRawPkcs8);
+    const newVault = {
+      saltB64: bytesToB64(salt),
+      ivB64: bytesToB64(iv),
+      encPrivB64: bytesToB64(encBuf),
+      iterations
+    };
+    localStorage.setItem('adminCryptoVault', JSON.stringify(newVault));
+  }
+
+  async function decryptInboxRecord(m) {
+    if (!m) return null;
+    if (!m.v) {
+      return { id: m.id, name: m.name || '', email: m.email || '', message: m.message || '', date: m.date || '' };
+    }
+    if (!unlockedRsaPrivateKey) return null;
+    try {
+      const rawAesBuf = await crypto.subtle.decrypt(
+        { name: 'RSA-OAEP' },
+        unlockedRsaPrivateKey,
+        b64ToBytes(m.ek)
+      );
+      const aesKey = await crypto.subtle.importKey('raw', rawAesBuf, { name: 'AES-GCM' }, false, ['decrypt']);
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: b64ToBytes(m.iv) },
+        aesKey,
+        b64ToBytes(m.ct)
+      );
+      const parsed = JSON.parse(new TextDecoder().decode(plainBuf));
+      return {
+        id: m.id,
+        name: parsed.name || '',
+        email: parsed.email || '',
+        message: parsed.message || '',
+        date: parsed.date || ''
+      };
+    } catch {
+      return { id: m.id, name: '[Mensaje cifrado]', email: 'protegido', message: 'No se pudo descifrar este mensaje con la llave actual.', date: '' };
+    }
+  }
+
+  /* ── SECURITY SANITIZERS ── */
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeImgSrc(src) {
+    if (!src) return '';
+    const s = String(src).trim();
+    if (/^(img\/|data:image\/|https?:\/\/)/i.test(s)) return s;
+    return '';
+  }
+
+  /* ── IMAGE COMPRESSOR (PREVENTS 5MB LOCALSTORAGE CRASH) ── */
+  function compressImageFile(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = ev => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          let dataUrl = canvas.toDataURL('image/webp', quality);
+          if (!dataUrl.startsWith('data:image/webp')) {
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          resolve(dataUrl);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* ── DEFAULT DATA (SCHEMA v2) ── */
+  const SCHEMA_VERSION = 2;
+  const defaultData = {
+    schemaVersion: 2,
+    profile: {
+      name: "José Francisco Quevedo Hernández",
+      title: "Desarrollador Web",
+      description1: "Me encargo de crear sitios y aplicaciones que funcionan bien y se ven bien. No uso frameworks de más ni complico las cosas sin necesidad.",
+      description2: "Si necesitas un sitio web, una app o mejorar lo que ya tienes, contáctame y vemos cómo ayudarte.",
+      email: "quevedohernandezj126@gmail.com",
+      instagram: "https://instagram.com/",
+      instagramHandle: "@quevedo",
+      emailVisible: true,
+      instagramVisible: true,
+      heroSubtitle: "Desarrollo sitios y aplicaciones web. Principalmente trabajo con React, Node.js y bases de datos.",
+      photo: "img/Perfil/foto.jpeg",
+      photoVisible: true
+    },
+    projects: [
+      { id: 1, title: "Página Cafetería", desc: "Sitio web para cafetería.", url: "https://pagina-cafeteria-gray.vercel.app", tags: ["Web"], image: "img/pagina_cafeteria.png", visible: true, imageVisible: true },
+      { id: 2, title: "Página Eventos", desc: "Sitio para gestión de eventos.", url: "https://pagina-de-eventos-one.vercel.app/", tags: ["Sistema"], image: "img/pagina_eventos.png", visible: true, imageVisible: true },
+      { id: 3, title: "Página Dentista", desc: "Sitio web para dentistas.", url: "https://pagina-de-dentista.vercel.app", tags: ["Sistema"], image: "img/pagina_dentista.png", visible: true, imageVisible: true },
+      { id: 4, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true },
+      { id: 5, title: "Página Tec", desc: "Sitio tecnológico.", url: "#", tags: ["Web"], image: "img/pagina_tec.png", visible: false, imageVisible: true },
+      { id: 6, title: "Registro Tienda", desc: "Sistema de registro para tienda.", url: "#", tags: ["Sistema"], image: "img/registro_tienda.png", visible: false, imageVisible: true }
+    ],
+    events: [
+      { id: 1, title: "Open Tec", date: "10 Marzo 2026", desc: "Participación junto al equipo NextCode en evento de Open Tec 2026.", tags: ["Evento", "Equipo NextCode"], image: "img/eventos/opentec.jpeg", visible: true, imageVisible: true },
+      { id: 2, title: "Brigada Plantel 28", date: "26 Febrero 2026", desc: "Apoyo técnico en el evento de la preparatoria como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/brigada.jpeg", visible: true, imageVisible: true },
+      { id: 3, title: "Curso a Tec de Oaxaca", date: "13 Marzo 2026", desc: "Apoyo técnico en el curso para la universidad tecnológica de istmo como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/istmo.jpeg", visible: true, imageVisible: true },
+      { id: 4, title: "Curso a Tec estudiantes del tec y prepa", date: "23 abril 2026", desc: "Apoyo técnico en el curso para la universidad tecnológica de villahermosa y preparatoria como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/cursotec.jpeg", visible: true, imageVisible: true }
+    ],
+    certifications: [
+      { id: 1, title: "Hackathon 2025", image: "img/cursos/hackathon-2025.jpeg", visible: true, imageVisible: true },
+      { id: 2, title: "Hackathon 2026", image: "img/cursos/hackathon-2026.jpeg", visible: true, imageVisible: true },
+      { id: 3, title: "Técnico en Seguridad Perimetral", image: "img/cursos/tecnico-en-seguridad-perimetral.png", visible: true, imageVisible: true },
+      { id: 4, title: "Técnico en Seguridad", image: "img/cursos/tecnico-en-seguridad.png", visible: true, imageVisible: true },
+      { id: 5, title: "Técnico en Redes IP", image: "img/cursos/tecnico-en-redes-ip.png", visible: true, imageVisible: true },
+      { id: 6, title: "Fundamentos de Seguridad", image: "img/cursos/fundamentos-de-seguridad.png", visible: true, imageVisible: true },
+      { id: 7, title: "Administrador de Servidores", image: "img/cursos/administrador-de-servidores.png", visible: true, imageVisible: true }
+    ],
+    technologies: [
+      { id: 1, name: "JavaScript", color: "#f7df1e", textColor: "#000", label: "JS", visible: true },
+      { id: 2, name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true },
+      { id: 3, name: "Django", color: "#092e20", textColor: "#fff", label: "DJ", visible: true },
+      { id: 4, name: "Node.js", color: "#68a063", textColor: "#fff", label: "NJ", visible: true },
+      { id: 5, name: "Python", color: "#3776ab", textColor: "#fff", label: "Py", visible: true },
+      { id: 6, name: "TypeScript", color: "#3178c6", textColor: "#fff", label: "TS", visible: true },
+      { id: 7, name: "Git", color: "#f05032", textColor: "#fff", label: "Git", visible: true },
+      { id: 8, name: "SQL", color: "#336791", textColor: "#fff", label: "SQL", visible: true },
+      { id: 9, name: "PHP", color: "#777bb3", textColor: "#fff", label: "PHP", visible: true },
+      { id: 10, name: "Astro", color: "#ff5d01", textColor: "#fff", label: "AS", visible: true },
+      { id: 11, name: "Java", color: "#e76f00", textColor: "#fff", label: "JV", visible: true },
+      { id: 12, name: "HTML", color: "#e34f26", textColor: "#fff", label: "H5", visible: true },
+      { id: 13, name: "CSS", color: "#1572b6", textColor: "#fff", label: "CSS", visible: true },
+      { id: 14, name: "Next.js", color: "#000000", textColor: "#fff", label: "NX", visible: true }
+    ],
+    messages: []
+  };
+
+  let serverSessionToken = null;
+  let serverPortfolioData = null;
+  let serverMessages = null;
+
+  function getData() {
+    if (serverPortfolioData) {
+      return serverPortfolioData;
+    }
+    try {
+      const s = localStorage.getItem('portfolioData');
+      if (!s) return JSON.parse(JSON.stringify(defaultData));
+      const parsed = JSON.parse(s);
+      if (!parsed.schemaVersion || parsed.schemaVersion < SCHEMA_VERSION) {
+        if (Array.isArray(parsed.projects)) {
+          defaultData.projects.forEach(defP => {
+            if (!parsed.projects.some(p => p.image === defP.image || p.title === defP.title)) {
+              parsed.projects.push(defP);
+            }
+          });
+        }
+        if (Array.isArray(parsed.technologies) && !parsed.technologies.some(t => t.name.toLowerCase() === 'react')) {
+          parsed.technologies.splice(1, 0, { id: Date.now(), name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true });
+        }
+        if (Array.isArray(parsed.events)) {
+          const ev4 = parsed.events.find(e => e.image === 'img/eventos/cursotec.jpeg');
+          if (ev4 && ev4.title === 'Curso a Tec estudiantes') {
+            ev4.title = 'Curso a Tec estudiantes del tec y prepa';
+          }
+        }
+        parsed.schemaVersion = SCHEMA_VERSION;
+        localStorage.setItem('portfolioData', JSON.stringify(parsed));
+      }
+      return parsed;
+    } catch {
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+  }
+
+  function updateStorageMeter() {
+    try {
+      const raw = serverPortfolioData
+        ? JSON.stringify(serverPortfolioData)
+        : (localStorage.getItem('portfolioData') || '');
+      const bytes = new Blob([raw]).size;
+      const kb = (bytes / 1024).toFixed(1);
+      const pct = Math.min(100, (bytes / (5 * 1024 * 1024)) * 100);
+      const stTxt = document.getElementById('storageText');
+      const fill = document.getElementById('storageFill');
+      if (stTxt && fill) {
+        stTxt.textContent = serverSessionToken ? `${kb} KB (Servidor Vercel)` : `${kb} KB / 5 MB`;
+        fill.style.width = Math.max(3, pct) + '%';
+        fill.style.background = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warning)' : 'var(--success)';
+      }
+    } catch {}
+  }
+
+  function saveData(d) {
+    try {
+      if (serverPortfolioData) {
+        serverPortfolioData = d;
+      }
+      localStorage.setItem('portfolioData', JSON.stringify(d));
+      updateStorageMeter();
+
+      if (serverSessionToken && window.location.protocol.startsWith('http')) {
+        fetch('/api/admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${serverSessionToken}`
+          },
+          body: JSON.stringify({ action: 'save_portfolio', portfolio: d })
+        }).then(r => {
+          if (r.ok) showToast('Sincronizado con el servidor Vercel / Git');
+        }).catch(() => {});
+      }
+      return true;
+    } catch {
+      showToast('Error: Límite de memoria alcanzado (5MB). Elimina o comprime imágenes.', 'error');
+      return false;
+    }
+  }
+
+  function nextId(arr) {
+    return arr.length ? Math.max(...arr.map(x => Number(x.id) || 0)) + 1 : 1;
+  }
+
+  function showToast(msg, type = 'success') {
+    const tc = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  let confirmCb = null;
+  function showConfirm(msg, cb) {
+    document.getElementById('confirmModalMsg').textContent =
+      msg || 'Recuerda que si solo quieres esconderlo temporalmente puedes usar el botón de Visibilidad.';
+    document.getElementById('confirmModal').classList.add('open');
+    confirmCb = cb;
+  }
+  document.getElementById('confirmCancel').onclick = () =>
+    document.getElementById('confirmModal').classList.remove('open');
+  document.getElementById('confirmOk').onclick = () => {
+    document.getElementById('confirmModal').classList.remove('open');
+    if (confirmCb) confirmCb();
+  };
+
+  function setupImgUpload(inputId, previewId, dataFieldId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const dataField = dataFieldId ? document.getElementById(dataFieldId) : null;
+    if (!input || !preview) return;
+    input.addEventListener('change', async () => {
+      const file = input.files[0];
+      if (!file) return;
+      try {
+        const compressedB64 = await compressImageFile(file, 1200, 0.82);
+        preview.src = compressedB64;
+        preview.style.display = 'block';
+        if (dataField) dataField.value = compressedB64;
+        showToast('Imagen optimizada y lista');
+      } catch {
+        showToast('No se pudo procesar la imagen', 'error');
+      }
+    });
+  }
+
+  /* ── 4. BRUTE-FORCE RATE LIMITER & CRYPTOGRAPHIC LOGIN ── */
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_MS = 60 * 1000;
+
+  function getLockoutState() {
+    try {
+      return JSON.parse(localStorage.getItem('adminLockoutState') || '{"fails":0,"until":0}');
+    } catch {
+      return { fails: 0, until: 0 };
+    }
+  }
+
+  function setLockoutState(state) {
+    localStorage.setItem('adminLockoutState', JSON.stringify(state));
+  }
+
+  document.getElementById('pwToggle').onclick = () => {
+    const inp = document.getElementById('pwInput');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  };
+  document.getElementById('loginBtn').onclick = doLogin;
+  document.getElementById('pwInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  async function doLogin() {
+    const errEl = document.getElementById('loginError');
+    const lock = getLockoutState();
+    const now = Date.now();
+    if (lock.until > now) {
+      const secs = Math.ceil((lock.until - now) / 1000);
+      errEl.textContent = `Demasiados intentos. Bloqueado por ${secs}s.`;
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const val = document.getElementById('pwInput').value;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Verificando credenciales...';
+
+    try {
+      // 1. If hosted on Vercel / HTTP server, authenticate on the server (/api/admin)
+      if (window.location.protocol.startsWith('http')) {
+        const res = await fetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'login', password: val })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          serverSessionToken = data.token;
+          serverPortfolioData = data.portfolio && data.portfolio.profile ? data.portfolio : JSON.parse(JSON.stringify(defaultData));
+          serverMessages = Array.isArray(data.messages) ? data.messages : [];
+          setLockoutState({ fails: 0, until: 0 });
+          document.getElementById('pwInput').value = '';
+          mountAndShowPanel();
+          return;
+        }
+        if (res.status === 401 || res.status === 429) {
+          throw new Error(data.error || 'Contraseña incorrecta');
+        }
+      }
+
+      // 2. Fallback for local file:/// testing (PBKDF2 150k + AES-GCM + RSA-2048 Private Key Vault)
+      await unlockVaultWithPassword(val);
+      setLockoutState({ fails: 0, until: 0 });
+      document.getElementById('pwInput').value = '';
+      mountAndShowPanel();
+    } catch (err) {
+      const fails = (lock.fails || 0) + 1;
+      const until = fails >= MAX_ATTEMPTS ? Date.now() + LOCKOUT_MS : 0;
+      setLockoutState({ fails, until });
+      errEl.textContent = err && err.message && err.message !== 'Vault locked'
+        ? err.message
+        : (until
+          ? 'Demasiados intentos fallidos. Panel bloqueado por 60 segundos.'
+          : `Contraseña incorrecta (${fails}/${MAX_ATTEMPTS} intentos).`);
+      errEl.style.display = 'block';
+      const card = document.querySelector('.login-card');
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Ingresar al Panel →';
+    }
+  }
+
+  function mountAndShowPanel() {
+    if ((!unlockedRsaPrivateKey && !serverSessionToken) || !adminPanelTemplateEl) return;
+    document.getElementById('loginScreen').remove();
+    document.body.insertBefore(adminPanelTemplateEl, document.getElementById('confirmModal'));
+    adminPanelTemplateEl.style.display = 'block';
+    initAdmin();
+  }
+
+  /* ── NAVIGATION & DELEGATED ACTIONS (ZERO GLOBAL FUNCTIONS) ── */
+  function navigateTo(sec) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll(`[data-section="${sec}"]`).forEach(n => n.classList.add('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('s-' + sec);
+    if (target) target.classList.add('active');
+    closeSidebar();
+    renderSection(sec);
+  }
+
+  function closeSidebar() {
+    const sb = document.getElementById('sidebar');
+    const ob = document.getElementById('overlayBg');
+    if (sb) sb.classList.remove('open');
+    if (ob) ob.classList.remove('open');
+  }
+
+  function toggleItemVisibility(collectionKey, id, field, renderFn) {
+    const d = getData();
+    const list = d[collectionKey] || [];
+    const item = list.find(x => x.id === id);
+    if (!item) return;
+    const current = item[field] !== false;
+    item[field] = !current;
+    saveData(d);
+    renderFn();
+    renderDashboard();
+    const label = field === 'visible'
+      ? (item[field] ? 'Card visible en el portafolio' : 'Card oculta del portafolio')
+      : (item[field] ? 'Foto visible en la card' : 'Foto oculta en la card');
+    showToast(label);
+  }
+
+  /* ── INIT ADMIN AFTER UNLOCK ── */
+  function initAdmin() {
+    document.getElementById('logoutBtn').onclick = () => {
+      unlockedRsaPrivateKey = null;
+      unlockedRawPkcs8 = null;
+      location.reload();
+    };
+
+    const goBackupBtn = document.getElementById('goBackupBtn');
+    if (goBackupBtn) goBackupBtn.onclick = () => navigateTo('backup');
+
+    document.getElementById('sidebarNav').querySelectorAll('.nav-item').forEach(n => {
+      n.addEventListener('click', () => navigateTo(n.dataset.section));
+    });
+    document.querySelectorAll('.quick-link').forEach(q => {
+      q.addEventListener('click', () => navigateTo(q.dataset.section));
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const overlayBg = document.getElementById('overlayBg');
+    document.getElementById('hamAdmin').onclick = () => {
+      sidebar.classList.add('open');
+      overlayBg.classList.add('open');
+    };
+    overlayBg.onclick = closeSidebar;
+
+    // Delegated listener for table/list buttons
+    adminPanelTemplateEl.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = Number(btn.dataset.id) || 0;
+      const col = btn.dataset.col;
+      const field = btn.dataset.field;
+
+      if (action === 'toggle-vis') {
+        const renderMap = {
+          projects: renderProjectsList,
+          events: renderEventsList,
+          certifications: renderCertsList,
+          technologies: renderTechList
+        };
+        if (renderMap[col]) toggleItemVisibility(col, id, field, renderMap[col]);
+      } else if (action === 'edit-proj') editProject(id);
+      else if (action === 'del-proj') deleteProject(id);
+      else if (action === 'edit-ev') editEvent(id);
+      else if (action === 'del-ev') deleteEvent(id);
+      else if (action === 'edit-cert') editCert(id);
+      else if (action === 'del-cert') deleteCert(id);
+      else if (action === 'del-tech') deleteTech(id);
+      else if (action === 'del-msg') deleteMsg(id);
+    });
+
+    setupImgUpload('profilePhotoInput', 'profilePhotoPreview', null);
+    setupImgUpload('projImgInput', 'projImgPreview', 'projImgData');
+    setupImgUpload('evImgInput', 'evImgPreview', 'evImgData');
+    setupImgUpload('certImgInput', 'certImgPreview', 'certImgData');
+
+    updateStorageMeter();
+    renderSection('dashboard');
+    initProfileSection();
+    initProjectsSection();
+    initEventsSection();
+    initCertsSection();
+    initTechSection();
+    initContactSection();
+    initBackupSection();
+  }
+
+  function renderSection(sec) {
+    if (sec === 'dashboard') renderDashboard();
+    else if (sec === 'profile') renderProfile();
+    else if (sec === 'projects') renderProjectsList();
+    else if (sec === 'events') renderEventsList();
+    else if (sec === 'certifications') renderCertsList();
+    else if (sec === 'technologies') renderTechList();
+    else if (sec === 'contact') renderContact();
+  }
+
+  /* ── DASHBOARD ── */
+  function renderDashboard() {
+    const d = getData();
+    const countVis = arr => (arr || []).filter(x => x.visible !== false).length;
+    const stats = [
+      { icon: '🚀', total: (d.projects || []).length, vis: countVis(d.projects), label: 'Proyectos' },
+      { icon: '📅', total: (d.events || []).length, vis: countVis(d.events), label: 'Eventos' },
+      { icon: '🏆', total: (d.certifications || []).length, vis: countVis(d.certifications), label: 'Certificaciones' },
+      { icon: '🛠️', total: (d.technologies || []).length, vis: countVis(d.technologies), label: 'Tecnologías' }
+    ];
+    document.getElementById('dashStats').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div>
+          <div class="stat-num">${s.vis} <span style="font-size:1rem;color:var(--text-muted)">/ ${s.total}</span></div>
+          <div class="stat-label">${escapeHTML(s.label)} visibles</div>
+          <div class="stat-sub">${s.total - s.vis} ocultos</div>
+        </div>
+        <div class="stat-icon-box">${s.icon}</div>
+      </div>
+    `).join('');
+  }
+
+  /* ── PROFILE ── */
+  function renderProfile() {
+    const d = getData();
+    const p = d.profile || defaultData.profile;
+    document.getElementById('pName').value = p.name || '';
+    document.getElementById('pTitle').value = p.title || '';
+    document.getElementById('pHeroSub').value = p.heroSubtitle || '';
+    document.getElementById('pDesc1').value = p.description1 || '';
+    document.getElementById('pDesc2').value = p.description2 || '';
+    document.getElementById('pEmail').value = p.email || '';
+    document.getElementById('pIgHandle').value = p.instagramHandle || '@quevedo';
+    document.getElementById('pIgUrl').value = p.instagram || '';
+    document.getElementById('pPhotoVisible').checked = p.photoVisible !== false;
+    document.getElementById('profilePhotoPreview').src = safeImgSrc(p.photo) || 'img/Perfil/foto.jpeg';
+  }
+  function initProfileSection() {
+    document.getElementById('saveProfileBtn').onclick = () => {
+      const d = getData();
+      if (!d.profile) d.profile = {};
+      d.profile.name = document.getElementById('pName').value.trim();
+      d.profile.title = document.getElementById('pTitle').value.trim();
+      d.profile.heroSubtitle = document.getElementById('pHeroSub').value.trim();
+      d.profile.description1 = document.getElementById('pDesc1').value.trim();
+      d.profile.description2 = document.getElementById('pDesc2').value.trim();
+      d.profile.email = document.getElementById('pEmail').value.trim();
+      d.profile.instagramHandle = document.getElementById('pIgHandle').value.trim();
+      d.profile.instagram = document.getElementById('pIgUrl').value.trim();
+      d.profile.photoVisible = document.getElementById('pPhotoVisible').checked;
+      const preview = document.getElementById('profilePhotoPreview').src;
+      if (preview && preview.startsWith('data:image/')) d.profile.photo = preview;
+      if (saveData(d)) showToast('Perfil actualizado correctamente');
+    };
+  }
+
+  /* ── PROJECTS ── */
+  function initProjectsSection() {
+    document.getElementById('addProjectBtn').onclick = () => {
+      document.getElementById('projectFormPanel').classList.toggle('open');
+      document.getElementById('projectFormTitle').textContent = 'Agregar nuevo proyecto';
+      document.getElementById('projTitle').value = '';
+      document.getElementById('projUrl').value = '';
+      document.getElementById('projDesc').value = '';
+      document.getElementById('projTags').value = '';
+      document.getElementById('projImgData').value = '';
+      document.getElementById('projEditId').value = '';
+      document.getElementById('projVisible').checked = true;
+      document.getElementById('projImgVisible').checked = true;
+      document.getElementById('projImgPreview').src = '';
+      document.getElementById('projImgPreview').style.display = 'none';
+    };
+    document.getElementById('cancelProjectBtn').onclick = () =>
+      document.getElementById('projectFormPanel').classList.remove('open');
+    document.getElementById('saveProjectBtn').onclick = saveProject;
+  }
+
+  function renderProjectsList() {
+    const d = getData();
+    const tbody = document.querySelector('#projectsList tbody');
+    if (!d.projects || !d.projects.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="list-empty">No hay proyectos registrados.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = d.projects.map(p => {
+      const isVis = p.visible !== false;
+      const isImgVis = p.imageVisible !== false;
+      const id = Number(p.id) || 0;
+      const imgSrc = safeImgSrc(p.image);
+      return `
+        <tr class="${isVis ? '' : 'row-muted'}">
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(p.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td>
+            <strong>${escapeHTML(p.title)}</strong><br>
+            <small style="color:var(--text-muted)">${escapeHTML(p.url || '#')}</small>
+          </td>
+          <td>
+            <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="projects" data-id="${id}" data-field="visible">
+              ${isVis ? '👁️ Card Visible' : '🙈 Card Oculta'}
+            </button>
+          </td>
+          <td>
+            <button class="vis-pill ${isImgVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="projects" data-id="${id}" data-field="imageVisible">
+              ${isImgVis ? '🖼️ Foto Visible' : '🚫 Foto Oculta'}
+            </button>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-ghost btn-sm" data-action="edit-proj" data-id="${id}">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" data-action="del-proj" data-id="${id}">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function saveProject() {
+    const d = getData();
+    const editId = parseInt(document.getElementById('projEditId').value, 10);
+    const title = document.getElementById('projTitle').value.trim();
+    if (!title) { showToast('El título es obligatorio', 'error'); return; }
+    const rawUrl = document.getElementById('projUrl').value.trim() || '#';
+    if (rawUrl !== '#' && !/^https?:\/\//i.test(rawUrl)) {
+      showToast('La URL debe iniciar con https:// o ser #', 'error');
+      return;
+    }
+    const existing = editId ? (d.projects.find(p => p.id === editId) || {}) : {};
+    const item = {
+      id: editId || nextId(d.projects || []),
+      title,
+      desc: document.getElementById('projDesc').value.trim(),
+      url: rawUrl,
+      tags: document.getElementById('projTags').value.split(',').map(t => t.trim()).filter(Boolean),
+      image: document.getElementById('projImgData').value || existing.image || '',
+      visible: document.getElementById('projVisible').checked,
+      imageVisible: document.getElementById('projImgVisible').checked
+    };
+    if (!d.projects) d.projects = [];
+    if (editId) {
+      const idx = d.projects.findIndex(p => p.id === editId);
+      if (idx > -1) d.projects[idx] = item;
+    } else {
+      d.projects.push(item);
+    }
+    if (saveData(d)) {
+      renderProjectsList();
+      renderDashboard();
+      document.getElementById('projectFormPanel').classList.remove('open');
+      showToast(editId ? 'Proyecto actualizado' : 'Proyecto agregado');
+    }
+  }
+
+  function editProject(id) {
+    const d = getData();
+    const p = d.projects.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('projectFormPanel').classList.add('open');
+    document.getElementById('projectFormTitle').textContent = 'Editar proyecto';
+    document.getElementById('projEditId').value = p.id;
+    document.getElementById('projTitle').value = p.title;
+    document.getElementById('projUrl').value = p.url || '';
+    document.getElementById('projDesc').value = p.desc || '';
+    document.getElementById('projTags').value = (p.tags || []).join(', ');
+    document.getElementById('projImgData').value = p.image || '';
+    document.getElementById('projVisible').checked = p.visible !== false;
+    document.getElementById('projImgVisible').checked = p.imageVisible !== false;
+    const prev = document.getElementById('projImgPreview');
+    prev.src = safeImgSrc(p.image);
+    prev.style.display = p.image ? 'block' : 'none';
+  }
+
+  function deleteProject(id) {
+    showConfirm('¿Eliminar este proyecto permanentemente?', () => {
+      const d = getData();
+      d.projects = (d.projects || []).filter(p => p.id !== id);
+      saveData(d);
+      renderProjectsList();
+      renderDashboard();
+      showToast('Proyecto eliminado');
+    });
+  }
+
+  /* ── EVENTS ── */
+  function initEventsSection() {
+    document.getElementById('addEventBtn').onclick = () => {
+      document.getElementById('eventFormPanel').classList.toggle('open');
+      document.getElementById('eventFormTitle').textContent = 'Agregar nuevo evento';
+      document.getElementById('evTitle').value = '';
+      document.getElementById('evDate').value = '';
+      document.getElementById('evDesc').value = '';
+      document.getElementById('evTags').value = '';
+      document.getElementById('evImgData').value = '';
+      document.getElementById('evEditId').value = '';
+      document.getElementById('evVisible').checked = true;
+      document.getElementById('evImgVisible').checked = true;
+      document.getElementById('evImgPreview').src = '';
+      document.getElementById('evImgPreview').style.display = 'none';
+    };
+    document.getElementById('cancelEventBtn').onclick = () =>
+      document.getElementById('eventFormPanel').classList.remove('open');
+    document.getElementById('saveEventBtn').onclick = saveEvent;
+  }
+
+  function renderEventsList() {
+    const d = getData();
+    const tbody = document.querySelector('#eventsList tbody');
+    if (!d.events || !d.events.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="list-empty">No hay eventos registrados.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = d.events.map(ev => {
+      const isVis = ev.visible !== false;
+      const isImgVis = ev.imageVisible !== false;
+      const id = Number(ev.id) || 0;
+      const imgSrc = safeImgSrc(ev.image);
+      return `
+        <tr class="${isVis ? '' : 'row-muted'}">
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(ev.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td>
+            <strong>${escapeHTML(ev.title)}</strong><br>
+            <small style="color:var(--primary)">📅 ${escapeHTML(ev.date || '')}</small>
+          </td>
+          <td>
+            <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="events" data-id="${id}" data-field="visible">
+              ${isVis ? '👁️ Card Visible' : '🙈 Card Oculta'}
+            </button>
+          </td>
+          <td>
+            <button class="vis-pill ${isImgVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="events" data-id="${id}" data-field="imageVisible">
+              ${isImgVis ? '🖼️ Foto Visible' : '🚫 Foto Oculta'}
+            </button>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-ghost btn-sm" data-action="edit-ev" data-id="${id}">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" data-action="del-ev" data-id="${id}">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function saveEvent() {
+    const d = getData();
+    const editId = parseInt(document.getElementById('evEditId').value, 10);
+    const title = document.getElementById('evTitle').value.trim();
+    if (!title) { showToast('El título es obligatorio', 'error'); return; }
+    const existing = editId ? (d.events.find(e => e.id === editId) || {}) : {};
+    const item = {
+      id: editId || nextId(d.events || []),
+      title,
+      date: document.getElementById('evDate').value.trim(),
+      desc: document.getElementById('evDesc').value.trim(),
+      tags: document.getElementById('evTags').value.split(',').map(t => t.trim()).filter(Boolean),
+      image: document.getElementById('evImgData').value || existing.image || '',
+      visible: document.getElementById('evVisible').checked,
+      imageVisible: document.getElementById('evImgVisible').checked
+    };
+    if (!d.events) d.events = [];
+    if (editId) {
+      const idx = d.events.findIndex(e => e.id === editId);
+      if (idx > -1) d.events[idx] = item;
+    } else {
+      d.events.push(item);
+    }
+    if (saveData(d)) {
+      renderEventsList();
+      renderDashboard();
+      document.getElementById('eventFormPanel').classList.remove('open');
+      showToast(editId ? 'Evento actualizado' : 'Evento agregado');
+    }
+  }
+
+  function editEvent(id) {
+    const d = getData();
+    const ev = d.events.find(x => x.id === id);
+    if (!ev) return;
+    document.getElementById('eventFormPanel').classList.add('open');
+    document.getElementById('eventFormTitle').textContent = 'Editar evento';
+    document.getElementById('evEditId').value = ev.id;
+    document.getElementById('evTitle').value = ev.title;
+    document.getElementById('evDate').value = ev.date || '';
+    document.getElementById('evDesc').value = ev.desc || '';
+    document.getElementById('evTags').value = (ev.tags || []).join(', ');
+    document.getElementById('evImgData').value = ev.image || '';
+    document.getElementById('evVisible').checked = ev.visible !== false;
+    document.getElementById('evImgVisible').checked = ev.imageVisible !== false;
+    const prev = document.getElementById('evImgPreview');
+    prev.src = safeImgSrc(ev.image);
+    prev.style.display = ev.image ? 'block' : 'none';
+  }
+
+  function deleteEvent(id) {
+    showConfirm('¿Eliminar este evento permanentemente?', () => {
+      const d = getData();
+      d.events = (d.events || []).filter(e => e.id !== id);
+      saveData(d);
+      renderEventsList();
+      renderDashboard();
+      showToast('Evento eliminado');
+    });
+  }
+
+  /* ── CERTIFICATIONS ── */
+  function initCertsSection() {
+    document.getElementById('addCertBtn').onclick = () => {
+      document.getElementById('certFormPanel').classList.toggle('open');
+      document.getElementById('certFormTitle').textContent = 'Agregar certificación';
+      document.getElementById('certTitle').value = '';
+      document.getElementById('certImgData').value = '';
+      document.getElementById('certEditId').value = '';
+      document.getElementById('certVisible').checked = true;
+      document.getElementById('certImgVisible').checked = true;
+      document.getElementById('certImgPreview').src = '';
+      document.getElementById('certImgPreview').style.display = 'none';
+    };
+    document.getElementById('cancelCertBtn').onclick = () =>
+      document.getElementById('certFormPanel').classList.remove('open');
+    document.getElementById('saveCertBtn').onclick = saveCert;
+  }
+
+  function renderCertsList() {
+    const d = getData();
+    const tbody = document.querySelector('#certsList tbody');
+    if (!d.certifications || !d.certifications.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="list-empty">No hay certificaciones registradas.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = d.certifications.map(c => {
+      const isVis = c.visible !== false;
+      const isImgVis = c.imageVisible !== false;
+      const id = Number(c.id) || 0;
+      const imgSrc = safeImgSrc(c.image);
+      return `
+        <tr class="${isVis ? '' : 'row-muted'}">
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(c.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td><strong>${escapeHTML(c.title)}</strong></td>
+          <td>
+            <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="certifications" data-id="${id}" data-field="visible">
+              ${isVis ? '👁️ Card Visible' : '🙈 Card Oculta'}
+            </button>
+          </td>
+          <td>
+            <button class="vis-pill ${isImgVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="certifications" data-id="${id}" data-field="imageVisible">
+              ${isImgVis ? '🖼️ Foto Visible' : '🚫 Foto Oculta'}
+            </button>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-ghost btn-sm" data-action="edit-cert" data-id="${id}">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" data-action="del-cert" data-id="${id}">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function saveCert() {
+    const d = getData();
+    const editId = parseInt(document.getElementById('certEditId').value, 10);
+    const title = document.getElementById('certTitle').value.trim();
+    if (!title) { showToast('El título es obligatorio', 'error'); return; }
+    const existing = editId ? (d.certifications.find(c => c.id === editId) || {}) : {};
+    const item = {
+      id: editId || nextId(d.certifications || []),
+      title,
+      image: document.getElementById('certImgData').value || existing.image || '',
+      visible: document.getElementById('certVisible').checked,
+      imageVisible: document.getElementById('certImgVisible').checked
+    };
+    if (!d.certifications) d.certifications = [];
+    if (editId) {
+      const idx = d.certifications.findIndex(c => c.id === editId);
+      if (idx > -1) d.certifications[idx] = item;
+    } else {
+      d.certifications.push(item);
+    }
+    if (saveData(d)) {
+      renderCertsList();
+      renderDashboard();
+      document.getElementById('certFormPanel').classList.remove('open');
+      showToast(editId ? 'Certificación actualizada' : 'Certificación agregada');
+    }
+  }
+
+  function editCert(id) {
+    const d = getData();
+    const c = d.certifications.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('certFormPanel').classList.add('open');
+    document.getElementById('certFormTitle').textContent = 'Editar certificación';
+    document.getElementById('certEditId').value = c.id;
+    document.getElementById('certTitle').value = c.title;
+    document.getElementById('certImgData').value = c.image || '';
+    document.getElementById('certVisible').checked = c.visible !== false;
+    document.getElementById('certImgVisible').checked = c.imageVisible !== false;
+    const prev = document.getElementById('certImgPreview');
+    prev.src = safeImgSrc(c.image);
+    prev.style.display = c.image ? 'block' : 'none';
+  }
+
+  function deleteCert(id) {
+    showConfirm('¿Eliminar esta certificación permanentemente?', () => {
+      const d = getData();
+      d.certifications = (d.certifications || []).filter(c => c.id !== id);
+      saveData(d);
+      renderCertsList();
+      renderDashboard();
+      showToast('Certificación eliminada');
+    });
+  }
+
+  /* ── TECHNOLOGIES ── */
+  function techBadgeHTML(label, name, color, textColor) {
+    return `<div class="tech-badge-preview">
+      <div class="tech-circle" style="background:${escapeHTML(color)};color:${escapeHTML(textColor)};">${escapeHTML(label)}</div>
+      <span>${escapeHTML(name)}</span>
+    </div>`;
+  }
+  function updateTechPreview() {
+    const label = document.getElementById('tLabel').value || 'JS';
+    const name = document.getElementById('tName').value || 'Tecnología';
+    const color = document.getElementById('tColor').value;
+    const textColor = document.querySelector('input[name="tTextColor"]:checked').value;
+    document.getElementById('techPreview').innerHTML = techBadgeHTML(label, name, color, textColor);
+  }
+  function initTechSection() {
+    ['tLabel', 'tName', 'tColor'].forEach(id =>
+      document.getElementById(id).addEventListener('input', updateTechPreview)
+    );
+    document.querySelectorAll('input[name="tTextColor"]').forEach(r =>
+      r.addEventListener('change', updateTechPreview)
+    );
+    updateTechPreview();
+    document.getElementById('addTechBtn').onclick = () => {
+      document.getElementById('techFormPanel').classList.toggle('open');
+      document.getElementById('tName').value = '';
+      document.getElementById('tLabel').value = '';
+      document.getElementById('tColor').value = '#3b82f6';
+      document.querySelector('input[name="tTextColor"][value="#fff"]').checked = true;
+      updateTechPreview();
+    };
+    document.getElementById('cancelTechBtn').onclick = () =>
+      document.getElementById('techFormPanel').classList.remove('open');
+    document.getElementById('saveTechBtn').onclick = saveTech;
+  }
+  function renderTechList() {
+    updateTechPreview();
+    const d = getData();
+    const container = document.getElementById('techListCard');
+    if (!d.technologies || !d.technologies.length) {
+      container.innerHTML = `<p class="list-empty">No hay tecnologías registradas.</p>`;
+      return;
+    }
+    container.innerHTML = d.technologies.map(t => {
+      const isVis = t.visible !== false;
+      const id = Number(t.id) || 0;
+      return `
+        <div class="tech-item-row" style="${isVis ? '' : 'opacity:.45'}">
+          ${techBadgeHTML(t.label, t.name, t.color, t.textColor)}
+          <div class="action-btns">
+            <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="technologies" data-id="${id}" data-field="visible">
+              ${isVis ? '👁️ Visible' : '🙈 Oculta'}
+            </button>
+            <button class="btn btn-danger btn-sm" data-action="del-tech" data-id="${id}">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  function saveTech() {
+    const d = getData();
+    const name = document.getElementById('tName').value.trim();
+    const label = document.getElementById('tLabel').value.trim();
+    if (!name || !label) { showToast('Nombre y abreviatura son obligatorios', 'error'); return; }
+    if (!d.technologies) d.technologies = [];
+    d.technologies.push({
+      id: nextId(d.technologies),
+      name,
+      label,
+      color: document.getElementById('tColor').value,
+      textColor: document.querySelector('input[name="tTextColor"]:checked').value,
+      visible: true
+    });
+    if (saveData(d)) {
+      renderTechList();
+      renderDashboard();
+      document.getElementById('techFormPanel').classList.remove('open');
+      showToast('Tecnología agregada');
+    }
+  }
+  function deleteTech(id) {
+    showConfirm('¿Eliminar esta tecnología?', () => {
+      const d = getData();
+      d.technologies = (d.technologies || []).filter(t => t.id !== id);
+      saveData(d);
+      renderTechList();
+      renderDashboard();
+      showToast('Tecnología eliminada');
+    });
+  }
+
+  /* ── CONTACT & SERVER/RSA-DECRYPTED MESSAGES INBOX ── */
+  async function renderContact() {
+    const d = getData();
+    const p = d.profile || defaultData.profile;
+    document.getElementById('contactEmail').value = p.email || '';
+    document.getElementById('contactIgHandle').value = p.instagramHandle || '@quevedo';
+    document.getElementById('contactIgUrl').value = p.instagram || '';
+    document.getElementById('contactEmailVis').checked = p.emailVisible !== false;
+    document.getElementById('contactIgVis').checked = p.instagramVisible !== false;
+
+    const box = document.getElementById('messagesList');
+    let decryptedMsgs = [];
+
+    if (serverSessionToken && Array.isArray(serverMessages)) {
+      decryptedMsgs = serverMessages;
+    } else {
+      const rawMsgs = d.messages || [];
+      decryptedMsgs = (await Promise.all(rawMsgs.map(decryptInboxRecord))).filter(Boolean);
+    }
+
+    if (!decryptedMsgs.length) {
+      box.innerHTML = `<p class="list-empty">Aún no hay mensajes enviados desde el formulario.</p>`;
+      return;
+    }
+
+    box.innerHTML = decryptedMsgs.map(m => {
+      const id = Number(m.id) || 0;
+      const safeMail = encodeURIComponent(m.email || '');
+      return `
+        <div style="padding:1rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.75rem;background:var(--bg-input)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;flex-wrap:wrap;gap:.5rem">
+            <div>
+              <strong>${escapeHTML(m.name)}</strong>
+              <a href="mailto:${safeMail}" style="color:var(--primary);font-size:.82rem;margin-left:.5rem;text-decoration:none">&lt;${escapeHTML(m.email)}&gt;</a>
+              <span style="font-size:.7rem;color:var(--success);margin-left:.4rem">${serverSessionToken ? '🔒 Descifrado en Servidor (AES-256-GCM)' : '🔓 Descifrado con RSA-2048'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <small style="color:var(--text-muted)">${escapeHTML(m.date || '')}</small>
+              <button class="btn btn-danger btn-sm" data-action="del-msg" data-id="${id}">🗑️</button>
+            </div>
+          </div>
+          <p style="color:var(--text-secondary);font-size:.88rem;white-space:pre-wrap">${escapeHTML(m.message)}</p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function deleteMsg(id) {
+    if (serverSessionToken && window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${serverSessionToken}`
+          },
+          body: JSON.stringify({ action: 'delete_message', id })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          serverMessages = data.messages || [];
+          renderContact();
+          showToast('Mensaje eliminado del servidor');
+          return;
+        }
+      } catch {}
+    }
+    const d = getData();
+    d.messages = (d.messages || []).filter(m => m.id !== id);
+    saveData(d);
+    renderContact();
+    showToast('Mensaje eliminado');
+  }
+
+  function initContactSection() {
+    document.getElementById('saveContactBtn').onclick = () => {
+      const d = getData();
+      if (!d.profile) d.profile = {};
+      d.profile.email = document.getElementById('contactEmail').value.trim();
+      d.profile.instagramHandle = document.getElementById('contactIgHandle').value.trim();
+      d.profile.instagram = document.getElementById('contactIgUrl').value.trim();
+      d.profile.emailVisible = document.getElementById('contactEmailVis').checked;
+      d.profile.instagramVisible = document.getElementById('contactIgVis').checked;
+      if (saveData(d)) showToast('Correo e Instagram actualizados');
+    };
+    document.getElementById('clearMsgsBtn').onclick = () => {
+      showConfirm('¿Vaciar todos los mensajes recibidos?', async () => {
+        if (serverSessionToken && window.location.protocol.startsWith('http')) {
+          try {
+            const res = await fetch('/api/admin', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${serverSessionToken}`
+              },
+              body: JSON.stringify({ action: 'clear_messages' })
+            });
+            if (res.ok) {
+              serverMessages = [];
+              renderContact();
+              showToast('Bandeja del servidor vaciada');
+              return;
+            }
+          } catch {}
+        }
+        const d = getData();
+        d.messages = [];
+        saveData(d);
+        renderContact();
+        showToast('Bandeja vaciada');
+      });
+    };
+  }
+
+  /* ── BACKUP, EXPORT & PASSWORD VAULT RE-WRAPPING ── */
+  function initBackupSection() {
+    document.getElementById('copyDefaultDataBtn').onclick = () => {
+      const d = getData();
+      const cleanCopy = JSON.parse(JSON.stringify(d));
+      // Strip private messages when exporting defaultData for GitHub Pages
+      cleanCopy.messages = [];
+      const code = `const defaultData = ${JSON.stringify(cleanCopy, null, 2)};`;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Bloque defaultData copiado (sin mensajes privados)');
+      });
+    };
+
+    document.getElementById('exportJsonBtn').onclick = () => {
+      const d = getData();
+      const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'respaldo_portafolio_qh.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('Respaldo JSON descargado');
+    };
+
+    document.getElementById('importJsonInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (!parsed.profile || !Array.isArray(parsed.projects)) {
+            showToast('Archivo JSON inválido', 'error');
+            return;
+          }
+          saveData(parsed);
+          renderDashboard();
+          showToast('Respaldo restaurado exitosamente');
+        } catch {
+          showToast('Error al leer el archivo JSON', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('savePassBtn').onclick = async () => {
+      const nw = document.getElementById('newAdminPass').value;
+      if (!nw || nw.length < 6) {
+        showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+      try {
+        await rewrapVaultWithNewPassword(nw);
+        document.getElementById('newAdminPass').value = '';
+        showToast('Bóveda RSA/AES-256 recifrada con tu nueva contraseña');
+      } catch {
+        showToast('Error al recifrar la bóveda', 'error');
+      }
+    };
+
+    document.getElementById('resetDefaultBtn').onclick = () => {
+      showConfirm('¿Restaurar todos los datos a los valores originales de fábrica?', () => {
+        localStorage.removeItem('portfolioData');
+        updateStorageMeter();
+        renderDashboard();
+        showToast('Datos restaurados a valores originales');
+      });
+    };
+  }
+})();
+</script>
+</body>
+</html>

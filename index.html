@@ -1,735 +1,1188 @@
 <!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>José Francisco Quevedo Hernández | Desarrollador Web</title>
-    <style>
-      :root {
-        --primary: #2563eb;
-        --dark: #1e293b;
-        --light: #f8fafc;
-        --gray: #64748b;
-        --accent: #3b82f6;
-        --bg: var(--light);
-        --bg-secondary: white;
-        --text: var(--dark);
-        --text-secondary: var(--gray);
-        --border: #e2e8f0;
-        --nav-height: 70px;
-        --section-padding: clamp(2rem, 5vw, 5rem);
-        --h2-size: clamp(1.75rem, 4vw, 2.5rem);
-        --h1-size: clamp(2rem, 6vw, 4rem);
-        --p-size: clamp(0.9rem, 2vw, 1.25rem);
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline';" />
+  <title>José Francisco Quevedo Hernández — Desarrollador Web</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09090b;
+      --bg-subtle: #111113;
+      --surface: #141417;
+      --surface-hover: #1c1c21;
+      --border: #27272a;
+      --border-light: rgba(255, 255, 255, 0.16);
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #3b82f6;
+      --emerald: #10b981;
+      --btn-bg: #fafafa;
+      --btn-text: #09090b;
+      --btn-hover: #e4e4e7;
+      --spotlight-card: rgba(255, 255, 255, 0.07);
+      --cursor-glow: rgba(59, 130, 246, 0.08);
+    }
+
+    html.light {
+      --bg: #fafafa;
+      --bg-subtle: #f4f4f5;
+      --surface: #ffffff;
+      --surface-hover: #f4f4f5;
+      --border: #e4e4e7;
+      --border-light: rgba(0, 0, 0, 0.16);
+      --text: #09090b;
+      --text-secondary: #52525b;
+      --text-muted: #71717a;
+      --accent: #2563eb;
+      --emerald: #059669;
+      --btn-bg: #09090b;
+      --btn-text: #fafafa;
+      --btn-hover: #27272a;
+      --spotlight-card: rgba(37, 99, 235, 0.06);
+      --cursor-glow: rgba(37, 99, 235, 0.06);
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      letter-spacing: -0.011em;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* ─── SCROLL PROGRESS BAR ─── */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--text), var(--accent));
+      z-index: 9999;
+      transition: width 0.08s linear;
+    }
+
+    /* ─── AMBIENT CURSOR FOLLOWER & DOT MATRIX ─── */
+    .cursor-aura {
+      position: fixed;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--cursor-glow) 0%, transparent 65%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .bg-dots {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(161, 161, 170, 0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 80% 55% at 50% 10%, #000 25%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 10%, #000 25%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ─── NAVBAR ─── */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+      background: rgba(9, 9, 11, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    html.light header.site-header {
+      background: rgba(250, 250, 250, 0.82);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--text);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.78rem;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .brand:hover .brand-mark {
+      transform: rotate(-8deg) scale(1.08);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      position: relative;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.25rem 0;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 1.5px;
+      background: var(--text);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+      transform: translateY(-2px);
+    }
+
+    .ham-btn {
+      display: none;
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      padding: 6rem 0 5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 290px;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.32rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-badge::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      animation: badgeShimmer 4s infinite;
+    }
+
+    @keyframes badgeShimmer {
+      0% { left: -120%; }
+      50%, 100% { left: 160%; }
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulseRing 2s infinite;
+    }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .hero-name {
+      font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(180deg, var(--text) 30%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-role-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+      min-height: 1.8rem;
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 2px;
+      height: 1.15em;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .hero-bio {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      max-width: 580px;
+      line-height: 1.7;
+      margin-bottom: 2.25rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      height: 42px;
+      padding: 0 1.35rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+      font-family: inherit;
+      overflow: hidden;
+    }
+
+    .btn-solid {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid transparent;
+    }
+
+    .btn-solid:hover {
+      background: var(--btn-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -6px rgba(255, 255, 255, 0.25);
+    }
+
+    html.light .btn-solid:hover {
+      box-shadow: 0 8px 25px -6px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-hover);
+      border-color: var(--text-muted);
+      transform: translateY(-2px);
+    }
+
+    .hero-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .inline-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .inline-link:hover {
+      color: var(--text);
+      transform: translateX(3px);
+    }
+
+    .inline-link svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .inline-link:hover svg {
+      color: var(--text);
+    }
+
+    /* 3D Tilt Portrait with Animated Border Beam */
+    .hero-portrait-wrap {
+      perspective: 1000px;
+    }
+
+    .hero-portrait {
+      position: relative;
+      width: 270px;
+      height: 315px;
+      border-radius: 16px;
+      padding: 1.5px;
+      background: var(--border);
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      transition: transform 0.2s ease-out, box-shadow 0.3s ease;
+      transform-style: preserve-3d;
+    }
+
+    .hero-portrait::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(from 0deg, transparent 70%, var(--accent) 85%, var(--text) 100%);
+      animation: rotateBeam 5s linear infinite;
+    }
+
+    @keyframes rotateBeam {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-portrait-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 14.5px;
+      overflow: hidden;
+      background: var(--surface);
+      z-index: 1;
+    }
+
+    .hero-portrait-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-portrait:hover .hero-portrait-inner img {
+      transform: scale(1.05);
+    }
+
+    /* ─── SECTION LAYOUT & STAGGER REVEAL ─── */
+    section.sec {
+      padding: 5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reveal-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-up.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sec-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2.75rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sec-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    .sec-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+    }
+
+    .sec-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      max-width: 460px;
+    }
+
+    /* ─── SPOTLIGHT HOVER EFFECT FOR CARDS ─── */
+    .spotlight-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        420px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
+        var(--spotlight-card),
+        transparent 40%
+      );
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .spotlight-card:hover::before {
+      opacity: 1;
+    }
+
+    /* ─── ABOUT & ANIMATED METRICS ─── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .about-copy p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.75;
+      margin-bottom: 1.15rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .metric-cell {
+      background: var(--surface);
+      padding: 1.5rem 1.25rem;
+      transition: background 0.25s ease;
+    }
+
+    .metric-cell:hover {
+      background: var(--surface-hover);
+    }
+
+    .metric-val {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+
+    .metric-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ─── TECH MARQUEE + INTERACTIVE GRID ─── */
+    .marquee-wrap {
+      position: relative;
+      overflow: hidden;
+      padding: 0.5rem 0 1.75rem;
+      mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 0.85rem;
+      width: max-content;
+      animation: scrollMarquee 32s linear infinite;
+    }
+
+    .marquee-wrap:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollMarquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .stack-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .stack-item:hover {
+      background: var(--surface-hover);
+      border-color: var(--text-muted);
+      transform: translateY(-4px);
+    }
+
+    .stack-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      overflow: hidden;
+    }
+
+    .stack-dot svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .stack-item:hover .stack-dot {
+      transform: scale(1.12) rotate(-4deg);
+    }
+
+    .stack-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* ─── PROJECTS & EVENTS CARDS ─── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+      gap: 1.5rem;
+    }
+
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+      cursor: pointer;
+    }
+
+    .item-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.55);
+    }
+
+    .card-media {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .item-card:hover .card-media img {
+      transform: scale(1.06);
+    }
+
+    .card-body {
+      padding: 1.35rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.15rem;
+      position: relative;
+      z-index: 3;
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.015em;
+    }
+
+    .card-arrow {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    }
+
+    .item-card:hover .card-arrow {
+      color: var(--text);
+      transform: translate(4px, -4px);
+    }
+
+    .card-desc {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .card-meta-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+
+    .tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .item-card:hover .tag-badge {
+      border-color: var(--border-light);
+      color: var(--text);
+    }
+
+    .card-hidden {
+      display: none !important;
+    }
+
+    .ver-mas-box {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    /* ─── CERTIFICATIONS ─── */
+    .certs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+      gap: 1.25rem;
+    }
+
+    .cert-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cert-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .cert-media {
+      aspect-ratio: 16 / 11;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .cert-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cert-card:hover .cert-media img {
+      transform: scale(1.06);
+    }
+
+    .cert-info {
+      padding: 1rem 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 3;
+    }
+
+    .cert-info h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ─── CONTACT ─── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+
+    .contact-channels {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-top: 1.75rem;
+    }
+
+    .channel-row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .channel-row:hover {
+      border-color: var(--border-light);
+      transform: translateX(4px);
+    }
+
+    .channel-row-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+
+    .channel-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .channel-text small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .channel-text strong {
+      font-size: 0.875rem;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .mini-action {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .mini-action:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .contact-form-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+
+    .form-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.95rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      font-family: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--text);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+    }
+
+    .field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* ─── FOOTER ─── */
+    footer.site-footer {
+      padding: 2.5rem 0;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .admin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.82rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      transition: all 0.2s ease;
+    }
+
+    .admin-link:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+      transform: translateY(-2px);
+    }
+
+    /* ─── LIGHTBOX ─── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .lightbox.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .lightbox img {
+      max-width: min(92vw, 1080px);
+      max-height: 86vh;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .lb-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid #3f3f46;
+      background: #18181b;
+      color: #fafafa;
+      cursor: pointer;
+    }
+
+    /* ─── TOAST ─── */
+    #toastBox {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast-msg {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.8rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: zoomIn 0.25s ease;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
       }
 
-      [data-theme="dark"] {
-        --bg: #0f172a;
-        --bg-secondary: #1e293b;
-        --text: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --border: #334155;
+      .hero-portrait-wrap {
+        order: -1;
       }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .hero-portrait {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
       }
 
-      html {
-        scroll-behavior: smooth;
+      .hero-portrait-inner {
+        border-radius: 50%;
       }
 
-      body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.6;
-        color: var(--text);
-        background: var(--bg);
-        transition:
-          background 0.3s,
-          color 0.3s;
-        overflow-x: hidden;
+      .about-layout,
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
       }
+    }
 
-      nav {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        height: var(--nav-height);
-        background: var(--bg-secondary);
-        backdrop-filter: blur(10px);
-        padding: 0 clamp(1rem, 3vw, 2rem);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1000;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: background 0.3s;
-      }
-
-      .logo {
-        font-size: clamp(1.2rem, 3vw, 1.5rem);
-        font-weight: 700;
-        color: var(--primary);
-      }
-
+    @media (max-width: 720px) {
       .nav-links {
-        display: flex;
-        gap: clamp(1rem, 3vw, 2rem);
-        list-style: none;
-      }
-
-      .nav-links a {
-        text-decoration: none;
-        color: var(--text);
-        font-weight: 500;
-        font-size: clamp(0.85rem, 2vw, 1rem);
-        transition: color 0.3s;
-        padding: 0.5rem;
-      }
-
-      .nav-links a:hover {
-        color: var(--primary);
-      }
-
-      section {
-        padding: var(--section-padding) clamp(0.5rem, 3vw, 2rem);
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      h2 {
-        font-size: var(--h2-size);
-        margin-bottom: clamp(1.5rem, 4vw, 3rem);
-        text-align: center;
-        color: var(--text);
-      }
-
-      #hero {
-        min-height: 100vh;
-        min-height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding-top: var(--nav-height);
-      }
-
-      #hero h1 {
-        font-size: var(--h1-size);
-        margin-bottom: 1rem;
-        line-height: 1.1;
-      }
-
-      #hero h1 span {
-        color: var(--primary);
-      }
-
-      #hero p {
-        font-size: var(--p-size);
-        color: var(--gray);
-        max-width: min(600px, 90vw);
-        padding: 0 1rem;
-      }
-
-      .hero-buttons {
-        margin-top: clamp(1rem, 3vw, 2rem);
-        display: flex;
-        gap: clamp(0.5rem, 2vw, 1rem);
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .btn {
-        padding: clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
-        border-radius: 0.5rem;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: clamp(0.85rem, 2vw, 1rem);
-        transition: all 0.3s;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: var(--accent);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-      }
-
-      .btn-outline {
-        border: 2px solid var(--primary);
-        color: var(--primary);
-      }
-
-      .btn-outline:hover {
-        background: var(--primary);
-        color: white;
-      }
-
-      #about {
-        background: var(--bg-secondary);
-        border-radius: clamp(0.5rem, 2vw, 1rem);
-        margin: 2rem auto;
-        max-width: min(900px, 95vw);
-        transition: background 0.3s;
-      }
-
-      .about-content {
-        display: grid;
-        grid-template-columns: minmax(150px, 250px) 1fr;
-        gap: clamp(1.5rem, 4vw, 3rem);
-        align-items: center;
-        padding: clamp(1rem, 3vw, 2rem);
-      }
-
-      .about-text h3 {
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
-        margin-bottom: 1rem;
-      }
-
-      .about-text p {
-        color: var(--gray);
-        margin-bottom: 1rem;
-      }
-
-      .avatar {
-        width: clamp(120px, 25vw, 250px);
-        height: clamp(120px, 25vw, 250px);
-        border-radius: 50%;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
-      }
-
-      .avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      #tech-stack {
-        background: var(--bg-secondary);
-        transition: background 0.3s;
-      }
-
-      .tech-grid {
-        display: grid;
-        grid-template-columns: repeat(
-          auto-fit,
-          minmax(clamp(80px, 15vw, 120px), 1fr)
-        );
-        gap: clamp(1rem, 3vw, 2rem);
-        max-width: min(900px, 95vw);
-        margin: 0 auto;
-      }
-
-      .tech-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: clamp(0.75rem, 2vw, 1.5rem);
-        border-radius: 1rem;
-        background: var(--bg);
-        transition:
-          transform 0.3s,
-          background 0.3s;
-      }
-
-      .tech-item:hover {
-        transform: translateY(-5px);
-      }
-
-      .tech-item span {
-        font-weight: 600;
-        font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-        text-align: center;
-      }
-
-      .tech-icon {
-        width: clamp(32px, 8vw, 48px);
-        height: clamp(32px, 8vw, 48px);
-      }
-
-      #projects,
-      #events {
-        max-width: min(1400px, 95vw);
-      }
-
-      .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(350px, 90vw), 1fr));
-        gap: clamp(1rem, 3vw, 2rem);
-      }
-
-      .project-card {
-        background: var(--bg-secondary);
-        border-radius: clamp(0.5rem, 2vw, 1rem);
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition:
-          transform 0.3s,
-          box-shadow 0.3s,
-          background 0.3s;
-        cursor: pointer;
-      }
-
-      .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      }
-
-      .project-image {
-        width: 100%;
-        height: clamp(140px, 25vw, 200px);
-        object-fit: cover;
-        background: var(--bg);
-      }
-
-      .project-content {
-        padding: clamp(1rem, 2vw, 1.5rem);
-      }
-
-      .project-content h3 {
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
-        margin-bottom: 0.5rem;
-      }
-
-      .project-content p {
-        color: var(--text-secondary);
-        font-size: clamp(0.8rem, 1.5vw, 0.9rem);
-        margin-bottom: 1rem;
-      }
-
-      .event-date {
-        color: var(--primary);
-        font-weight: 600;
-        font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-        margin-bottom: 0.5rem;
-        display: block;
-      }
-
-      .project-tags {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-      }
-
-      .tag {
-        background: var(--bg);
-        color: var(--primary);
-        padding: 0.25rem clamp(0.5rem, 2vw, 0.75rem);
-        border-radius: 999px;
-        font-size: clamp(0.65rem, 1.5vw, 0.75rem);
-        font-weight: 600;
-        transition:
-          background 0.3s,
-          color 0.3s;
-      }
-
-      #certifications {
-        background: var(--bg-secondary);
-        transition: background 0.3s;
-      }
-
-      .cert-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(280px, 90vw), 1fr));
-        gap: clamp(1rem, 3vw, 2rem);
-        max-width: min(1100px, 95vw);
-        margin: 0 auto;
-      }
-
-      .cert-card {
-        padding: clamp(1rem, 2vw, 1.5rem);
-        border-radius: clamp(0.5rem, 2vw, 1rem);
-        background: var(--bg-secondary);
-        border: 2px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: clamp(1rem, 2vw, 1.5rem);
-        text-align: left;
-        transition:
-          transform 0.3s,
-          box-shadow 0.3s,
-          background 0.3s;
-      }
-
-      .cert-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      }
-
-      .hidden-card {
         display: none;
       }
 
-      .ver-mas-container {
-        display: flex;
-        justify-content: center;
-        margin-top: clamp(1.5rem, 4vw, 2.5rem);
-      }
-
-      .btn-ver-mas {
-        padding: 0.75rem 2rem;
-        background: var(--bg);
-        border: 2px solid var(--primary);
-        color: var(--primary);
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: clamp(0.85rem, 2vw, 1rem);
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-ver-mas:hover {
-        background: var(--primary);
-        color: white;
-      }
-
-      .cert-image {
-        width: clamp(45px, 10vw, 60px);
-        height: clamp(45px, 10vw, 60px);
-        object-fit: contain;
-        border-radius: 0.5rem;
-        flex-shrink: 0;
-      }
-
-      .cert-card h3 {
-        font-size: clamp(0.85rem, 2vw, 1rem);
-        color: var(--text);
-      }
-
-      #contact {
-        max-width: min(600px, 95vw);
-      }
-
-      .contact-form {
+      .nav-links.open {
         display: flex;
         flex-direction: column;
-        gap: clamp(1rem, 3vw, 1.5rem);
-      }
-
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .form-group label {
-        font-weight: 600;
-        font-size: clamp(0.85rem, 2vw, 1rem);
-      }
-
-      .form-group input,
-      .form-group textarea {
-        padding: clamp(0.6rem, 2vw, 0.75rem);
-        border: 2px solid var(--border);
-        border-radius: 0.5rem;
-        font-size: clamp(0.9rem, 2vw, 1rem);
-        font-family: inherit;
-        background: var(--bg);
-        color: var(--text);
-        transition:
-          border-color 0.3s,
-          background 0.3s,
-          color 0.3s;
-      }
-
-      .form-group input:focus,
-      .form-group textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-      }
-
-      .form-group textarea {
-        resize: vertical;
-        min-height: clamp(100px, 20vw, 150px);
-      }
-
-      .contact-info {
-        display: flex;
-        justify-content: center;
-        margin-top: clamp(1.5rem, 4vw, 3rem);
-      }
-
-      .contact-info a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: clamp(0.85rem, 2vw, 1rem);
-      }
-
-      .contact-info a:hover {
-        text-decoration: underline;
-      }
-
-      footer {
-        background: var(--dark);
-        color: white;
-        text-align: center;
-        padding: clamp(1.5rem, 4vw, 2rem) clamp(0.5rem, 3vw, 2rem);
-        margin-top: 4rem;
-        font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-      }
-
-      .mobile-menu {
-        display: none;
-        font-size: clamp(1.2rem, 4vw, 1.5rem);
-        cursor: pointer;
-        padding: 0.5rem;
-        background: none;
-        border: none;
-        color: var(--text);
-      }
-
-      .theme-toggle {
-        background: none;
-        border: none;
-        border-radius: 50%;
-        width: clamp(36px, 10vw, 44px);
-        height: clamp(36px, 10vw, 44px);
-        cursor: pointer;
-        font-size: clamp(1.2rem, 3vw, 1.4rem);
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .theme-toggle:hover {
-        background: var(--bg);
-        transform: scale(1.1);
-      }
-
-      .lightbox {
-        display: none;
-        position: fixed;
-        top: 0;
+        position: absolute;
+        top: 64px;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-        cursor: pointer;
-        padding: 1rem;
+        right: 0;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 1.25rem 1.5rem;
+        gap: 1rem;
       }
 
-      .lightbox.active {
-        display: flex;
+      .ham-btn {
+        display: grid;
       }
 
-      .lightbox img {
-        max-width: min(90vw, 1200px);
-        max-height: 90vh;
-        object-fit: contain;
-        border-radius: 0.5rem;
+      .metrics-grid {
+        grid-template-columns: 1fr;
       }
+    }
+  </style>
+</head>
+<body>
 
-      @media (max-width: 768px) {
-        .nav-links {
-          display: none;
-        }
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="cursor-aura" id="cursorAura"></div>
+  <div class="bg-dots"></div>
 
-        .nav-links.active {
-          display: flex;
-          flex-direction: column;
-          position: absolute;
-          top: var(--nav-height);
-          left: 0;
-          width: 100%;
-          background: var(--bg-secondary);
-          padding: 1rem;
-          gap: 0.5rem;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-links.active li {
-          border-bottom: 1px solid var(--border);
-          padding-bottom: 0.5rem;
-        }
-
-        .nav-links.active li:last-child {
-          border-bottom: none;
-        }
-
-        .theme-toggle {
-          position: absolute;
-          right: clamp(2.5rem, 12vw, 4rem);
-        }
-
-        .mobile-menu {
-          display: block;
-        }
-
-        .about-content {
-          grid-template-columns: 1fr;
-          text-align: center;
-        }
-
-        .avatar {
-          margin: 0 auto;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .hero-buttons {
-          flex-direction: column;
-          width: min(280px, 85vw);
-        }
-
-        .btn {
-          width: 100%;
-          text-align: center;
-        }
-
-        .projects-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .cert-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .cert-card {
-          flex-direction: column;
-          text-align: center;
-        }
-
-        .about-text p {
-          text-align: left;
-        }
-      }
-
-      @media (min-width: 769px) and (max-width: 1024px) {
-        .projects-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .cert-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .about-content {
-          gap: 2rem;
-        }
-      }
-
-      @media (min-width: 1025px) and (max-width: 1440px) {
-        .about-content {
-          gap: 3rem;
-        }
-
-        .projects-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-
-      @media (min-width: 1441px) {
-        section {
-          max-width: 1600px;
-        }
-
-        #hero h1 {
-          font-size: clamp(3.5rem, 5vw, 5rem);
-        }
-
-        .projects-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-
-        .cert-grid {
-          grid-template-columns: repeat(4, 1fr);
-        }
-      }
-
-      @media (min-width: 1921px) {
-        :root {
-          --nav-height: 80px;
-        }
-
-        #hero h1 {
-          font-size: 6rem;
-        }
-
-        #hero p {
-          font-size: 1.5rem;
-          max-width: 900px;
-        }
-
-        .about-content {
-          grid-template-columns: 350px 1fr;
-          gap: 4rem;
-        }
-
-        .avatar {
-          width: 300px;
-          height: 300px;
-        }
-
-        h2 {
-          font-size: 3rem;
-        }
-
-        .tech-grid {
-          grid-template-columns: repeat(4, 1fr);
-          max-width: 1100px;
-        }
-      }
-
-      @media (max-height: 600px) and (orientation: landscape) {
-        #hero {
-          min-height: auto;
-          padding: calc(var(--nav-height) + 1rem) 2rem 2rem;
-        }
-
-        #hero h1 {
-          font-size: clamp(1.5rem, 5vh, 2.5rem);
-        }
-
-        #hero p {
-          font-size: clamp(0.8rem, 2vh, 1rem);
-        }
-
-        .hero-buttons {
-          margin-top: 1rem;
-        }
-      }
-
-      @media (hover: none) and (pointer: coarse) {
-        .btn {
-          padding: 0.85rem 1.5rem;
-        }
-
-        .tech-item,
-        .project-card,
-        .cert-card {
-          transition: none;
-        }
-
-        .tech-item:active,
-        .project-card:active,
-        .cert-card:active {
-          transform: scale(0.98);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <div class="logo">QH</div>
-      <ul class="nav-links">
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="#hero" class="brand">
+        <span class="brand-mark">QH</span>
+        <span>Quevedo Hernández</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
         <li><a href="#about">Acerca de</a></li>
         <li><a href="#tech-stack">Tecnologías</a></li>
         <li><a href="#projects">Proyectos</a></li>
@@ -737,668 +1190,899 @@
         <li><a href="#certifications">Certificaciones</a></li>
         <li><a href="#contact">Contacto</a></li>
       </ul>
-      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
-      </button>
-      <div class="mobile-menu">☰</div>
-    </nav>
-
-    <section id="hero">
-      <h1>Hola, soy <span>Quevedo Hernández</span></h1>
-      <p>
-        Desarrollo sitios y aplicaciones web. Principalmente trabajo con React,
-        Node.js y bases de datos.
-      </p>
-      <div class="hero-buttons">
-        <a href="#projects" class="btn btn-primary">Ver proyectos</a>
-        <a href="#contact" class="btn btn-outline">Hablar conmigo</a>
-      </div>
-    </section>
-
-    <section id="about">
-      <h2>Acerca de mí</h2>
-      <div class="about-content">
-        <div class="avatar">
-          <img src="img/Perfil/foto.jpeg" alt="Quevedo Hernández" />
-        </div>
-        <div class="about-text">
-          <h3>Desarrollador web</h3>
-          <p>
-            Me encargo de crear sitios y aplicaciones que funcionan bien y se
-            ven bien. No uso frameworks de más ni complico las cosas sin
-            necesidad.
-          </p>
-          <p>
-            Si necesitas un sitio web, una app o mejorar lo que ya tienes,
-            contáctame y vemos cómo ayudarte.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="tech-stack">
-      <h2>Tecnologías</h2>
-      <div class="tech-grid">
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" fill="#f7df1e" />
-            <path
-              d="M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.637-1.295-1.284-1.695l.001-.001c-.537-.337-1.035-.758-1.035-1.389 0-1.113.943-1.473 1.409-1.672.147-.061.281-.127.281-.259 0-.177-.165-.323-.409-.323-.337 0-.576.163-.739.5-.439.913-.996 1.605-2.039 1.605-1.211 0-1.969-.876-1.969-2.109 0-1.534.99-2.6 2.574-2.6 1.021 0 1.721.239 2.232.665.012.009.023.019.033.028l.017-.005c-.029-.201-.048-.364-.048-.493 0-.963.604-1.509 1.863-1.509 1.169 0 1.945.536 2.074 1.522.139.139.243.317.243.523 0 .291-.168.515-.444.663-.166.083-.377.185-.377.349 0 .163.19.276.435.276.337 0 .665-.192.933-.58.627-.913 1.051-1.537 1.842-1.537 1.113 0 1.99.877 1.99 2.178 0 1.478-.909 2.572-2.318 2.883l.002.001c-.854.336-1.545.96-1.545 1.875 0 .794.425 1.374 1.183 1.672.105.042.207.083.307.121l.001-.001c.58.249 1.055.637 1.055 1.256 0 .812-.689 1.355-1.699 1.355-1.105 0-1.873-.579-2.29-1.439-.18-.352-.293-.741-.293-1.163 0-.43.116-.808.309-1.142l.004-.001c.011-.017.021-.035.032-.054l-.029.009zm-7.189-1.715c0 .66.416 1.151 1.096 1.151.661 0 1.154-.472 1.154-1.105 0-.663-.493-1.15-1.154-1.15-.68 0-1.096.487-1.096 1.15v-.046z"
-              fill="#000"
-            />
-          </svg>
-          <span>JavaScript</span>
-        </div>
-
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#092e20" />
-            <path d="M12 6l4.5 2.5v5L12 16l-4.5-2.5v-5L12 6z" fill="#fff" />
-            <path
-              d="M12 6v10l4.5 2.5M12 6l-4.5 2.5"
-              stroke="#092e20"
-              stroke-width="0.5"
-            />
-            <circle cx="12" cy="12" r="2" fill="#092e20" />
-          </svg>
-          <span>Django</span>
-        </div>
-
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" rx="4" fill="#68a063" />
-            <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2" />
-          </svg>
-          <span>Node.js</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" rx="2" fill="#3776ab" />
-            <text
-              x="12"
-              y="16"
-              text-anchor="middle"
-              fill="#fff"
-              font-size="10"
-              font-weight="bold"
-            >
-              Py
-            </text>
-          </svg>
-          <span>Python</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" rx="2" fill="#3178c6" />
-            <text
-              x="12"
-              y="16"
-              text-anchor="middle"
-              fill="#fff"
-              font-size="8"
-              font-weight="bold"
-            >
-              TS
-            </text>
-          </svg>
-          <span>TypeScript</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" fill="#f05032" />
-            <path
-              d="M12 2c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"
-              fill="none"
-              stroke="#fff"
-              stroke-width="2"
-            />
-          </svg>
-          <span>Git</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" rx="2" fill="#336791" />
-            <text
-              x="12"
-              y="16"
-              text-anchor="middle"
-              fill="#fff"
-              font-size="7"
-              font-weight="bold"
-            >
-              SQL
-            </text>
-          </svg>
-          <span>SQL</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path d="M12 2L2 8.5l1.5 11.5h17L22 8.5 12 2z" fill="#777bb3" />
-            <path d="M12 2L2 8.5h20L12 2z" fill="#858eb8" />
-            <path d="M7 11.5v7l4.5-4 4.5 4v-7l-4.5-3-4.5 3z" fill="#fff" />
-            <path
-              d="M12 18.5v-7l4.5-3-4.5-3v4.5l-4.5 3 4.5 3v2.5h4.5"
-              fill="#fff"
-            />
-            <circle cx="12" cy="11.5" r="1.5" fill="#777bb3" />
-          </svg>
-          <span>php</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#ff5d01" />
-            <path
-              d="M12 2v20l9-5-9-5-9 5 9 5V2l-9 5 9 5 9-5-9-5z"
-              fill="#ff5d01"
-            />
-            <path d="M12 7l-4 10h3v4l4-6v-8h-3z" fill="#fff" />
-          </svg>
-          <span>astro</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path
-              d="M8.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S12 1 10.5 1 8 2 8 3.5"
-              fill="#e76f00"
-            />
-            <path
-              d="M8.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S12 1 10.5 1 8 2 8 3.5z"
-              fill="none"
-              stroke="#e76f00"
-              stroke-width="0.5"
-            />
-            <path
-              d="M6 8.5c1.5 0 2.5 1 2.5 2.5v8c0 1.5-1 2.5-2.5 2.5s-2.5-1-2.5-2.5v-8c0-1.5 1-2.5 2.5-2.5z"
-              fill="#e76f00"
-            />
-            <path
-              d="M17.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S21 1 19.5 1 17 2 17 3.5"
-              fill="#e76f00"
-            />
-            <path
-              d="M17.5 3.5c0 1.5 1 2.5 2.5 2.5s2.5-1 2.5-2.5S21 1 19.5 1 17 2 17 3.5z"
-              fill="none"
-              stroke="#e76f00"
-              stroke-width="0.5"
-            />
-            <path
-              d="M15 8.5c1.5 0 2.5 1 2.5 2.5v8c0 1.5-1 2.5-2.5 2.5s-2.5-1-2.5-2.5v-8c0-1.5 1-2.5 2.5-2.5z"
-              fill="#e76f00"
-            />
-            <path
-              d="M9 17h6"
-              stroke="#fff"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-            <path
-              d="M12 14v6"
-              stroke="#fff"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-          </svg>
-          <span>Java</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path d="M3 2h18v20H3V2z" fill="#e34f26" />
-            <path d="M5 4h14l-1.5 16.5L12 22l-5.5-1.5L5 4z" fill="#fff" />
-            <path d="M12 5.5l4.5 12h-9L12 5.5z" fill="#e34f26" />
-            <path d="M12 5.5l-4.5 12h3l1-3h3l1 3h3L12 5.5z" fill="#fff" />
-          </svg>
-          <span>HTML</span>
-        </div>
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <path d="M3 2h18v20H3V2z" fill="#1572b6" />
-            <path d="M5 4h14l-1.5 16.5L12 22l-5.5-1.5L5 4z" fill="#fff" />
-            <path d="M12 5.5l4.5 12h-9L12 5.5z" fill="#1572b6" />
-            <path d="M12 5.5l-4.5 12h3l1-3h3l1 3h3L12 5.5z" fill="#fff" />
-            <path
-              d="M9 11l3 3 3-3"
-              stroke="#33a9dc"
-              stroke-width="1.5"
-              fill="none"
-            />
-          </svg>
-          <span>css</span>
-        </div>
-
-        <div class="tech-item">
-          <svg class="tech-icon" viewBox="0 0 24 24">
-            <rect width="24" height="24" rx="2" fill="#000" />
-            <text
-              x="12"
-              y="16"
-              text-anchor="middle"
-              fill="#fff"
-              font-size="8"
-              font-weight="bold"
-            >
-              Next
-            </text>
-          </svg>
-          <span>Next.js</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="projects">
-      <h2>Proyectos</h2>
-      <div class="projects-grid">
-        <div
-          class="project-card"
-          data-url="https://pagina-cafeteria-gray.vercel.app"
-        >
-          <img
-            src="img/pagina_cafeteria.png"
-            alt="Página Cafetería"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Página Cafetería</h3>
-            <p>Sitio web para cafetería.</p>
-            <div class="project-tags">
-              <span class="tag">Web</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="project-card"
-          data-url="https://pagina-de-eventos-one.vercel.app/"
-        >
-          <img
-            src="img/pagina_eventos.png"
-            alt="Página Eventos"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Página Eventos</h3>
-            <p>Sitio para gestión de eventos.</p>
-            <div class="project-tags">
-              <span class="tag">sistema</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="project-card"
-          data-url="https://pagina-de-dentista.vercel.app"
-        >
-          <img
-            src="img/pagina_dentista.png"
-            alt="Página Dentista"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Página Dentista</h3>
-            <p>Sitio web para dentistas.</p>
-            <div class="project-tags">
-              <span class="tag">Sistema</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card hidden-card" data-url="#">
-          <img
-            src="img/pagina_noticias.png"
-            alt="Página Noticias"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Página Noticias</h3>
-            <p>Sitio de noticias.</p>
-            <div class="project-tags">
-              <span class="tag">sistema</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="ver-mas-container">
-        <button type="button" class="btn-ver-mas" data-target="projects">
-          Ver más
+      <div class="nav-controls">
+        <button class="icon-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
+        <button class="icon-btn ham-btn" id="hamBtn" aria-label="Menú">☰</button>
       </div>
-    </section>
-
-    <section id="events">
-      <h2>Eventos Participados</h2>
-      <div class="projects-grid">
-        <div class="project-card">
-          <img
-            src="img/eventos/opentec.jpeg"
-            alt="OpenTec"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Open Tec</h3>
-            <span class="event-date">10 Marzo 2026</span>
-            <p>
-              Participación junto al equipo NextCode en evento de Open Tec 2026.
-            </p>
-
-            <div class="project-tags">
-              <span class="tag">Evento</span>
-              <span class="tag">Equipo NextCode</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card">
-          <img
-            src="img/eventos/brigada.jpeg"
-            alt="Brigada Plantel 28"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Brigada Plantel 28</h3>
-            <span class="event-date">26 Febrero 2026</span>
-            <p>
-              Apoyo técnico en el evento de la preparatoria como parte del
-              servicio social.
-            </p>
-            <div class="project-tags">
-              <span class="tag">Soporte</span>
-              <span class="tag">Comunidad</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card">
-          <img
-            src="img/eventos/istmo.jpeg"
-            alt="Curso a Tec de Oaxaca"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Curso a Tec de Oaxaca</h3>
-            <span class="event-date">13 Marzo 2026</span>
-            <p>
-              Apoyo técnico en el curso para la universidad tecnológica de istmo
-              como parte del servicio social.
-            </p>
-            <div class="project-tags">
-              <span class="tag">Soporte</span>
-              <span class="tag">Comunidad</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card hidden-card">
-          <img
-            src="img/eventos/cursotec.jpeg"
-            alt="Curso a Tec"
-            class="project-image"
-          />
-          <div class="project-content">
-            <h3>Curso a Tec estudiantes del tec y prepa</h3>
-            <span class="event-date">23 abril 2026</span>
-            <p>
-              Apoyo técnico en el curso para la universidad tecnológica de
-              villahermosa y preparatoria como parte del servicio social.
-            </p>
-            <div class="project-tags">
-              <span class="tag">Soporte</span>
-              <span class="tag">Comunidad</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="ver-mas-container">
-        <button type="button" class="btn-ver-mas" data-target="events">
-          Ver más
-        </button>
-      </div>
-    </section>
-
-    <section id="certifications">
-      <h2>Certificaciones</h2>
-      <div class="cert-grid">
-        <div class="cert-card">
-          <img
-            src="img/cursos/hackathon-2025.jpeg"
-            alt="Hackathon 2025"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Hackathon 2025</h3>
-        </div>
-        <div class="cert-card">
-          <img
-            src="img/cursos/hackathon-2026.jpeg"
-            alt="Hackathon 2026"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Hackathon 2026</h3>
-        </div>
-        <div class="cert-card">
-          <img
-            src="img/cursos/tecnico-en-seguridad-perimetral.png"
-            alt="Técnico en Seguridad Perimetral"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Técnico en Seguridad Perimetral</h3>
-        </div>
-        <div class="cert-card">
-          <img
-            src="img/cursos/tecnico-en-seguridad.png"
-            alt="Técnico en Seguridad"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Técnico en Seguridad</h3>
-        </div>
-        <div class="cert-card hidden-card">
-          <img
-            src="img/cursos/tecnico-en-redes-ip.png"
-            alt="Técnico en Redes IP"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Técnico en Redes IP</h3>
-        </div>
-        <div class="cert-card hidden-card">
-          <img
-            src="img/cursos/fundamentos-de-seguridad.png"
-            alt="Fundamentos de Seguridad"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Fundamentos de Seguridad</h3>
-        </div>
-        <div class="cert-card hidden-card">
-          <img
-            src="img/cursos/administrador-de-servidores.png"
-            alt="Administrador de Servidores"
-            class="cert-image"
-            onclick="openLightbox(this)"
-          />
-          <h3>Administrador de Servidores</h3>
-        </div>
-      </div>
-      <div class="ver-mas-container">
-        <button type="button" class="btn-ver-mas" data-target="certifications">
-          Ver más
-        </button>
-      </div>
-    </section>
-
-    <section id="contact">
-      <h2>Contacto</h2>
-      <form
-        class="contact-form"
-        id="contactForm"
-        action="https://formspree.io/f/quevedohernandezj126@gmail.com"
-        method="POST"
-      >
-        <div class="form-group">
-          <label for="name">Nombre</label>
-          <input type="text" id="name" name="name" required />
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required />
-        </div>
-        <div class="form-group">
-          <label for="message">Mensaje</label>
-          <textarea id="message" name="message" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
-      </form>
-      <div class="contact-info">
-        <a href="mailto:quevedohernandezj126@gmail.com"
-          >quevedohernandezj126@gmail.com</a
-        >
-      </div>
-    </section>
-
-    <footer>
-      <p>2026 Quevedo Hernández. Todos los derechos reservados.</p>
-    </footer>
-
-    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-      <img id="lightbox-img" src="" alt="Imagen expandida" />
     </div>
+  </header>
 
-    <script>
-      const themeToggle = document.getElementById("themeToggle");
-      const html = document.documentElement;
+  <main class="container">
+    <!-- HERO -->
+    <section id="hero" class="reveal-up in-view">
+      <div class="hero-grid">
+        <div>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            <span>Disponible para nuevos proyectos</span>
+          </div>
+          <h1 class="hero-name" id="heroName">José Francisco Quevedo Hernández</h1>
+          <div class="hero-role-wrap">
+            <span>&gt;</span>
+            <span id="heroRole">Desarrollador Web</span>
+            <span class="cursor-blink"></span>
+          </div>
+          <p class="hero-bio" id="heroSubtitle">
+            Desarrollo sitios y aplicaciones web. Principalmente trabajo con React, Node.js y bases de datos.
+          </p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-solid magnetic">Ver proyectos</a>
+            <a href="#contact" class="btn btn-ghost magnetic">Hablar conmigo</a>
+          </div>
 
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        html.setAttribute("data-theme", savedTheme);
-        updateThemeIcon(savedTheme);
+          <div class="hero-links-row">
+            <a id="heroEmailBtn" href="#" class="inline-link" style="display:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span id="heroEmailLabel"></span>
+            </a>
+            <a id="heroIgBtn" href="#" target="_blank" rel="noopener noreferrer" class="inline-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span id="heroIgLabel">@quevedo</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-portrait-wrap" id="heroVisual">
+          <div class="hero-portrait" id="tiltPortrait">
+            <div class="hero-portrait-inner">
+              <img id="heroPhoto" src="img/Perfil/foto.jpeg" alt="José Francisco Quevedo Hernández" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="sec reveal-up">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">01 / Perfil</span>
+          <h2 class="sec-title">Acerca de mí</h2>
+        </div>
+      </div>
+
+      <div class="about-layout">
+        <div class="about-copy">
+          <p id="aboutDesc1"></p>
+          <p id="aboutDesc2"></p>
+        </div>
+        <div class="metrics-grid" id="statsRow"></div>
+      </div>
+    </section>
+
+    <!-- TECH STACK -->
+    <section id="tech-stack" class="sec reveal-up">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">02 / Herramientas</span>
+          <h2 class="sec-title">Tecnologías</h2>
+        </div>
+        <p class="sec-subtitle">Lenguajes, frameworks y bases de datos que utilizo en el desarrollo diario.</p>
+      </div>
+      <div class="marquee-wrap">
+        <div class="marquee-track" id="techMarquee"></div>
+      </div>
+      <div class="stack-grid" id="techPills"></div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="sec reveal-up">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">03 / Portafolio</span>
+          <h2 class="sec-title">Proyectos</h2>
+        </div>
+        <p class="sec-subtitle">Aplicaciones y plataformas web desplegadas en producción.</p>
+      </div>
+      <div class="cards-grid" id="projectsGrid"></div>
+      <div class="ver-mas-box">
+        <button class="btn btn-ghost" id="projVerMas">Ver más</button>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section id="events" class="sec reveal-up">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">04 / Comunidad</span>
+          <h2 class="sec-title">Eventos Participados</h2>
+        </div>
+        <p class="sec-subtitle">Congresos tecnológicos, soporte técnico y actividades académicas.</p>
+      </div>
+      <div class="cards-grid" id="eventsGrid"></div>
+      <div class="ver-mas-box">
+        <button class="btn btn-ghost" id="evVerMas">Ver más</button>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section id="certifications" class="sec reveal-up">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">05 / Credenciales</span>
+          <h2 class="sec-title">Certificaciones</h2>
+        </div>
+        <p class="sec-subtitle">Haz clic en cualquier certificado para visualizar el documento completo.</p>
+      </div>
+      <div class="certs-grid" id="certGrid"></div>
+      <div class="ver-mas-box">
+        <button class="btn btn-ghost" id="certVerMas">Ver más</button>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="sec reveal-up" style="border-bottom:none">
+      <div class="sec-header">
+        <div>
+          <span class="sec-kicker">06 / Contacto</span>
+          <h2 class="sec-title">Contacto</h2>
+        </div>
+      </div>
+
+      <div class="contact-grid">
+        <div>
+          <p style="color:var(--text-secondary);font-size:0.98rem;line-height:1.7">
+            Si tienes un proyecto en mente, necesitas desarrollar un sistema web o buscas colaborar, puedes escribirme directamente por correo, Instagram o mediante el formulario.
+          </p>
+
+          <div class="contact-channels">
+            <div class="channel-row spotlight-card" id="contactEmailCard" style="display:none">
+              <a id="contactEmailLink" href="#" class="channel-row-left" style="text-decoration:none;color:inherit">
+                <div class="channel-icon-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </div>
+                <div class="channel-text">
+                  <small>Correo electrónico</small>
+                  <strong id="contactEmailTxt"></strong>
+                </div>
+              </a>
+              <button type="button" class="mini-action" id="copyEmailBtn">Copiar</button>
+            </div>
+
+            <a id="contactIgLink" href="#" target="_blank" rel="noopener noreferrer" class="channel-row spotlight-card">
+              <div class="channel-row-left">
+                <div class="channel-icon-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </div>
+                <div class="channel-text">
+                  <small>Instagram</small>
+                  <strong id="contactIgTxt">@quevedo</strong>
+                </div>
+              </div>
+              <span class="mini-action">Abrir ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-form-box spotlight-card">
+          <form class="form-stack" id="contactForm">
+            <div class="field">
+              <label for="cName">Nombre</label>
+              <input type="text" id="cName" name="name" placeholder="Tu nombre completo" required maxlength="100" />
+            </div>
+            <div class="field">
+              <label for="cEmail">Email</label>
+              <input type="email" id="cEmail" name="email" placeholder="nombre@ejemplo.com" required maxlength="150" />
+            </div>
+            <div class="field">
+              <label for="cMsg">Mensaje</label>
+              <textarea id="cMsg" name="message" placeholder="Describe brevemente tu proyecto o consulta..." required maxlength="2000"></textarea>
+            </div>
+            <button type="submit" class="btn btn-solid" style="width:100%">Enviar mensaje</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span id="footerText">2026 Quevedo Hernández. Todos los derechos reservados.</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lbClose">✕</button>
+    <img id="lbImg" src="" alt="Imagen expandida" />
+  </div>
+
+  <div id="toastBox"></div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* ── ANTI-DEVTOOLS & ANTI-INSPECTION SHIELD ── */
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      const k = e.key ? e.key.toUpperCase() : '';
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(k)) ||
+        (e.ctrlKey && ['U', 'S'].includes(k))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
       }
+    }, true);
 
-      function updateThemeIcon(theme) {
-        if (theme === "dark") {
-          themeToggle.innerHTML = "☀️";
+    /* ── 5 RAPID CLICKS ON LOGO -> NAVIGATE TO ADMIN ── */
+    let logoClicks = 0;
+    let logoTimer = null;
+    const brandEl = document.querySelector('.brand');
+    if (brandEl) {
+      brandEl.addEventListener('click', e => {
+        logoClicks += 1;
+        if (logoTimer) clearTimeout(logoTimer);
+        if (logoClicks >= 5) {
+          e.preventDefault();
+          logoClicks = 0;
+          window.location.href = atob('YWRtaW4uaHRtbA==');
+          return;
+        }
+        logoTimer = setTimeout(() => { logoClicks = 0; }, 1200);
+      });
+    }
+
+    /* ── PUBLIC KEY FOR ZERO-KNOWLEDGE MESSAGE ENCRYPTION (RSA-OAEP 2048-BIT) ── */
+    const DEFAULT_PUB_SPKI_B64 = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuQlcF4Gwgs4t8x2H76/5x3xv+LYUJHqSM3jbiRMCHNTC3AeYxRno+r0qfInrbVvIdgp+jusEOpXZ+J/mWJqtRjXLUGh92gxr51PrswNJ9JPAdeYOjB0SEWABMnwO2WpvHo7ZbXu70Z+qrpSMGl3OAtyAHIHdIYr/I/6pSDmAvM7DYJI/Ws8uMZyBmjOEHH8qM37gYoUwoPkgd3vojH5JqLxyzNs5rW3Srt424Jrzu5lk51mggwPz5evXzIUyLRwzzrmN55A2+4rVO+mcToPC8BtTexLosNbmUEHa5xtWHRLBaDWPz3WYWBOBWw9YeZl/1m5ODDYEwVC5cY1aIBPWqQIDAQAB';
+
+    function b64ToBytes(b64) {
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return arr;
+    }
+
+    function bytesToB64(bytes) {
+      let bin = '';
+      const arr = new Uint8Array(bytes);
+      for (let i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+      return btoa(bin);
+    }
+
+    async function encryptForAdminInbox(payloadObj) {
+      const pubB64 = localStorage.getItem('adminPubKeySpki') || DEFAULT_PUB_SPKI_B64;
+      const pubKey = await crypto.subtle.importKey(
+        'spki',
+        b64ToBytes(pubB64).buffer,
+        { name: 'RSA-OAEP', hash: 'SHA-256' },
+        false,
+        ['encrypt']
+      );
+      const rawAes = crypto.getRandomValues(new Uint8Array(32));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const aesKey = await crypto.subtle.importKey('raw', rawAes.buffer, { name: 'AES-GCM' }, false, ['encrypt']);
+      const encoded = new TextEncoder().encode(JSON.stringify(payloadObj));
+      const ctBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, encoded);
+      const ekBuf = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, pubKey, rawAes);
+      return {
+        id: Date.now(),
+        v: 'ENC_RSA_AES_V1',
+        ek: bytesToB64(ekBuf),
+        iv: bytesToB64(iv),
+        ct: bytesToB64(ctBuf)
+      };
+    }
+
+    /* ── SECURITY SANITIZERS ── */
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function safeUrl(url) {
+      if (!url) return '#';
+      const u = String(url).trim();
+      if (u === '#') return '#';
+      if (/^https?:\/\//i.test(u)) return u;
+      return '#';
+    }
+
+    function safeImgSrc(src) {
+      if (!src) return '';
+      const s = String(src).trim();
+      if (/^(img\/|data:image\/|https?:\/\/)/i.test(s)) return s;
+      return '';
+    }
+
+    /* ── SVG LOGOS FOR TECH STACK ── */
+    const TECH_SVGS = {
+      javascript: `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#f7df1e"/><path d="M6 17.5c.4.7 1 1.2 2 1.2 1.1 0 1.8-.5 1.8-1.7v-6.5h2v6.6c0 2.4-1.4 3.5-3.5 3.5-1.9 0-3-.9-3.6-2.1l1.3-1zm8.2-.2c.5.8 1.2 1.4 2.4 1.4 1 0 1.6-.5 1.6-1.1 0-.8-.6-1.1-1.8-1.6l-.6-.3c-1.8-.8-3-1.7-3-3.7 0-1.8 1.4-3.2 3.5-3.2 1.5 0 2.6.5 3.4 1.9l-1.8 1.2c-.4-.7-.8-1-1.6-1-.7 0-1.2.5-1.2 1 0 .7.5 1 1.6 1.5l.6.3c2.1.9 3.3 1.8 3.3 3.9 0 2.2-1.7 3.4-4 3.4-2.2 0-3.7-1.1-4.4-2.5l2-1.2z" fill="#000"/></svg>`,
+      react: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="#61dafb"/><g stroke="#61dafb" stroke-width="1.3" fill="none"><ellipse rx="10" ry="4.2" cx="12" cy="12"/><ellipse rx="10" ry="4.2" cx="12" cy="12" transform="rotate(60 12 12)"/><ellipse rx="10" ry="4.2" cx="12" cy="12" transform="rotate(120 12 12)"/></g></svg>`,
+      django: `<svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#092e20"/><path d="M12 6l4.5 2.5v5L12 16l-4.5-2.5v-5L12 6z" fill="#fff"/><circle cx="12" cy="12" r="2" fill="#092e20"/></svg>`,
+      'node.js': `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#68a063"/><path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2"/></svg>`,
+      python: `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#3776ab"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Py</text></svg>`,
+      typescript: `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#3178c6"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">TS</text></svg>`,
+      git: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#f05032"/><path d="M8 12h8M12 8v8" stroke="#fff" stroke-width="2"/></svg>`,
+      sql: `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#336791"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">SQL</text></svg>`,
+      php: `<svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6" fill="#777bb3"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="7.5" font-weight="bold">PHP</text></svg>`,
+      astro: `<svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#ff5d01"/><path d="M12 7l-4 10h3v4l4-6v-8h-3z" fill="#fff"/></svg>`,
+      java: `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#e76f00"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Java</text></svg>`,
+      html: `<svg viewBox="0 0 24 24"><path d="M4 2h16l-1.5 17L12 22l-6.5-3L4 2z" fill="#e34f26"/><path d="M12 6l4 10H8l4-10z" fill="#fff"/></svg>`,
+      html5: `<svg viewBox="0 0 24 24"><path d="M4 2h16l-1.5 17L12 22l-6.5-3L4 2z" fill="#e34f26"/><path d="M12 6l4 10H8l4-10z" fill="#fff"/></svg>`,
+      css: `<svg viewBox="0 0 24 24"><path d="M4 2h16l-1.5 17L12 22l-6.5-3L4 2z" fill="#1572b6"/><path d="M12 6l4 10H8l4-10z" fill="#fff"/></svg>`,
+      css3: `<svg viewBox="0 0 24 24"><path d="M4 2h16l-1.5 17L12 22l-6.5-3L4 2z" fill="#1572b6"/><path d="M12 6l4 10H8l4-10z" fill="#fff"/></svg>`,
+      'next.js': `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#000"/><text x="12" y="15.5" text-anchor="middle" fill="#fff" font-size="7.5" font-weight="bold">Next</text></svg>`
+    };
+
+    /* ── DEFAULT DATA (SCHEMA v2) ── */
+    const SCHEMA_VERSION = 2;
+    /* __DEFAULT_DATA_START__ */
+    const defaultData = {
+      schemaVersion: 2,
+      profile: {
+        name: "José Francisco Quevedo Hernández",
+        title: "Desarrollador Web",
+        description1: "Me encargo de crear sitios y aplicaciones que funcionan bien y se ven bien. No uso frameworks de más ni complico las cosas sin necesidad.",
+        description2: "Si necesitas un sitio web, una app o mejorar lo que ya tienes, contáctame y vemos cómo ayudarte.",
+        email: "quevedohernandezj126@gmail.com",
+        instagram: "https://instagram.com/",
+        instagramHandle: "@quevedo",
+        emailVisible: true,
+        instagramVisible: true,
+        heroSubtitle: "Desarrollo sitios y aplicaciones web. Principalmente trabajo con React, Node.js y bases de datos.",
+        photo: "img/Perfil/foto.jpeg",
+        photoVisible: true
+      },
+      projects: [
+        { id: 1, title: "Página Cafetería", desc: "Sitio web para cafetería.", url: "https://pagina-cafeteria-gray.vercel.app", tags: ["Web"], image: "img/pagina_cafeteria.png", visible: true, imageVisible: true },
+        { id: 2, title: "Página Eventos", desc: "Sitio para gestión de eventos.", url: "https://pagina-de-eventos-one.vercel.app/", tags: ["Sistema"], image: "img/pagina_eventos.png", visible: true, imageVisible: true },
+        { id: 3, title: "Página Dentista", desc: "Sitio web para dentistas.", url: "https://pagina-de-dentista.vercel.app", tags: ["Sistema"], image: "img/pagina_dentista.png", visible: true, imageVisible: true },
+        { id: 4, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true }
+      ],
+      events: [
+        { id: 1, title: "Open Tec", date: "10 Marzo 2026", desc: "Participación junto al equipo NextCode en evento de Open Tec 2026.", tags: ["Evento", "Equipo NextCode"], image: "img/eventos/opentec.jpeg", visible: true, imageVisible: true },
+        { id: 2, title: "Brigada Plantel 28", date: "26 Febrero 2026", desc: "Apoyo técnico en el evento de la preparatoria como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/brigada.jpeg", visible: true, imageVisible: true },
+        { id: 3, title: "Curso a Tec de Oaxaca", date: "13 Marzo 2026", desc: "Apoyo técnico en el curso para la universidad tecnológica de istmo como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/istmo.jpeg", visible: true, imageVisible: true },
+        { id: 4, title: "Curso a Tec estudiantes del tec y prepa", date: "23 abril 2026", desc: "Apoyo técnico en el curso para la universidad tecnológica de villahermosa y preparatoria como parte del servicio social.", tags: ["Soporte", "Comunidad"], image: "img/eventos/cursotec.jpeg", visible: true, imageVisible: true }
+      ],
+      certifications: [
+        { id: 1, title: "Hackathon 2025", image: "img/cursos/hackathon-2025.jpeg", visible: true, imageVisible: true },
+        { id: 2, title: "Hackathon 2026", image: "img/cursos/hackathon-2026.jpeg", visible: true, imageVisible: true },
+        { id: 3, title: "Técnico en Seguridad Perimetral", image: "img/cursos/tecnico-en-seguridad-perimetral.png", visible: true, imageVisible: true },
+        { id: 4, title: "Técnico en Seguridad", image: "img/cursos/tecnico-en-seguridad.png", visible: true, imageVisible: true },
+        { id: 5, title: "Técnico en Redes IP", image: "img/cursos/tecnico-en-redes-ip.png", visible: true, imageVisible: true },
+        { id: 6, title: "Fundamentos de Seguridad", image: "img/cursos/fundamentos-de-seguridad.png", visible: true, imageVisible: true },
+        { id: 7, title: "Administrador de Servidores", image: "img/cursos/administrador-de-servidores.png", visible: true, imageVisible: true }
+      ],
+      technologies: [
+        { id: 1, name: "JavaScript", color: "#f7df1e", textColor: "#000", label: "JS", visible: true },
+        { id: 2, name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true },
+        { id: 3, name: "Django", color: "#092e20", textColor: "#fff", label: "DJ", visible: true },
+        { id: 4, name: "Node.js", color: "#68a063", textColor: "#fff", label: "NJ", visible: true },
+        { id: 5, name: "Python", color: "#3776ab", textColor: "#fff", label: "Py", visible: true },
+        { id: 6, name: "TypeScript", color: "#3178c6", textColor: "#fff", label: "TS", visible: true },
+        { id: 7, name: "Git", color: "#f05032", textColor: "#fff", label: "Git", visible: true },
+        { id: 8, name: "SQL", color: "#336791", textColor: "#fff", label: "SQL", visible: true },
+        { id: 9, name: "PHP", color: "#777bb3", textColor: "#fff", label: "PHP", visible: true },
+        { id: 10, name: "Astro", color: "#ff5d01", textColor: "#fff", label: "AS", visible: true },
+        { id: 11, name: "Java", color: "#e76f00", textColor: "#fff", label: "JV", visible: true },
+        { id: 12, name: "HTML", color: "#e34f26", textColor: "#fff", label: "H5", visible: true },
+        { id: 13, name: "CSS", color: "#1572b6", textColor: "#fff", label: "CSS", visible: true },
+        { id: 14, name: "Next.js", color: "#000000", textColor: "#fff", label: "NX", visible: true }
+      ],
+      messages: []
+    };
+    /* __DEFAULT_DATA_END__ */
+
+    let serverPortfolioCache = null;
+
+    function migrateAndGetData() {
+      if (serverPortfolioCache) return serverPortfolioCache;
+      try {
+        const raw = localStorage.getItem('portfolioData');
+        if (!raw) return defaultData;
+        const parsed = JSON.parse(raw);
+        if (!parsed.schemaVersion || parsed.schemaVersion < SCHEMA_VERSION) {
+          if (Array.isArray(parsed.projects)) {
+            defaultData.projects.forEach(defP => {
+              if (!parsed.projects.some(p => p.image === defP.image || p.title === defP.title)) {
+                parsed.projects.push(defP);
+              }
+            });
+          }
+          if (Array.isArray(parsed.technologies)) {
+            if (!parsed.technologies.some(t => t.name.toLowerCase() === 'react')) {
+              parsed.technologies.splice(1, 0, { id: Date.now(), name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true });
+            }
+          }
+          if (Array.isArray(parsed.events)) {
+            const ev4 = parsed.events.find(e => e.image === 'img/eventos/cursotec.jpeg');
+            if (ev4 && ev4.title === 'Curso a Tec estudiantes') {
+              ev4.title = 'Curso a Tec estudiantes del tec y prepa';
+            }
+          }
+          parsed.schemaVersion = SCHEMA_VERSION;
+          localStorage.setItem('portfolioData', JSON.stringify(parsed));
+        }
+        return parsed;
+      } catch {
+        return defaultData;
+      }
+    }
+
+    function notify(msg) {
+      const box = document.getElementById('toastBox');
+      const el = document.createElement('div');
+      el.className = 'toast-msg';
+      const dot = document.createElement('span');
+      dot.style.color = 'var(--emerald)';
+      dot.textContent = '●';
+      const txt = document.createElement('span');
+      txt.textContent = msg;
+      el.appendChild(dot);
+      el.appendChild(txt);
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    /* ── THEME ── */
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    root.className = savedTheme === 'light' ? 'light' : 'dark';
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const isLight = root.classList.contains('light');
+      root.className = isLight ? 'dark' : 'light';
+      localStorage.setItem('theme', isLight ? 'dark' : 'light');
+    });
+
+    /* ── MOBILE NAV ── */
+    document.getElementById('hamBtn').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    document.querySelectorAll('.nav-links a').forEach(a =>
+      a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'))
+    );
+
+    /* ── SCROLL PROGRESS BAR ── */
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      document.getElementById('scrollProgress').style.width = pct + '%';
+    }, { passive: true });
+
+    /* ── AMBIENT CURSOR AURA + CARD SPOTLIGHT TRACKING ── */
+    const aura = document.getElementById('cursorAura');
+    window.addEventListener('mousemove', e => {
+      aura.style.left = e.clientX + 'px';
+      aura.style.top = e.clientY + 'px';
+
+      document.querySelectorAll('.spotlight-card').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+        card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+      });
+    }, { passive: true });
+
+    /* ── 3D TILT EFFECT ON PORTRAIT ── */
+    const tiltEl = document.getElementById('tiltPortrait');
+    tiltEl.addEventListener('mousemove', e => {
+      const r = tiltEl.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      tiltEl.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 14}deg)`;
+    });
+    tiltEl.addEventListener('mouseleave', () => {
+      tiltEl.style.transform = 'rotateY(0deg) rotateX(0deg)';
+    });
+
+    /* ── MAGNETIC BUTTONS ── */
+    document.querySelectorAll('.magnetic').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const r = btn.getBoundingClientRect();
+        const x = (e.clientX - r.left - r.width / 2) * 0.18;
+        const y = (e.clientY - r.top - r.height / 2) * 0.25;
+        btn.style.transform = `translate(${x}px, ${y}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+
+    /* ── TYPEWRITER ROLE ANIMATION ── */
+    let roleTimer = null;
+    function startRoleTypewriter(baseTitle) {
+      if (roleTimer) clearTimeout(roleTimer);
+      const roles = [
+        baseTitle || 'Desarrollador Web',
+        'Full-Stack Developer',
+        'React, Node.js & SQL',
+        'Soluciones Web a Medida'
+      ];
+      const el = document.getElementById('heroRole');
+      let rIdx = 0;
+      let cIdx = 0;
+      let deleting = false;
+
+      function tick() {
+        const word = roles[rIdx];
+        if (!deleting) {
+          cIdx++;
+          el.textContent = word.slice(0, cIdx);
+          if (cIdx === word.length) {
+            deleting = true;
+            roleTimer = setTimeout(tick, 2200);
+            return;
+          }
+          roleTimer = setTimeout(tick, 55);
         } else {
-          themeToggle.innerHTML = "🌙";
+          cIdx--;
+          el.textContent = word.slice(0, cIdx);
+          if (cIdx === 0) {
+            deleting = false;
+            rIdx = (rIdx + 1) % roles.length;
+            roleTimer = setTimeout(tick, 300);
+            return;
+          }
+          roleTimer = setTimeout(tick, 28);
         }
       }
+      tick();
+    }
 
-      themeToggle.addEventListener("click", () => {
-        const currentTheme = html.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        html.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
-        updateThemeIcon(newTheme);
-      });
+    function renderTechIcon(t) {
+      const key = String(t.name || '').trim().toLowerCase();
+      if (TECH_SVGS[key]) return TECH_SVGS[key];
+      const bg = escapeHTML(t.color || '#27272a');
+      const fg = escapeHTML(t.textColor || '#fff');
+      const lbl = escapeHTML(t.label || key.slice(0, 2).toUpperCase());
+      return `<div style="width:100%;height:100%;background:${bg};color:${fg};display:grid;place-items:center">${lbl}</div>`;
+    }
 
-      document.querySelector(".mobile-menu").addEventListener("click", () => {
-        document.querySelector(".nav-links").classList.toggle("active");
-      });
+    /* ── RENDER ALL SECTIONS ── */
+    function renderAll() {
+      const d = migrateAndGetData();
+      const p = d.profile || defaultData.profile;
+      const showProfilePhoto = p.photoVisible !== false;
 
-      document.querySelectorAll(".nav-links a").forEach((link) => {
-        link.addEventListener("click", () => {
-          document.querySelector(".nav-links").classList.remove("active");
-        });
-      });
+      const heroVisual = document.getElementById('heroVisual');
+      document.getElementById('heroPhoto').src = safeImgSrc(p.photo) || 'img/Perfil/foto.jpeg';
+      heroVisual.style.display = showProfilePhoto ? 'block' : 'none';
 
-      function openLightbox(img) {
-        event.stopPropagation();
-        const lightbox = document.getElementById("lightbox");
-        const lightboxImg = document.getElementById("lightbox-img");
-        lightboxImg.src = img.src;
-        lightbox.classList.add("active");
-      }
+      document.getElementById('heroName').textContent = p.name || '';
+      startRoleTypewriter(p.title);
+      document.getElementById('heroSubtitle').textContent = p.heroSubtitle || '';
 
-      function closeLightbox() {
-        document.getElementById("lightbox").classList.remove("active");
-      }
+      document.getElementById('aboutDesc1').textContent = p.description1 || '';
+      document.getElementById('aboutDesc2').textContent = p.description2 || '';
 
-      document.querySelectorAll(".btn-ver-mas").forEach((btn) => {
-        let expanded = false;
+      const visibleProjects = (d.projects || []).filter(x => x.visible !== false);
+      const visibleEvents = (d.events || []).filter(x => x.visible !== false);
+      const visibleCerts = (d.certifications || []).filter(x => x.visible !== false);
+      const visibleTechs = (d.technologies || []).filter(x => x.visible !== false);
 
-        // CORRECCIÓN: Guardamos la lista de tarjetas que se pueden alternar desde el inicio
-        const section = btn.closest("section");
-        const toggleableCards = section.querySelectorAll(".hidden-card");
+      // Metrics
+      const stats = [
+        { n: visibleProjects.length, l: 'Proyectos publicados' },
+        { n: visibleCerts.length, l: 'Certificaciones' },
+        { n: visibleEvents.length, l: 'Eventos participados' }
+      ];
+      document.getElementById('statsRow').innerHTML = stats.map(s => `
+        <div class="metric-cell spotlight-card">
+          <div class="metric-val" data-count="${Number(s.n) || 0}">0</div>
+          <div class="metric-lbl">${escapeHTML(s.l)}</div>
+        </div>
+      `).join('');
 
-        btn.addEventListener("click", () => {
-          expanded = !expanded;
+      animateCounters();
 
-          // Usamos la lista guardada en lugar de buscarla cada vez
-          toggleableCards.forEach((card) => {
-            if (expanded) {
-              card.classList.remove("hidden-card");
-            } else {
-              card.classList.add("hidden-card");
-            }
-          });
+      // Email & Instagram
+      const email = (p.email || 'quevedohernandezj126@gmail.com').trim();
+      const showEmail = p.emailVisible !== false && Boolean(email);
+      const rawIg = (p.instagram || '').trim();
+      const igHandle = (p.instagramHandle || '').trim() || '@quevedo';
+      const candidateIgUrl = rawIg
+        ? (rawIg.startsWith('http') ? rawIg : `https://instagram.com/${rawIg.replace(/^@/, '')}`)
+        : `https://instagram.com/${igHandle.replace(/^@/, '')}`;
+      const igUrl = safeUrl(candidateIgUrl);
+      const showIg = p.instagramVisible !== false;
 
-          btn.textContent = expanded ? "Ver menos" : "Ver más";
-        });
-      });
+      document.getElementById('contactEmailCard').style.display = showEmail ? 'flex' : 'none';
+      document.getElementById('contactEmailLink').href = 'mailto:' + encodeURIComponent(email);
+      document.getElementById('contactEmailTxt').textContent = email;
 
-      document.querySelectorAll(".project-card").forEach((card) => {
-        card.addEventListener("click", () => {
-          const url = card.getAttribute("data-url");
-          if (url && url !== "#") {
-            window.open(url, "_blank");
-          }
-        });
-      });
+      const igLink = document.getElementById('contactIgLink');
+      igLink.href = igUrl;
+      igLink.style.display = showIg ? 'flex' : 'none';
+      document.getElementById('contactIgTxt').textContent = igHandle;
 
-      document
-        .getElementById("contactForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const form = e.target;
-          const button = form.querySelector('button[type="submit"]');
-          const originalText = button.textContent;
-          button.textContent = "Enviando...";
-          button.disabled = true;
+      const heroEmailBtn = document.getElementById('heroEmailBtn');
+      heroEmailBtn.href = 'mailto:' + encodeURIComponent(email);
+      heroEmailBtn.style.display = showEmail ? 'inline-flex' : 'none';
+      document.getElementById('heroEmailLabel').textContent = email;
 
-          try {
-            const response = await fetch(form.action, {
-              method: "POST",
-              body: new FormData(form),
-              headers: { Accept: "application/json" },
-            });
+      const heroIgBtn = document.getElementById('heroIgBtn');
+      heroIgBtn.href = igUrl;
+      heroIgBtn.style.display = showIg ? 'inline-flex' : 'none';
+      document.getElementById('heroIgLabel').textContent = igHandle;
 
-            if (response.ok) {
-              alert("Mensaje enviado. Te respondere pronto.");
-              form.reset();
-            } else {
-              alert("Hubo un problema. Intenta de nuevo.");
-            }
-          } catch (error) {
-            alert("Hubo un problema. Intenta de nuevo.");
-          } finally {
-            button.textContent = originalText;
-            button.disabled = false;
-          }
-        });
-
-      const observerOptions = {
-        threshold: 0.1,
-        rootMargin: "0px 0px -50px 0px",
+      document.getElementById('copyEmailBtn').onclick = () => {
+        navigator.clipboard.writeText(email).then(() => notify('Correo copiado al portapapeles'));
       };
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.style.opacity = "1";
-            entry.target.style.transform = "translateY(0)";
-          }
-        });
-      }, observerOptions);
+      // Tech Stack (with real SVG icons)
+      const techItemHTML = t => `
+        <div class="stack-item spotlight-card">
+          <div class="stack-dot">${renderTechIcon(t)}</div>
+          <span class="stack-name">${escapeHTML(t.name)}</span>
+        </div>
+      `;
+      document.getElementById('techPills').innerHTML = visibleTechs.map(techItemHTML).join('');
+      document.getElementById('techMarquee').innerHTML = [...visibleTechs, ...visibleTechs].map(techItemHTML).join('');
 
-      document.querySelectorAll("section").forEach((section) => {
-        section.style.opacity = "0";
-        section.style.transform = "translateY(20px)";
-        section.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-        observer.observe(section);
+      // Projects (with "Ver más / Ver menos" like original)
+      const pg = document.getElementById('projectsGrid');
+      const PROJ_INITIAL = 3;
+      let projExpanded = false;
+      function renderProjects() {
+        pg.innerHTML = visibleProjects.map((pr, idx) => {
+          const cleanHref = safeUrl(pr.url);
+          const isLink = cleanHref !== '#';
+          const imgSrc = safeImgSrc(pr.image);
+          const showImg = pr.imageVisible !== false && Boolean(imgSrc);
+          const hiddenClass = idx >= PROJ_INITIAL && !projExpanded ? 'card-hidden' : '';
+          return `
+            <article class="item-card spotlight-card ${hiddenClass}" data-url="${escapeHTML(cleanHref)}">
+              ${showImg ? `
+                <div class="card-media">
+                  <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(pr.title)}" loading="lazy" />
+                </div>
+              ` : ''}
+              <div class="card-body">
+                <div>
+                  <div class="card-top-row">
+                    <h3 class="card-title">${escapeHTML(pr.title)}</h3>
+                    ${isLink ? `<span class="card-arrow">↗</span>` : ''}
+                  </div>
+                  <p class="card-desc">${escapeHTML(pr.desc || '')}</p>
+                </div>
+                <div class="tags-wrap">
+                  ${(pr.tags || []).map(tag => `<span class="tag-badge">${escapeHTML(tag)}</span>`).join('')}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        pg.querySelectorAll('.item-card').forEach(c => {
+          c.addEventListener('click', () => {
+            const u = safeUrl(c.dataset.url);
+            if (u !== '#') window.open(u, '_blank', 'noopener,noreferrer');
+          });
+        });
+
+        const btnProjMas = document.getElementById('projVerMas');
+        btnProjMas.style.display = visibleProjects.length <= PROJ_INITIAL ? 'none' : 'inline-flex';
+      }
+      renderProjects();
+      document.getElementById('projVerMas').onclick = () => {
+        projExpanded = !projExpanded;
+        renderProjects();
+        document.getElementById('projVerMas').textContent = projExpanded ? 'Ver menos' : 'Ver más';
+      };
+
+      // Events (with "Ver más / Ver menos" like original)
+      const eg = document.getElementById('eventsGrid');
+      const EV_INITIAL = 3;
+      let evExpanded = false;
+      function renderEvents() {
+        eg.innerHTML = visibleEvents.map((ev, idx) => {
+          const imgSrc = safeImgSrc(ev.image);
+          const showImg = ev.imageVisible !== false && Boolean(imgSrc);
+          const hiddenClass = idx >= EV_INITIAL && !evExpanded ? 'card-hidden' : '';
+          return `
+            <article class="item-card spotlight-card ${hiddenClass}" data-img="${showImg ? escapeHTML(imgSrc) : ''}">
+              ${showImg ? `
+                <div class="card-media">
+                  <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(ev.title)}" loading="lazy" />
+                </div>
+              ` : ''}
+              <div class="card-body">
+                <div>
+                  ${ev.date ? `<span class="card-meta-date">${escapeHTML(ev.date)}</span>` : ''}
+                  <div class="card-top-row">
+                    <h3 class="card-title">${escapeHTML(ev.title)}</h3>
+                    ${showImg ? `<span class="card-arrow">⤢</span>` : ''}
+                  </div>
+                  <p class="card-desc">${escapeHTML(ev.desc || '')}</p>
+                </div>
+                <div class="tags-wrap">
+                  ${(ev.tags || []).map(tag => `<span class="tag-badge">${escapeHTML(tag)}</span>`).join('')}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        eg.querySelectorAll('.item-card').forEach(c => {
+          c.addEventListener('click', () => {
+            if (c.dataset.img) openLightbox(c.dataset.img);
+          });
+        });
+
+        const btnEvMas = document.getElementById('evVerMas');
+        btnEvMas.style.display = visibleEvents.length <= EV_INITIAL ? 'none' : 'inline-flex';
+      }
+      renderEvents();
+      document.getElementById('evVerMas').onclick = () => {
+        evExpanded = !evExpanded;
+        renderEvents();
+        document.getElementById('evVerMas').textContent = evExpanded ? 'Ver menos' : 'Ver más';
+      };
+
+      // Certifications (with "Ver más / Ver menos" like original)
+      const cg = document.getElementById('certGrid');
+      const CERT_VISIBLE = 4;
+      let certExpanded = false;
+
+      function renderCerts() {
+        cg.innerHTML = visibleCerts.map((c, i) => {
+          const imgSrc = safeImgSrc(c.image);
+          const showImg = c.imageVisible !== false && Boolean(imgSrc);
+          return `
+            <div class="cert-card spotlight-card ${i >= CERT_VISIBLE && !certExpanded ? 'card-hidden' : ''}" data-src="${showImg ? escapeHTML(imgSrc) : ''}">
+              ${showImg ? `
+                <div class="cert-media">
+                  <img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(c.title)}" loading="lazy" />
+                </div>
+              ` : ''}
+              <div class="cert-info">
+                <h3>${escapeHTML(c.title)}</h3>
+                <span class="mono" style="font-size:0.75rem;color:var(--text-muted)">↗</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        cg.querySelectorAll('.cert-card').forEach(cc => {
+          cc.addEventListener('click', () => {
+            if (cc.dataset.src) openLightbox(cc.dataset.src);
+          });
+        });
+
+        const btnMas = document.getElementById('certVerMas');
+        btnMas.style.display = visibleCerts.length <= CERT_VISIBLE ? 'none' : 'inline-flex';
+      }
+
+      renderCerts();
+      document.getElementById('certVerMas').onclick = () => {
+        certExpanded = !certExpanded;
+        renderCerts();
+        document.getElementById('certVerMas').textContent = certExpanded ? 'Ver menos' : 'Ver más';
+      };
+
+      document.getElementById('footerText').textContent =
+        `2026 ${p.name || 'Quevedo Hernández'}. Todos los derechos reservados.`;
+    }
+
+    /* ── ANIMATED NUMBER COUNTERS ── */
+    function animateCounters() {
+      document.querySelectorAll('.metric-val[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count, 10) || 0;
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 20));
+        const interval = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            el.textContent = target + '+';
+            clearInterval(interval);
+          } else {
+            el.textContent = current;
+          }
+        }, 45);
       });
-    </script>
-  </body>
+    }
+
+    /* ── SCROLL REVEAL OBSERVER ── */
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal-up').forEach(sec => revealObserver.observe(sec));
+
+    /* ── LIGHTBOX ── */
+    function openLightbox(src) {
+      const clean = safeImgSrc(src);
+      if (!clean) return;
+      document.getElementById('lbImg').src = clean;
+      document.getElementById('lightbox').classList.add('open');
+    }
+    document.getElementById('lbClose').onclick = () =>
+      document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightbox').onclick = e => {
+      if (e.target === e.currentTarget) document.getElementById('lightbox').classList.remove('open');
+    };
+
+    /* ── CONTACT FORM (VERCEL SERVER-SIDE AES-256-GCM + LOCAL RSA-2048 FALLBACK) ── */
+    const contactForm = document.getElementById('contactForm');
+    contactForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('cName').value.trim().slice(0, 100);
+      const senderEmail = document.getElementById('cEmail').value.trim().slice(0, 150);
+      const message = document.getElementById('cMsg').value.trim().slice(0, 2000);
+      if (!name || !senderEmail || !message) return;
+
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        if (window.location.protocol.startsWith('http')) {
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email: senderEmail, message })
+          });
+          if (res.ok) {
+            notify('Mensaje enviado. Te responderé pronto.');
+            contactForm.reset();
+            return;
+          }
+        }
+
+        const encryptedRecord = await encryptForAdminInbox({
+          name,
+          email: senderEmail,
+          message,
+          date: new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })
+        });
+        const d = migrateAndGetData();
+        if (!d.messages) d.messages = [];
+        d.messages.unshift(encryptedRecord);
+        localStorage.setItem('portfolioData', JSON.stringify(d));
+        notify('Mensaje enviado. Te responderé pronto.');
+        contactForm.reset();
+      } catch {
+        notify('No se pudo procesar el envío en este momento.');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Load filtered public portfolio from Vercel Server (/api/portfolio) if running over HTTP/HTTPS
+    async function initPortfolio() {
+      renderAll();
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const res = await fetch('/api/portfolio', { cache: 'no-store' });
+          if (res.ok) {
+            serverPortfolioCache = await res.json();
+            renderAll();
+          }
+        } catch {}
+      }
+    }
+
+    window.addEventListener('storage', e => {
+      if (e.key === 'portfolioData') renderAll();
+    });
+
+    initPortfolio();
+  })();
+  </script>
+</body>
 </html>

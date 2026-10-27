@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 2,
+  "profile": {
+    "name": "José Francisco Quevedo Hernández",
+    "title": "Desarrollador Web",
+    "description1": "Me encargo de crear sitios y aplicaciones que funcionan bien y se ven bien. No uso frameworks de más ni complico las cosas sin necesidad.",
+    "description2": "Si necesitas un sitio web, una app o mejorar lo que ya tienes, contáctame y vemos cómo ayudarte.",
+    "email": "quevedohernandezj126@gmail.com",
+    "instagram": "https://instagram.com/",
+    "instagramHandle": "@quevedo",
+    "emailVisible": true,
+    "instagramVisible": true,
+    "heroSubtitle": "Desarrollo sitios y aplicaciones web. Principalmente trabajo con React, Node.js y bases de datos.",
+    "photo": "img/Perfil/foto.jpeg",
+    "photoVisible": true
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "Página Cafetería",
+      "desc": "Sitio web para cafetería.",
+      "url": "https://pagina-cafeteria-gray.vercel.app",
+      "tags": ["Web"],
+      "image": "img/pagina_cafeteria.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 2,
+      "title": "Página Eventos",
+      "desc": "Sitio para gestión de eventos.",
+      "url": "https://pagina-de-eventos-one.vercel.app/",
+      "tags": ["Sistema"],
+      "image": "img/pagina_eventos.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 3,
+      "title": "Página Dentista",
+      "desc": "Sitio web para dentistas.",
+      "url": "https://pagina-de-dentista.vercel.app",
+      "tags": ["Sistema"],
+      "image": "img/pagina_dentista.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 4,
+      "title": "Página Noticias",
+      "desc": "Sitio de noticias.",
+      "url": "#",
+      "tags": ["Sistema"],
+      "image": "img/pagina_noticias.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 5,
+      "title": "Página Tec",
+      "desc": "Sitio tecnológico.",
+      "url": "#",
+      "tags": ["Web"],
+      "image": "img/pagina_tec.png",
+      "visible": false,
+      "imageVisible": true
+    },
+    {
+      "id": 6,
+      "title": "Registro Tienda",
+      "desc": "Sistema de registro para tienda.",
+      "url": "#",
+      "tags": ["Sistema"],
+      "image": "img/registro_tienda.png",
+      "visible": false,
+      "imageVisible": true
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "title": "Open Tec",
+      "date": "10 Marzo 2026",
+      "desc": "Participación junto al equipo NextCode en evento de Open Tec 2026.",
+      "tags": ["Evento", "Equipo NextCode"],
+      "image": "img/eventos/opentec.jpeg",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 2,
+      "title": "Brigada Plantel 28",
+      "date": "26 Febrero 2026",
+      "desc": "Apoyo técnico en el evento de la preparatoria como parte del servicio social.",
+      "tags": ["Soporte", "Comunidad"],
+      "image": "img/eventos/brigada.jpeg",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 3,
+      "title": "Curso a Tec de Oaxaca",
+      "date": "13 Marzo 2026",
+      "desc": "Apoyo técnico en el curso para la universidad tecnológica de istmo como parte del servicio social.",
+      "tags": ["Soporte", "Comunidad"],
+      "image": "img/eventos/istmo.jpeg",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 4,
+      "title": "Curso a Tec estudiantes del tec y prepa",
+      "date": "23 abril 2026",
+      "desc": "Apoyo técnico en el curso para la universidad tecnológica de villahermosa y preparatoria como parte del servicio social.",
+      "tags": ["Soporte", "Comunidad"],
+      "image": "img/eventos/cursotec.jpeg",
+      "visible": true,
+      "imageVisible": true
+    }
+  ],
+  "certifications": [
+    {
+      "id": 1,
+      "title": "Hackathon 2025",
+      "image": "img/cursos/hackathon-2025.jpeg",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 2,
+      "title": "Hackathon 2026",
+      "image": "img/cursos/hackathon-2026.jpeg",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 3,
+      "title": "Técnico en Seguridad Perimetral",
+      "image": "img/cursos/tecnico-en-seguridad-perimetral.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 4,
+      "title": "Técnico en Seguridad",
+      "image": "img/cursos/tecnico-en-seguridad.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 5,
+      "title": "Técnico en Redes IP",
+      "image": "img/cursos/tecnico-en-redes-ip.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 6,
+      "title": "Fundamentos de Seguridad",
+      "image": "img/cursos/fundamentos-de-seguridad.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 7,
+      "title": "Administrador de Servidores",
+      "image": "img/cursos/administrador-de-servidores.png",
+      "visible": true,
+      "imageVisible": true
+    }
+  ],
+  "technologies": [
+    { "id": 1, "name": "JavaScript", "color": "#f7df1e", "textColor": "#000", "label": "JS", "visible": true },
+    { "id": 2, "name": "React", "color": "#0b1929", "textColor": "#61dafb", "label": "Re", "visible": true },
+    { "id": 3, "name": "Django", "color": "#092e20", "textColor": "#fff", "label": "DJ", "visible": true },
+    { "id": 4, "name": "Node.js", "color": "#68a063", "textColor": "#fff", "label": "NJ", "visible": true },
+    { "id": 5, "name": "Python", "color": "#3776ab", "textColor": "#fff", "label": "Py", "visible": true },
+    { "id": 6, "name": "TypeScript", "color": "#3178c6", "textColor": "#fff", "label": "TS", "visible": true },
+    { "id": 7, "name": "Git", "color": "#f05032", "textColor": "#fff", "label": "Git", "visible": true },
+    { "id": 8, "name": "SQL", "color": "#336791", "textColor": "#fff", "label": "SQL", "visible": true },
+    { "id": 9, "name": "PHP", "color": "#777bb3", "textColor": "#fff", "label": "PHP", "visible": true },
+    { "id": 10, "name": "Astro", "color": "#ff5d01", "textColor": "#fff", "label": "AS", "visible": true },
+    { "id": 11, "name": "Java", "color": "#e76f00", "textColor": "#fff", "label": "JV", "visible": true },
+    { "id": 12, "name": "HTML", "color": "#e34f26", "textColor": "#fff", "label": "H5", "visible": true },
+    { "id": 13, "name": "CSS", "color": "#1572b6", "textColor": "#fff", "label": "CSS", "visible": true },
+    { "id": 14, "name": "Next.js", "color": "#000000", "textColor": "#fff", "label": "NX", "visible": true }
+  ]
+}
