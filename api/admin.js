@@ -1,4 +1,5 @@
 const {
+  BUNDLED_PORTFOLIO,
   verifyAdminPassword,
   issueAdminToken,
   verifyAdminRequest,
@@ -17,8 +18,9 @@ module.exports = async function handler(req, res) {
     if (!verifyAdminRequest(req)) {
       return res.status(401).json({ error: 'No autorizado' });
     }
-    const portfolio = await readStorageFile('data/portfolio.json', {});
-    const msgEnvelope = await readStorageFile('data/messages.enc.json', null);
+    const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
+    const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
+    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
     const messages = decryptServerPayload(msgEnvelope);
     return res.status(200).json({ portfolio, messages });
   }
@@ -30,7 +32,6 @@ module.exports = async function handler(req, res) {
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
   const action = body.action;
 
-  // 1. Server-side Login (Password lives ONLY in Vercel Environment Variables)
   if (action === 'login') {
     const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
     const now = Date.now();
@@ -61,13 +62,13 @@ module.exports = async function handler(req, res) {
       `qh_admin_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800; Secure`
     );
 
-    const portfolio = await readStorageFile('data/portfolio.json', {});
-    const msgEnvelope = await readStorageFile('data/messages.enc.json', null);
+    const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
+    const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
+    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
     const messages = decryptServerPayload(msgEnvelope);
     return res.status(200).json({ ok: true, token, portfolio, messages });
   }
 
-  // 2. All other actions require valid server-side HMAC session token
   if (!verifyAdminRequest(req)) {
     return res.status(401).json({ error: 'Sesión expirada o no autorizada' });
   }
@@ -83,20 +84,20 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Datos inválidos' });
     }
     delete newPortfolio.messages;
-    const result = await writeStorageFile('data/portfolio.json', newPortfolio, 'chore: update portfolio from Admin panel');
+    const result = await writeStorageFile('api/_lib/portfolio.json', newPortfolio, 'chore: update portfolio from Admin panel');
     return res.status(200).json({ ok: true, ...result });
   }
 
   if (action === 'delete_message') {
     const msgId = Number(body.id);
-    const msgEnvelope = await readStorageFile('data/messages.enc.json', null);
+    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
     const messages = decryptServerPayload(msgEnvelope).filter(m => Number(m.id) !== msgId);
-    await writeStorageFile('data/messages.enc.json', encryptServerPayload(messages), 'chore: delete contact message');
+    await writeStorageFile('api/_lib/messages.enc.json', encryptServerPayload(messages), 'chore: delete contact message');
     return res.status(200).json({ ok: true, messages });
   }
 
   if (action === 'clear_messages') {
-    await writeStorageFile('data/messages.enc.json', encryptServerPayload([]), 'chore: clear contact messages');
+    await writeStorageFile('api/_lib/messages.enc.json', encryptServerPayload([]), 'chore: clear contact messages');
     return res.status(200).json({ ok: true, messages: [] });
   }
 

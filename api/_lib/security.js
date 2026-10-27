@@ -1,6 +1,10 @@
 const crypto = require('crypto');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const BUNDLED_PORTFOLIO = require('./portfolio.json');
+
+const memoryStore = new Map();
 
 /* ── 1. SERVER-SIDE SECRETS (CONFIGURED IN VERCEL ENVIRONMENT VARIABLES) ── */
 const FALLBACK_SCRYPT_SALT = '87c02bd6dd95abe4398b4e208bffef50';
@@ -143,7 +147,7 @@ function toPublicPortfolio(raw) {
   };
 }
 
-/* ── 5. GITHUB REPO + LOCAL FILESYSTEM PERSISTENCE FOR VERCEL ── */
+/* ── 5. GITHUB REPO + /TMP + BUNDLED PERSISTENCE FOR VERCEL ── */
 async function readStorageFile(relPath, fallbackObj) {
   const ghToken = process.env.GITHUB_TOKEN;
   const ghRepo = process.env.GITHUB_REPO || 'QuevedoJF/Portafolio';
@@ -169,6 +173,17 @@ async function readStorageFile(relPath, fallbackObj) {
     } catch {}
   }
 
+  if (memoryStore.has(relPath)) {
+    return JSON.parse(JSON.stringify(memoryStore.get(relPath)));
+  }
+
+  try {
+    const tmpFile = path.join(os.tmpdir(), 'qh_' + relPath.replace(/[\\/]/g, '_'));
+    if (fs.existsSync(tmpFile)) {
+      return JSON.parse(fs.readFileSync(tmpFile, 'utf8'));
+    }
+  } catch {}
+
   try {
     const fullPath = path.join(process.cwd(), relPath);
     if (fs.existsSync(fullPath)) {
@@ -176,11 +191,13 @@ async function readStorageFile(relPath, fallbackObj) {
     }
   } catch {}
 
-  return fallbackObj;
+  return fallbackObj !== undefined ? fallbackObj : BUNDLED_PORTFOLIO;
 }
 
 async function writeStorageFile(relPath, dataObj, commitMessage) {
   const contentStr = JSON.stringify(dataObj, null, 2);
+  memoryStore.set(relPath, JSON.parse(contentStr));
+
   const ghToken = process.env.GITHUB_TOKEN;
   const ghRepo = process.env.GITHUB_REPO || 'QuevedoJF/Portafolio';
   const ghBranch = process.env.GITHUB_BRANCH || 'main';
@@ -216,21 +233,25 @@ async function writeStorageFile(relPath, dataObj, commitMessage) {
       })
     });
 
-    if (!putRes.ok) {
-      const errTxt = await putRes.text();
-      throw new Error(`GitHub API error: ${errTxt}`);
+    if (putRes.ok) {
+      return { persisted: 'github' };
     }
-    return { persisted: 'github' };
   }
 
-  // Fallback to local filesystem when running locally
-  const fullPath = path.join(process.cwd(), relPath);
-  fs.mkdirSync(path.dirname(fullPath), { recursive: true });
-  fs.writeFileSync(fullPath, contentStr, 'utf8');
-  return { persisted: 'local-fs' };
+  try {
+    const fullPath = path.join(process.cwd(), relPath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, contentStr, 'utf8');
+    return { persisted: 'local-fs' };
+  } catch {
+    const tmpFile = path.join(os.tmpdir(), 'qh_' + relPath.replace(/[\\/]/g, '_'));
+    fs.writeFileSync(tmpFile, contentStr, 'utf8');
+    return { persisted: 'vercel-tmp' };
+  }
 }
 
 module.exports = {
+  BUNDLED_PORTFOLIO,
   verifyAdminPassword,
   issueAdminToken,
   verifyAdminRequest,

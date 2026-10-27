@@ -12,7 +12,6 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Server-side IP rate limiting (max 5 messages per 10 minutes per IP)
   const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
   const now = Date.now();
   const entry = rateMap.get(ip) || { count: 0, resetAt: now + 10 * 60 * 1000 };
@@ -44,14 +43,12 @@ module.exports = async function handler(req, res) {
       date: new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })
     };
 
-    // 1. Read encrypted inbox on server, append message, and re-encrypt with AES-256-GCM
-    const existingEnvelope = await readStorageFile('data/messages.enc.json', null);
+    const existingEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
     const currentMessages = decryptServerPayload(existingEnvelope);
     currentMessages.unshift(newMsg);
     const newEnvelope = encryptServerPayload(currentMessages.slice(0, 200));
-    await writeStorageFile('data/messages.enc.json', newEnvelope, 'chore: new encrypted contact message');
+    await writeStorageFile('api/_lib/messages.enc.json', newEnvelope, 'chore: new encrypted contact message');
 
-    // 2. Optional server-side email forwarding (keeps destination email & API keys 100% hidden from F12)
     if (process.env.FORMSPREE_ENDPOINT) {
       await fetch(process.env.FORMSPREE_ENDPOINT, {
         method: 'POST',
