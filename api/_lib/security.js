@@ -250,6 +250,17 @@ async function writeStorageFile(relPath, dataObj) {
   }
 }
 
+function isAiOrScraperBot(req) {
+  const ua = (req.headers['user-agent'] || '').toLowerCase();
+  const aiSignatures = [
+    'gptbot', 'chatgpt', 'ccbot', 'claude', 'anthropic', 'google-extended',
+    'bytespider', 'diffbot', 'facebookbot', 'meta-externalagent', 'perplexity',
+    'cohere', 'applebot-extended', 'amazonbot', 'scrapy', 'python-requests',
+    'aiohttp', 'curl', 'wget', 'urllib', 'headlesschrome', 'puppeteer', 'selenium'
+  ];
+  return aiSignatures.some(sig => ua.includes(sig));
+}
+
 module.exports = {
   BUNDLED_PORTFOLIO,
   verifyAdminPassword,
@@ -259,5 +270,6 @@ module.exports = {
   decryptServerPayload,
   toPublicPortfolio,
   readStorageFile,
-  writeStorageFile
+  writeStorageFile,
+  isAiOrScraperBot
 };

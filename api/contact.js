@@ -1,11 +1,16 @@
 const {
   readStorageFile,
-  writeStorageFile
+  writeStorageFile,
+  isAiOrScraperBot
 } = require('./_lib/security');
 
 const rateMap = new Map();
 
 module.exports = async function handler(req, res) {
+  if (isAiOrScraperBot(req)) {
+    return res.status(403).json({ error: 'Acceso denegado a sistemas de scraping o entrenamiento de IA.' });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
