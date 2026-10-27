@@ -1624,12 +1624,29 @@
 
     function migrateAndGetData() {
       const local = getLocalMigratedData();
-      if (serverPortfolioCache && local) {
-        return (local.updatedAt || 0) > (serverPortfolioCache.updatedAt || 0)
-          ? local
-          : serverPortfolioCache;
+      if (serverPortfolioCache) {
+        const localTs = Number(local && local.updatedAt) || 0;
+        const srvTs = Number(serverPortfolioCache.updatedAt) || 0;
+        if (local && localTs > srvTs && Math.abs(Date.now() - localTs) < 15000) {
+          return local;
+        }
+        return serverPortfolioCache;
       }
-      return serverPortfolioCache || local || defaultData;
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const pubRaw = localStorage.getItem('portfolioPublicCache');
+          if (pubRaw) {
+            const pubParsed = JSON.parse(pubRaw);
+            const localTs = Number(local && local.updatedAt) || 0;
+            const pubTs = Number(pubParsed && pubParsed.updatedAt) || 0;
+            if (local && localTs > pubTs && Math.abs(Date.now() - localTs) < 15000) {
+              return local;
+            }
+            if (pubParsed && pubParsed.profile) return pubParsed;
+          }
+        } catch {}
+      }
+      return local || defaultData;
     }
 
     function notify(msg) {
@@ -2079,9 +2096,12 @@
       renderAll();
       if (window.location.protocol.startsWith('http')) {
         try {
-          const res = await fetch('/api/portfolio', { cache: 'no-store' });
+          const res = await fetch('/api/portfolio?t=' + Date.now(), { cache: 'no-store' });
           if (res.ok) {
             serverPortfolioCache = await res.json();
+            try {
+              localStorage.setItem('portfolioPublicCache', JSON.stringify(serverPortfolioCache));
+            } catch {}
             renderAll();
           }
         } catch {}

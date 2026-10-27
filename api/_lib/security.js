@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { put, list } = require('@vercel/blob');
+const { put, list, del } = require('@vercel/blob');
 const BUNDLED_PORTFOLIO = require('./portfolio.json');
 
 const memoryStore = new Map();
@@ -150,27 +150,30 @@ function toPublicPortfolio(raw) {
   };
 }
 
-/* ── 5. VERCEL BLOB (AES-256-GCM ENCRYPTED) + /TMP + BUNDLED PERSISTENCE ── */
-function toBlobKey(relPath) {
-  return 'qh-vault-v3/' + path.basename(relPath) + '.enc.json';
+/* ── 5. VERCEL BLOB (AES-256-GCM ENCRYPTED, IMMUTABLE VERSIONED KEYS FOR ZERO CDN CACHE LAG) ── */
+function toBlobPrefix(relPath) {
+  return 'qh-vault-v4/' + path.basename(relPath) + '/';
 }
 
 async function readStorageFile(relPath, fallbackObj) {
-  const blobKey = toBlobKey(relPath);
+  const prefix = toBlobPrefix(relPath);
 
   // 1. Primary Cloud Database: Vercel Blob (portafolio-blob)
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
-      const { blobs } = await list({ prefix: blobKey, limit: 5 });
-      const exact = blobs.find(b => b.pathname === blobKey) || blobs[0];
-      if (exact && exact.url) {
-        const res = await fetch(`${exact.url}?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          const envelope = await res.json();
-          const decrypted = decryptServerPayload(envelope, fallbackObj);
-          if (decrypted) {
-            memoryStore.set(relPath, decrypted);
-            return decrypted;
+      const { blobs } = await list({ prefix });
+      if (blobs && blobs.length > 0) {
+        blobs.sort((a, b) => b.pathname.localeCompare(a.pathname));
+        const newest = blobs[0];
+        if (newest && newest.url) {
+          const res = await fetch(newest.url, { cache: 'no-store' });
+          if (res.ok) {
+            const envelope = await res.json();
+            const decrypted = decryptServerPayload(envelope, fallbackObj);
+            if (decrypted) {
+              memoryStore.set(relPath, decrypted);
+              return decrypted;
+            }
           }
         }
       }
@@ -203,19 +206,30 @@ async function writeStorageFile(relPath, dataObj) {
   const cloned = JSON.parse(JSON.stringify(dataObj));
   memoryStore.set(relPath, cloned);
 
-  const blobKey = toBlobKey(relPath);
+  const prefix = toBlobPrefix(relPath);
 
-  // 1. Primary Cloud Database: Vercel Blob (AES-256-GCM Encrypted)
+  // 1. Primary Cloud Database: Vercel Blob (AES-256-GCM Encrypted with unique URL per write)
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const encryptedEnvelope = encryptServerPayload(cloned);
-    await put(blobKey, JSON.stringify(encryptedEnvelope), {
+    const ts = String(Date.now()).padStart(15, '0');
+    const blobKey = `${prefix}${ts}.enc.json`;
+    const created = await put(blobKey, JSON.stringify(encryptedEnvelope), {
       access: 'public',
-      addRandomSuffix: false,
-      allowOverwrite: true,
+      addRandomSuffix: true,
       contentType: 'application/json',
       cacheControlMaxAge: 0
     });
-    return { persisted: 'vercel-blob-encrypted' };
+
+    // Clean up older versioned blobs so storage stays clean with only the latest snapshot
+    try {
+      const { blobs } = await list({ prefix });
+      const oldUrls = (blobs || []).filter(b => b.url !== created.url).map(b => b.url);
+      if (oldUrls.length > 0) {
+        await del(oldUrls);
+      }
+    } catch {}
+
+    return { persisted: 'vercel-blob-encrypted', blobUrl: created.url };
   }
 
   // 2. Local filesystem / /tmp fallback

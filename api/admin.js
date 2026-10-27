@@ -83,9 +83,9 @@ module.exports = async function handler(req, res) {
     }
     delete newPortfolio.messages;
     newPortfolio.schemaVersion = 3;
-    newPortfolio.updatedAt = Date.now();
+    newPortfolio.updatedAt = Math.max(Date.now(), Number(newPortfolio.updatedAt) || 0);
     const result = await writeStorageFile('api/_lib/portfolio.json', newPortfolio);
-    return res.status(200).json({ ok: true, updatedAt: newPortfolio.updatedAt, ...result });
+    return res.status(200).json({ ok: true, portfolio: newPortfolio, updatedAt: newPortfolio.updatedAt, ...result });
   }
 
   if (action === 'delete_message') {

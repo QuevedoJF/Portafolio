@@ -1608,9 +1608,12 @@
     messages: []
   };
 
-  let serverSessionToken = null;
+  let serverSessionToken = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('qh_admin_token')) || null;
   let serverPortfolioData = null;
   let serverMessages = null;
+  let saveQueueActive = false;
+  let pendingSaveData = null;
+  let lastMonotonicTs = Date.now();
 
   function ensureSchemaUpgraded(parsed) {
     if (!parsed || typeof parsed !== 'object') return JSON.parse(JSON.stringify(defaultData));
@@ -1669,10 +1672,48 @@
     } catch {}
   }
 
+  async function processSaveQueue() {
+    if (saveQueueActive) return;
+    if (!pendingSaveData) return;
+    saveQueueActive = true;
+    const toSave = pendingSaveData;
+    pendingSaveData = null;
+
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${serverSessionToken}`
+        },
+        body: JSON.stringify({ action: 'save_portfolio', portfolio: toSave })
+      });
+      if (res.ok) {
+        const resp = await res.json().catch(() => ({}));
+        if (resp && resp.portfolio) {
+          serverPortfolioData = resp.portfolio;
+          localStorage.setItem('portfolioData', JSON.stringify(resp.portfolio));
+        }
+        showToast('Guardado en la base de datos (Vercel)');
+      } else {
+        showToast('Guardado localmente (reintentando nube)', 'error');
+      }
+    } catch {
+      showToast('Guardado localmente', 'warning');
+    } finally {
+      saveQueueActive = false;
+      if (pendingSaveData) {
+        processSaveQueue();
+      }
+    }
+  }
+
   function saveData(d) {
     try {
+      lastMonotonicTs = Math.max(Date.now(), lastMonotonicTs + 1);
       d.schemaVersion = SCHEMA_VERSION;
-      d.updatedAt = Date.now();
+      d.updatedAt = lastMonotonicTs;
       if (serverPortfolioData) {
         serverPortfolioData = d;
       }
@@ -1680,25 +1721,8 @@
       updateStorageMeter();
 
       if (serverSessionToken && window.location.protocol.startsWith('http')) {
-        fetch('/api/admin', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${serverSessionToken}`
-          },
-          body: JSON.stringify({ action: 'save_portfolio', portfolio: d })
-        }).then(async r => {
-          if (r.ok) {
-            const resp = await r.json().catch(() => ({}));
-            if (resp && resp.portfolio) {
-              serverPortfolioData = resp.portfolio;
-              localStorage.setItem('portfolioData', JSON.stringify(resp.portfolio));
-            }
-            showToast('Guardado en la base de datos (Vercel)');
-          } else {
-            showToast('Guardado localmente (reintentando nube)', 'error');
-          }
-        }).catch(() => {});
+        pendingSaveData = JSON.parse(JSON.stringify(d));
+        processSaveQueue();
       }
       return true;
     } catch {
@@ -1747,9 +1771,19 @@
         preview.src = compressedB64;
         preview.style.display = 'block';
         if (dataField) dataField.value = compressedB64;
-        showToast('Imagen optimizada y lista');
+        if (inputId === 'profilePhotoInput') {
+          const d = getData();
+          if (!d.profile) d.profile = {};
+          d.profile.photo = compressedB64;
+          saveData(d);
+          showToast('Foto de perfil actualizada y guardada');
+        } else {
+          showToast('Imagen optimizada y lista');
+        }
       } catch {
         showToast('No se pudo procesar la imagen', 'error');
+      } finally {
+        input.value = '';
       }
     });
   }
@@ -1806,34 +1840,12 @@
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) {
           serverSessionToken = data.token;
-          let srvPortfolio = data.portfolio && data.portfolio.profile
+          try { sessionStorage.setItem('qh_admin_token', data.token); } catch {}
+          serverPortfolioData = data.portfolio && data.portfolio.profile
             ? ensureSchemaUpgraded(data.portfolio)
             : JSON.parse(JSON.stringify(defaultData));
-
-          // Check if localStorage has newer unsynced edits from this browser
-          try {
-            const localRaw = localStorage.getItem('portfolioData');
-            if (localRaw) {
-              const localParsed = ensureSchemaUpgraded(JSON.parse(localRaw));
-              const localTs = Number(localParsed.updatedAt) || 0;
-              const srvTs = Number(srvPortfolio.updatedAt) || 0;
-              if (localTs > srvTs) {
-                srvPortfolio = localParsed;
-                fetch('/api/admin', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${serverSessionToken}`
-                  },
-                  body: JSON.stringify({ action: 'save_portfolio', portfolio: srvPortfolio })
-                }).catch(() => {});
-              }
-            }
-          } catch {}
-
-          serverPortfolioData = srvPortfolio;
-          localStorage.setItem('portfolioData', JSON.stringify(serverPortfolioData));
           serverMessages = Array.isArray(data.messages) ? data.messages : [];
+          localStorage.setItem('portfolioData', JSON.stringify(serverPortfolioData));
           setLockoutState({ fails: 0, until: 0 });
           document.getElementById('pwInput').value = '';
           mountAndShowPanel();
@@ -1871,10 +1883,35 @@
 
   function mountAndShowPanel() {
     if ((!unlockedRsaPrivateKey && !serverSessionToken) || !adminPanelTemplateEl) return;
-    document.getElementById('loginScreen').remove();
+    const loginScr = document.getElementById('loginScreen');
+    if (loginScr) loginScr.remove();
     document.body.insertBefore(adminPanelTemplateEl, document.getElementById('confirmModal'));
     adminPanelTemplateEl.style.display = 'block';
     initAdmin();
+  }
+
+  async function tryAutoResumeSession() {
+    const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('qh_admin_token') : null;
+    if (!token || !window.location.protocol.startsWith('http')) return;
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        serverSessionToken = token;
+        serverPortfolioData = data.portfolio && data.portfolio.profile
+          ? ensureSchemaUpgraded(data.portfolio)
+          : JSON.parse(JSON.stringify(defaultData));
+        serverMessages = Array.isArray(data.messages) ? data.messages : [];
+        localStorage.setItem('portfolioData', JSON.stringify(serverPortfolioData));
+        mountAndShowPanel();
+      } else {
+        sessionStorage.removeItem('qh_admin_token');
+        serverSessionToken = null;
+      }
+    } catch {}
   }
 
   /* ── NAVIGATION & DELEGATED ACTIONS (ZERO GLOBAL FUNCTIONS) ── */
@@ -1914,10 +1951,32 @@
   /* ── INIT ADMIN AFTER UNLOCK ── */
   function initAdmin() {
     document.getElementById('logoutBtn').onclick = () => {
+      try { sessionStorage.removeItem('qh_admin_token'); } catch {}
       unlockedRsaPrivateKey = null;
       unlockedRawPkcs8 = null;
+      if (window.location.protocol.startsWith('http') && serverSessionToken) {
+        fetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${serverSessionToken}` },
+          body: JSON.stringify({ action: 'logout' })
+        }).catch(() => {});
+      }
       location.reload();
     };
+
+    const viewPortLink = document.querySelector('a[href="index.html"]');
+    if (viewPortLink) {
+      viewPortLink.addEventListener('click', async e => {
+        if (saveQueueActive || pendingSaveData) {
+          e.preventDefault();
+          showToast('Guardando cambios antes de abrir el portafolio...');
+          while (saveQueueActive || pendingSaveData) {
+            await new Promise(r => setTimeout(r, 100));
+          }
+          window.location.href = 'index.html';
+        }
+      });
+    }
 
     const goBackupBtn = document.getElementById('goBackupBtn');
     if (goBackupBtn) goBackupBtn.onclick = () => navigateTo('backup');
@@ -2025,14 +2084,18 @@
     document.getElementById('pEmail').value = p.email || '';
     document.getElementById('pIgHandle').value = p.instagramHandle || '@quevedo';
     document.getElementById('pIgUrl').value = p.instagram || '';
-    document.getElementById('pPhotoVisible').checked = p.photoVisible !== false;
-    document.getElementById('profilePhotoPreview').src = safeImgSrc(p.photo) || 'img/Perfil/foto.jpeg';
+    const isPhotoVis = p.photoVisible !== false;
+    document.getElementById('pPhotoVisible').checked = isPhotoVis;
+    const prev = document.getElementById('profilePhotoPreview');
+    prev.src = safeImgSrc(p.photo) || 'img/Perfil/foto.jpeg';
+    prev.style.opacity = isPhotoVis ? '1' : '0.25';
   }
   function initProfileSection() {
     document.getElementById('pPhotoVisible').addEventListener('change', e => {
       const d = getData();
       if (!d.profile) d.profile = {};
       d.profile.photoVisible = e.target.checked;
+      document.getElementById('profilePhotoPreview').style.opacity = e.target.checked ? '1' : '0.25';
       saveData(d);
       showToast(e.target.checked ? 'Foto de perfil visible' : 'Foto de perfil oculta');
     });
@@ -2091,7 +2154,7 @@
       const imgSrc = safeImgSrc(p.image);
       return `
         <tr class="${isVis ? '' : 'row-muted'}">
-          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(p.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(p.title)}" style="${isImgVis ? '' : 'opacity:.25;filter:grayscale(1);'}" onerror="this.style.opacity='.2'" /></td>
           <td>
             <strong>${escapeHTML(p.title)}</strong><br>
             <small style="color:var(--text-muted)">${escapeHTML(p.url || '#')}</small>
@@ -2222,7 +2285,7 @@
       const imgSrc = safeImgSrc(ev.image);
       return `
         <tr class="${isVis ? '' : 'row-muted'}">
-          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(ev.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(ev.title)}" style="${isImgVis ? '' : 'opacity:.25;filter:grayscale(1);'}" onerror="this.style.opacity='.2'" /></td>
           <td>
             <strong>${escapeHTML(ev.title)}</strong><br>
             <small style="color:var(--primary)">📅 ${escapeHTML(ev.date || '')}</small>
@@ -2345,7 +2408,7 @@
       const imgSrc = safeImgSrc(c.image);
       return `
         <tr class="${isVis ? '' : 'row-muted'}">
-          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(c.title)}" onerror="this.style.opacity='.2'" /></td>
+          <td><img class="list-thumb" src="${escapeHTML(imgSrc)}" alt="${escapeHTML(c.title)}" style="${isImgVis ? '' : 'opacity:.25;filter:grayscale(1);'}" onerror="this.style.opacity='.2'" /></td>
           <td><strong>${escapeHTML(c.title)}</strong></td>
           <td>
             <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="certifications" data-id="${id}" data-field="visible">
@@ -2744,6 +2807,8 @@
       });
     };
   }
+
+  tryAutoResumeSession();
 })();
 </script>
 </body>
