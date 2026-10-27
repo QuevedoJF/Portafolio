@@ -1446,44 +1446,62 @@
 
     let devToolsOpen = false;
     let lockTrapActive = false;
-    let freezeLoop = null;
 
     function activateLockdown() {
       if (lockTrapActive) return;
       lockTrapActive = true;
       devToolsOpen = true;
 
-      document.documentElement.style.background = '#030712';
-      document.body.style.background = '#030712';
-      document.body.innerHTML = `
-        <div style="position:fixed;inset:0;width:100vw;height:100vh;background:#030712;color:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:2rem;box-sizing:border-box;z-index:2147483647;user-select:none;">
-          <div style="font-size:3.5rem;margin-bottom:1rem">🛡️</div>
-          <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-0.02em;color:#f87171">Inspección de código no permitida</h2>
-          <p style="color:#94a3b8;max-width:480px;font-size:1rem;line-height:1.6;margin:0 auto">Este sitio web cuenta con protección activa contra ingeniería inversa, extracción de assets y entrenamiento no autorizado de modelos de Inteligencia Artificial.<br><br><span style="color:#38bdf8;font-weight:500">Cierra las herramientas de desarrollador y recarga la página para continuar.</span></p>
-        </div>
-      `;
-      document.title = '🛡️ Acceso Restringido';
+      try {
+        document.documentElement.innerHTML = `
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>🛡️ Acceso Restringido</title>
+          </head>
+          <body style="margin:0;width:100vw;min-height:100vh;background:#030712;color:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:2rem;box-sizing:border-box;user-select:none;">
+            <div style="font-size:3.5rem;margin-bottom:1rem">🛡️</div>
+            <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-0.02em;color:#f87171">Inspección de código no permitida</h2>
+            <p style="color:#94a3b8;max-width:480px;font-size:1rem;line-height:1.6;margin:0 auto">Este sitio web cuenta con protección activa contra ingeniería inversa, extracción de assets y entrenamiento no autorizado de modelos de Inteligencia Artificial.<br><br><span style="color:#38bdf8;font-weight:500">Cierra las herramientas de desarrollador y recarga la página para continuar.</span></p>
+          </body>
+        `;
+      } catch {}
       console.clear();
 
-      if (!freezeLoop) {
-        freezeLoop = setInterval(() => {
-          (function() { return false; }['constructor']('debugger')['call']());
-        }, 25);
-      }
+      setInterval(() => {
+        debugger;
+      }, 30);
     }
 
-    function checkWindowDelta() {
+    function checkDevTools() {
+      if (lockTrapActive) return;
+
+      // Vector 1: Native timing lag check (zero CSP issues, works in all tabs: Sources, Memory, Elements)
+      const t0 = performance.now();
+      debugger;
+      const t1 = performance.now();
+      if (t1 - t0 > 80) {
+        activateLockdown();
+        return;
+      }
+
+      // Vector 2: Window dimension delta (detects docked DevTools)
       const threshold = 160;
       const widthDiff = window.outerWidth - window.innerWidth > threshold;
       const heightDiff = window.outerHeight - window.innerHeight > threshold;
       if (widthDiff || heightDiff) {
         activateLockdown();
-      } else if (devToolsOpen) {
-        location.reload();
+        return;
       }
     }
 
-    // 2. Detection via Console getter (undocked DevTools or active console inspection)
+    // Run check immediately on page load
+    checkDevTools();
+
+    // Check continuously every 250ms
+    setInterval(checkDevTools, 250);
+    window.addEventListener('resize', checkDevTools, { passive: true });
+
+    // Vector 3: Console getter probe (detects active console)
     const probe = new Image();
     Object.defineProperty(probe, 'id', {
       get: () => {
@@ -1493,12 +1511,9 @@
     });
 
     setInterval(() => {
-      checkWindowDelta();
       console.log('%c', probe);
       console.clear();
-    }, 400);
-
-    window.addEventListener('resize', checkWindowDelta, { passive: true });
+    }, 450);
 
     /* ── 5 RAPID CLICKS ON LOGO -> NAVIGATE TO ADMIN ── */
     let logoClicks = 0;
