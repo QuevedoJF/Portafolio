@@ -2128,6 +2128,7 @@
       document.getElementById('projDesc').value = '';
       document.getElementById('projTags').value = '';
       document.getElementById('projImgData').value = '';
+      document.getElementById('projImgInput').value = '';
       document.getElementById('projEditId').value = '';
       document.getElementById('projVisible').checked = true;
       document.getElementById('projImgVisible').checked = true;
@@ -2229,6 +2230,7 @@
     document.getElementById('projDesc').value = p.desc || '';
     document.getElementById('projTags').value = (p.tags || []).join(', ');
     document.getElementById('projImgData').value = p.image || '';
+    document.getElementById('projImgInput').value = '';
     document.getElementById('projVisible').checked = p.visible !== false;
     document.getElementById('projImgVisible').checked = p.imageVisible !== false;
     const prev = document.getElementById('projImgPreview');
@@ -2259,6 +2261,7 @@
       document.getElementById('evDesc').value = '';
       document.getElementById('evTags').value = '';
       document.getElementById('evImgData').value = '';
+      document.getElementById('evImgInput').value = '';
       document.getElementById('evEditId').value = '';
       document.getElementById('evVisible').checked = true;
       document.getElementById('evImgVisible').checked = true;
@@ -2355,6 +2358,7 @@
     document.getElementById('evDesc').value = ev.desc || '';
     document.getElementById('evTags').value = (ev.tags || []).join(', ');
     document.getElementById('evImgData').value = ev.image || '';
+    document.getElementById('evImgInput').value = '';
     document.getElementById('evVisible').checked = ev.visible !== false;
     document.getElementById('evImgVisible').checked = ev.imageVisible !== false;
     const prev = document.getElementById('evImgPreview');
@@ -2382,6 +2386,7 @@
       document.getElementById('certFormTitle').textContent = 'Agregar certificación';
       document.getElementById('certTitle').value = '';
       document.getElementById('certImgData').value = '';
+      document.getElementById('certImgInput').value = '';
       document.getElementById('certEditId').value = '';
       document.getElementById('certVisible').checked = true;
       document.getElementById('certImgVisible').checked = true;
@@ -2469,6 +2474,7 @@
     document.getElementById('certEditId').value = c.id;
     document.getElementById('certTitle').value = c.title;
     document.getElementById('certImgData').value = c.image || '';
+    document.getElementById('certImgInput').value = '';
     document.getElementById('certVisible').checked = c.visible !== false;
     document.getElementById('certImgVisible').checked = c.imageVisible !== false;
     const prev = document.getElementById('certImgPreview');

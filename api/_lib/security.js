@@ -210,26 +210,30 @@ async function writeStorageFile(relPath, dataObj) {
 
   // 1. Primary Cloud Database: Vercel Blob (AES-256-GCM Encrypted with unique URL per write)
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const encryptedEnvelope = encryptServerPayload(cloned);
-    const ts = String(Date.now()).padStart(15, '0');
-    const blobKey = `${prefix}${ts}.enc.json`;
-    const created = await put(blobKey, JSON.stringify(encryptedEnvelope), {
-      access: 'public',
-      addRandomSuffix: true,
-      contentType: 'application/json',
-      cacheControlMaxAge: 0
-    });
-
-    // Clean up older versioned blobs so storage stays clean with only the latest snapshot
     try {
-      const { blobs } = await list({ prefix });
-      const oldUrls = (blobs || []).filter(b => b.url !== created.url).map(b => b.url);
-      if (oldUrls.length > 0) {
-        await del(oldUrls);
-      }
-    } catch {}
+      const encryptedEnvelope = encryptServerPayload(cloned);
+      const ts = String(Date.now()).padStart(15, '0');
+      const blobKey = `${prefix}${ts}.enc.json`;
+      const created = await put(blobKey, JSON.stringify(encryptedEnvelope), {
+        access: 'public',
+        addRandomSuffix: true,
+        contentType: 'application/json',
+        cacheControlMaxAge: 0
+      });
 
-    return { persisted: 'vercel-blob-encrypted', blobUrl: created.url };
+      // Clean up older versioned blobs so storage stays clean with only the latest snapshot
+      try {
+        const { blobs } = await list({ prefix });
+        const oldUrls = (blobs || []).filter(b => b.url !== created.url).map(b => b.url);
+        if (oldUrls.length > 0) {
+          await del(oldUrls);
+        }
+      } catch {}
+
+      return { persisted: 'vercel-blob-encrypted', blobUrl: created.url };
+    } catch (blobErr) {
+      console.warn('Vercel Blob write error, falling back to disk cache:', blobErr);
+    }
   }
 
   // 2. Local filesystem / /tmp fallback

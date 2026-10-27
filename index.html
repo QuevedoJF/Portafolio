@@ -1425,6 +1425,7 @@
     let logoTimer = null;
     const brandEl = document.querySelector('.brand');
     if (brandEl) {
+      brandEl.style.touchAction = 'manipulation';
       brandEl.addEventListener('click', e => {
         logoClicks += 1;
         if (logoTimer) clearTimeout(logoTimer);
@@ -1434,7 +1435,7 @@
           window.location.href = atob('YWRtaW4uaHRtbA==');
           return;
         }
-        logoTimer = setTimeout(() => { logoClicks = 0; }, 1200);
+        logoTimer = setTimeout(() => { logoClicks = 0; }, 1800);
       });
     }
 
