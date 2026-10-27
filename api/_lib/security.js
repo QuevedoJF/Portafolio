@@ -268,6 +268,8 @@ function isAllowedOrigin(req) {
   try {
     const url = new URL(origin);
     const host = url.host.toLowerCase();
+    const serverHost = (req.headers.host || '').toLowerCase();
+    if (serverHost && host === serverHost) return true;
     return host.includes('vercel.app') || host.includes('localhost') || host.includes('127.0.0.1');
   } catch {
     return false;
