@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { put, list } = require('@vercel/blob');
 const BUNDLED_PORTFOLIO = require('./portfolio.json');
 
 const memoryStore = new Map();
@@ -31,7 +32,7 @@ function issueAdminToken() {
   const payload = {
     role: 'admin',
     iat: Date.now(),
-    exp: Date.now() + 8 * 60 * 60 * 1000 // 8 hours
+    exp: Date.now() + 8 * 60 * 60 * 1000
   };
   const dataB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const sig = crypto
@@ -69,7 +70,7 @@ function verifyAdminRequest(req) {
   }
 }
 
-/* ── 3. SERVER-SIDE AES-256-GCM ENCRYPTION FOR PRIVATE MESSAGES ── */
+/* ── 3. SERVER-SIDE AES-256-GCM ENCRYPTION FOR BLOB & MESSAGES ── */
 function deriveServerAesKey() {
   return crypto.scryptSync(getAdminSecret(), 'qh-portfolio-server-salt-v1', 32);
 }
@@ -89,8 +90,9 @@ function encryptServerPayload(obj) {
   };
 }
 
-function decryptServerPayload(envelope) {
-  if (!envelope || envelope.v !== 'SERVER_AES_256_GCM_V1') return [];
+function decryptServerPayload(envelope, fallback = []) {
+  if (!envelope) return fallback;
+  if (envelope.v !== 'SERVER_AES_256_GCM_V1') return envelope;
   try {
     const key = deriveServerAesKey();
     const iv = Buffer.from(envelope.iv, 'base64');
@@ -101,7 +103,7 @@ function decryptServerPayload(envelope) {
     const decrypted = Buffer.concat([decipher.update(ct), decipher.final()]);
     return JSON.parse(decrypted.toString('utf8'));
   } catch {
-    return [];
+    return fallback;
   }
 }
 
@@ -120,18 +122,19 @@ function toPublicPortfolio(raw) {
     url: item.url || '#',
     tags: Array.isArray(item.tags) ? item.tags : [],
     image: item.imageVisible !== false ? (item.image || '') : '',
-    imageVisible: item.imageVisible !== false
+    imageVisible: item.imageVisible !== false,
+    visible: true
   });
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    updatedAt: raw.updatedAt || 0,
     profile: {
       name: p.name || '',
       title: p.title || '',
       heroSubtitle: p.heroSubtitle || '',
       description1: p.description1 || '',
       description2: p.description2 || '',
-      // If hidden in Admin, the server sends empty strings so F12 Network/DOM cannot see them!
       email: emailVisible ? (p.email || '') : '',
       emailVisible,
       instagram: igVisible ? (p.instagram || '') : '',
@@ -147,32 +150,34 @@ function toPublicPortfolio(raw) {
   };
 }
 
-/* ── 5. GITHUB REPO + /TMP + BUNDLED PERSISTENCE FOR VERCEL ── */
-async function readStorageFile(relPath, fallbackObj) {
-  const ghToken = process.env.GITHUB_TOKEN;
-  const ghRepo = process.env.GITHUB_REPO || 'QuevedoJF/Portafolio';
-  const ghBranch = process.env.GITHUB_BRANCH || 'main';
+/* ── 5. VERCEL BLOB (AES-256-GCM ENCRYPTED) + /TMP + BUNDLED PERSISTENCE ── */
+function toBlobKey(relPath) {
+  return 'qh-vault-v3/' + path.basename(relPath) + '.enc.json';
+}
 
-  if (ghToken && ghRepo) {
+async function readStorageFile(relPath, fallbackObj) {
+  const blobKey = toBlobKey(relPath);
+
+  // 1. Primary Cloud Database: Vercel Blob (portafolio-blob)
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${ghRepo}/contents/${relPath}?ref=${encodeURIComponent(ghBranch)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${ghToken}`,
-            Accept: 'application/vnd.github+json',
-            'User-Agent': 'QH-Portfolio-Vercel'
+      const { blobs } = await list({ prefix: blobKey, limit: 5 });
+      const exact = blobs.find(b => b.pathname === blobKey) || blobs[0];
+      if (exact && exact.url) {
+        const res = await fetch(`${exact.url}?t=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const envelope = await res.json();
+          const decrypted = decryptServerPayload(envelope, fallbackObj);
+          if (decrypted) {
+            memoryStore.set(relPath, decrypted);
+            return decrypted;
           }
         }
-      );
-      if (res.ok) {
-        const json = await res.json();
-        const content = Buffer.from(json.content, 'base64').toString('utf8');
-        return JSON.parse(content);
       }
     } catch {}
   }
 
+  // 2. In-memory / /tmp cache
   if (memoryStore.has(relPath)) {
     return JSON.parse(JSON.stringify(memoryStore.get(relPath)));
   }
@@ -194,50 +199,27 @@ async function readStorageFile(relPath, fallbackObj) {
   return fallbackObj !== undefined ? fallbackObj : BUNDLED_PORTFOLIO;
 }
 
-async function writeStorageFile(relPath, dataObj, commitMessage) {
-  const contentStr = JSON.stringify(dataObj, null, 2);
-  memoryStore.set(relPath, JSON.parse(contentStr));
+async function writeStorageFile(relPath, dataObj) {
+  const cloned = JSON.parse(JSON.stringify(dataObj));
+  memoryStore.set(relPath, cloned);
 
-  const ghToken = process.env.GITHUB_TOKEN;
-  const ghRepo = process.env.GITHUB_REPO || 'QuevedoJF/Portafolio';
-  const ghBranch = process.env.GITHUB_BRANCH || 'main';
+  const blobKey = toBlobKey(relPath);
 
-  if (ghToken && ghRepo) {
-    let sha = undefined;
-    const getUrl = `https://api.github.com/repos/${ghRepo}/contents/${relPath}?ref=${encodeURIComponent(ghBranch)}`;
-    const getRes = await fetch(getUrl, {
-      headers: {
-        Authorization: `Bearer ${ghToken}`,
-        Accept: 'application/vnd.github+json',
-        'User-Agent': 'QH-Portfolio-Vercel'
-      }
+  // 1. Primary Cloud Database: Vercel Blob (AES-256-GCM Encrypted)
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const encryptedEnvelope = encryptServerPayload(cloned);
+    await put(blobKey, JSON.stringify(encryptedEnvelope), {
+      access: 'public',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: 'application/json',
+      cacheControlMaxAge: 0
     });
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const putRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${relPath}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${ghToken}`,
-        Accept: 'application/vnd.github+json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'QH-Portfolio-Vercel'
-      },
-      body: JSON.stringify({
-        message: commitMessage || `chore: update ${relPath}`,
-        content: Buffer.from(contentStr, 'utf8').toString('base64'),
-        branch: ghBranch,
-        ...(sha ? { sha } : {})
-      })
-    });
-
-    if (putRes.ok) {
-      return { persisted: 'github' };
-    }
+    return { persisted: 'vercel-blob-encrypted' };
   }
 
+  // 2. Local filesystem / /tmp fallback
+  const contentStr = JSON.stringify(cloned, null, 2);
   try {
     const fullPath = path.join(process.cwd(), relPath);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });

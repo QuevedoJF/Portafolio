@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
+  "updatedAt": 1730000000000,
   "profile": {
     "name": "José Francisco Quevedo Hernández",
     "title": "Desarrollador Web",
@@ -47,6 +48,16 @@
     },
     {
       "id": 4,
+      "title": "Página de Hamburguesas",
+      "desc": "Sitio web y menú digital interactivo para restaurante de hamburguesas, tortas y snacks con pedidos en línea.",
+      "url": "https://pagina-hamburguesas.vercel.app",
+      "tags": ["Web", "React", "Tailwind"],
+      "image": "img/pagina_hamburguesas.png",
+      "visible": true,
+      "imageVisible": true
+    },
+    {
+      "id": 5,
       "title": "Página Noticias",
       "desc": "Sitio de noticias.",
       "url": "#",
@@ -56,7 +67,7 @@
       "imageVisible": true
     },
     {
-      "id": 5,
+      "id": 6,
       "title": "Página Tec",
       "desc": "Sitio tecnológico.",
       "url": "#",
@@ -66,7 +77,7 @@
       "imageVisible": true
     },
     {
-      "id": 6,
+      "id": 7,
       "title": "Registro Tienda",
       "desc": "Sistema de registro para tienda.",
       "url": "#",

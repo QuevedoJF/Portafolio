@@ -1,8 +1,6 @@
 const {
   readStorageFile,
-  writeStorageFile,
-  encryptServerPayload,
-  decryptServerPayload
+  writeStorageFile
 } = require('./_lib/security');
 
 const rateMap = new Map();
@@ -43,11 +41,10 @@ module.exports = async function handler(req, res) {
       date: new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })
     };
 
-    const existingEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
-    const currentMessages = decryptServerPayload(existingEnvelope);
-    currentMessages.unshift(newMsg);
-    const newEnvelope = encryptServerPayload(currentMessages.slice(0, 200));
-    await writeStorageFile('api/_lib/messages.enc.json', newEnvelope, 'chore: new encrypted contact message');
+    const currentMessages = await readStorageFile('api/_lib/messages.json', []);
+    const list = Array.isArray(currentMessages) ? currentMessages : [];
+    list.unshift(newMsg);
+    await writeStorageFile('api/_lib/messages.json', list.slice(0, 200));
 
     if (process.env.FORMSPREE_ENDPOINT) {
       await fetch(process.env.FORMSPREE_ENDPOINT, {

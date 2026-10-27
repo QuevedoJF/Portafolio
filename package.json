@@ -1,0 +1,24 @@
+{
+  "name": "portafolio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuevedoJF/Portafolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/QuevedoJF/Portafolio/issues"
+  },
+  "homepage": "https://github.com/QuevedoJF/Portafolio#readme",
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  }
+}

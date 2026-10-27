@@ -4,9 +4,7 @@ const {
   issueAdminToken,
   verifyAdminRequest,
   readStorageFile,
-  writeStorageFile,
-  encryptServerPayload,
-  decryptServerPayload
+  writeStorageFile
 } = require('./_lib/security');
 
 const loginAttempts = new Map();
@@ -20,8 +18,8 @@ module.exports = async function handler(req, res) {
     }
     const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
     const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
-    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
-    const messages = decryptServerPayload(msgEnvelope);
+    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
+    const messages = Array.isArray(rawMsgs) ? rawMsgs : [];
     return res.status(200).json({ portfolio, messages });
   }
 
@@ -64,8 +62,8 @@ module.exports = async function handler(req, res) {
 
     const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
     const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
-    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
-    const messages = decryptServerPayload(msgEnvelope);
+    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
+    const messages = Array.isArray(rawMsgs) ? rawMsgs : [];
     return res.status(200).json({ ok: true, token, portfolio, messages });
   }
 
@@ -84,20 +82,22 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Datos inválidos' });
     }
     delete newPortfolio.messages;
-    const result = await writeStorageFile('api/_lib/portfolio.json', newPortfolio, 'chore: update portfolio from Admin panel');
-    return res.status(200).json({ ok: true, ...result });
+    newPortfolio.schemaVersion = 3;
+    newPortfolio.updatedAt = Date.now();
+    const result = await writeStorageFile('api/_lib/portfolio.json', newPortfolio);
+    return res.status(200).json({ ok: true, updatedAt: newPortfolio.updatedAt, ...result });
   }
 
   if (action === 'delete_message') {
     const msgId = Number(body.id);
-    const msgEnvelope = await readStorageFile('api/_lib/messages.enc.json', null);
-    const messages = decryptServerPayload(msgEnvelope).filter(m => Number(m.id) !== msgId);
-    await writeStorageFile('api/_lib/messages.enc.json', encryptServerPayload(messages), 'chore: delete contact message');
+    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
+    const messages = (Array.isArray(rawMsgs) ? rawMsgs : []).filter(m => Number(m.id) !== msgId);
+    await writeStorageFile('api/_lib/messages.json', messages);
     return res.status(200).json({ ok: true, messages });
   }
 
   if (action === 'clear_messages') {
-    await writeStorageFile('api/_lib/messages.enc.json', encryptServerPayload([]), 'chore: clear contact messages');
+    await writeStorageFile('api/_lib/messages.json', []);
     return res.status(200).json({ ok: true, messages: [] });
   }
 

@@ -1525,11 +1525,12 @@
       'next.js': `<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#000"/><text x="12" y="15.5" text-anchor="middle" fill="#fff" font-size="7.5" font-weight="bold">Next</text></svg>`
     };
 
-    /* ── DEFAULT DATA (SCHEMA v2) ── */
-    const SCHEMA_VERSION = 2;
+    /* ── DEFAULT DATA (SCHEMA v3) ── */
+    const SCHEMA_VERSION = 3;
     /* __DEFAULT_DATA_START__ */
     const defaultData = {
-      schemaVersion: 2,
+      schemaVersion: 3,
+      updatedAt: 1730000000000,
       profile: {
         name: "José Francisco Quevedo Hernández",
         title: "Desarrollador Web",
@@ -1548,7 +1549,8 @@
         { id: 1, title: "Página Cafetería", desc: "Sitio web para cafetería.", url: "https://pagina-cafeteria-gray.vercel.app", tags: ["Web"], image: "img/pagina_cafeteria.png", visible: true, imageVisible: true },
         { id: 2, title: "Página Eventos", desc: "Sitio para gestión de eventos.", url: "https://pagina-de-eventos-one.vercel.app/", tags: ["Sistema"], image: "img/pagina_eventos.png", visible: true, imageVisible: true },
         { id: 3, title: "Página Dentista", desc: "Sitio web para dentistas.", url: "https://pagina-de-dentista.vercel.app", tags: ["Sistema"], image: "img/pagina_dentista.png", visible: true, imageVisible: true },
-        { id: 4, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true }
+        { id: 4, title: "Página de Hamburguesas", desc: "Sitio web y menú digital interactivo para restaurante de hamburguesas, tortas y snacks con pedidos en línea.", url: "https://pagina-hamburguesas.vercel.app", tags: ["Web", "React", "Tailwind"], image: "img/pagina_hamburguesas.png", visible: true, imageVisible: true },
+        { id: 5, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true }
       ],
       events: [
         { id: 1, title: "Open Tec", date: "10 Marzo 2026", desc: "Participación junto al equipo NextCode en evento de Open Tec 2026.", tags: ["Evento", "Equipo NextCode"], image: "img/eventos/opentec.jpeg", visible: true, imageVisible: true },
@@ -1587,11 +1589,10 @@
 
     let serverPortfolioCache = null;
 
-    function migrateAndGetData() {
-      if (serverPortfolioCache) return serverPortfolioCache;
+    function getLocalMigratedData() {
       try {
         const raw = localStorage.getItem('portfolioData');
-        if (!raw) return defaultData;
+        if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (!parsed.schemaVersion || parsed.schemaVersion < SCHEMA_VERSION) {
           if (Array.isArray(parsed.projects)) {
@@ -1617,8 +1618,18 @@
         }
         return parsed;
       } catch {
-        return defaultData;
+        return null;
       }
+    }
+
+    function migrateAndGetData() {
+      const local = getLocalMigratedData();
+      if (serverPortfolioCache && local) {
+        return (local.updatedAt || 0) > (serverPortfolioCache.updatedAt || 0)
+          ? local
+          : serverPortfolioCache;
+      }
+      return serverPortfolioCache || local || defaultData;
     }
 
     function notify(msg) {

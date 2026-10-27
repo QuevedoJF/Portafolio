@@ -1217,7 +1217,7 @@
       </div>
 
       <div class="form-panel" id="techFormPanel">
-        <div class="form-panel-title">Agregar tecnología</div>
+        <div class="form-panel-title" id="techFormTitle">Agregar tecnología</div>
         <div class="form-grid">
           <div class="form-group"><label>Nombre</label><input type="text" class="form-input" id="tName" placeholder="ej: React" /></div>
           <div class="form-group"><label>Abreviatura (máx. 4 letras)</label><input type="text" class="form-input" id="tLabel" placeholder="ej: Re" maxlength="4" /></div>
@@ -1233,7 +1233,17 @@
             <label>Vista previa</label>
             <div id="techPreview" style="margin-top:.35rem"></div>
           </div>
+          <div class="form-group full">
+            <label>Opciones de visibilidad</label>
+            <div class="toggles-row">
+              <label class="switch-label">
+                <input type="checkbox" class="switch-input" id="tVisible" checked />
+                <span>Card visible en el portafolio</span>
+              </label>
+            </div>
+          </div>
         </div>
+        <input type="hidden" id="tEditId" />
         <div class="form-actions">
           <button class="btn btn-primary" id="saveTechBtn">💾 Guardar tecnología</button>
           <button class="btn btn-ghost" id="cancelTechBtn">Cancelar</button>
@@ -1537,10 +1547,10 @@
     });
   }
 
-  /* ── DEFAULT DATA (SCHEMA v2) ── */
-  const SCHEMA_VERSION = 2;
+  /* ── DEFAULT DATA (SCHEMA v3) ── */
+  const SCHEMA_VERSION = 3;
   const defaultData = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     profile: {
       name: "José Francisco Quevedo Hernández",
       title: "Desarrollador Web",
@@ -1559,9 +1569,10 @@
       { id: 1, title: "Página Cafetería", desc: "Sitio web para cafetería.", url: "https://pagina-cafeteria-gray.vercel.app", tags: ["Web"], image: "img/pagina_cafeteria.png", visible: true, imageVisible: true },
       { id: 2, title: "Página Eventos", desc: "Sitio para gestión de eventos.", url: "https://pagina-de-eventos-one.vercel.app/", tags: ["Sistema"], image: "img/pagina_eventos.png", visible: true, imageVisible: true },
       { id: 3, title: "Página Dentista", desc: "Sitio web para dentistas.", url: "https://pagina-de-dentista.vercel.app", tags: ["Sistema"], image: "img/pagina_dentista.png", visible: true, imageVisible: true },
-      { id: 4, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true },
-      { id: 5, title: "Página Tec", desc: "Sitio tecnológico.", url: "#", tags: ["Web"], image: "img/pagina_tec.png", visible: false, imageVisible: true },
-      { id: 6, title: "Registro Tienda", desc: "Sistema de registro para tienda.", url: "#", tags: ["Sistema"], image: "img/registro_tienda.png", visible: false, imageVisible: true }
+      { id: 4, title: "Página de Hamburguesas", desc: "Sitio web interactivo y moderno para restaurante de hamburguesas artesanales, con menú digital y diseño responsivo.", url: "https://pagina-hamburguesas.vercel.app", tags: ["Web", "React", "Tailwind"], image: "img/pagina_hamburguesas.png", visible: true, imageVisible: true },
+      { id: 5, title: "Página Noticias", desc: "Sitio de noticias.", url: "#", tags: ["Sistema"], image: "img/pagina_noticias.png", visible: true, imageVisible: true },
+      { id: 6, title: "Página Tec", desc: "Sitio tecnológico.", url: "#", tags: ["Web"], image: "img/pagina_tec.png", visible: false, imageVisible: true },
+      { id: 7, title: "Registro Tienda", desc: "Sistema de registro para tienda.", url: "#", tags: ["Sistema"], image: "img/registro_tienda.png", visible: false, imageVisible: true }
     ],
     events: [
       { id: 1, title: "Open Tec", date: "10 Marzo 2026", desc: "Participación junto al equipo NextCode en evento de Open Tec 2026.", tags: ["Evento", "Equipo NextCode"], image: "img/eventos/opentec.jpeg", visible: true, imageVisible: true },
@@ -1601,6 +1612,30 @@
   let serverPortfolioData = null;
   let serverMessages = null;
 
+  function ensureSchemaUpgraded(parsed) {
+    if (!parsed || typeof parsed !== 'object') return JSON.parse(JSON.stringify(defaultData));
+    if (!parsed.schemaVersion || parsed.schemaVersion < SCHEMA_VERSION) {
+      if (Array.isArray(parsed.projects)) {
+        defaultData.projects.forEach(defP => {
+          if (!parsed.projects.some(p => p.image === defP.image || p.title === defP.title)) {
+            parsed.projects.push({ ...defP, id: nextId(parsed.projects) });
+          }
+        });
+      }
+      if (Array.isArray(parsed.technologies) && !parsed.technologies.some(t => t.name.toLowerCase() === 'react')) {
+        parsed.technologies.splice(1, 0, { id: Date.now(), name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true });
+      }
+      if (Array.isArray(parsed.events)) {
+        const ev4 = parsed.events.find(e => e.image === 'img/eventos/cursotec.jpeg');
+        if (ev4 && ev4.title === 'Curso a Tec estudiantes') {
+          ev4.title = 'Curso a Tec estudiantes del tec y prepa';
+        }
+      }
+      parsed.schemaVersion = SCHEMA_VERSION;
+    }
+    return parsed;
+  }
+
   function getData() {
     if (serverPortfolioData) {
       return serverPortfolioData;
@@ -1608,27 +1643,8 @@
     try {
       const s = localStorage.getItem('portfolioData');
       if (!s) return JSON.parse(JSON.stringify(defaultData));
-      const parsed = JSON.parse(s);
-      if (!parsed.schemaVersion || parsed.schemaVersion < SCHEMA_VERSION) {
-        if (Array.isArray(parsed.projects)) {
-          defaultData.projects.forEach(defP => {
-            if (!parsed.projects.some(p => p.image === defP.image || p.title === defP.title)) {
-              parsed.projects.push(defP);
-            }
-          });
-        }
-        if (Array.isArray(parsed.technologies) && !parsed.technologies.some(t => t.name.toLowerCase() === 'react')) {
-          parsed.technologies.splice(1, 0, { id: Date.now(), name: "React", color: "#0b1929", textColor: "#61dafb", label: "Re", visible: true });
-        }
-        if (Array.isArray(parsed.events)) {
-          const ev4 = parsed.events.find(e => e.image === 'img/eventos/cursotec.jpeg');
-          if (ev4 && ev4.title === 'Curso a Tec estudiantes') {
-            ev4.title = 'Curso a Tec estudiantes del tec y prepa';
-          }
-        }
-        parsed.schemaVersion = SCHEMA_VERSION;
-        localStorage.setItem('portfolioData', JSON.stringify(parsed));
-      }
+      const parsed = ensureSchemaUpgraded(JSON.parse(s));
+      localStorage.setItem('portfolioData', JSON.stringify(parsed));
       return parsed;
     } catch {
       return JSON.parse(JSON.stringify(defaultData));
@@ -1646,7 +1662,7 @@
       const stTxt = document.getElementById('storageText');
       const fill = document.getElementById('storageFill');
       if (stTxt && fill) {
-        stTxt.textContent = serverSessionToken ? `${kb} KB (Servidor Vercel)` : `${kb} KB / 5 MB`;
+        stTxt.textContent = serverSessionToken ? `${kb} KB (Vercel Blob)` : `${kb} KB / 5 MB`;
         fill.style.width = Math.max(3, pct) + '%';
         fill.style.background = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warning)' : 'var(--success)';
       }
@@ -1655,6 +1671,8 @@
 
   function saveData(d) {
     try {
+      d.schemaVersion = SCHEMA_VERSION;
+      d.updatedAt = Date.now();
       if (serverPortfolioData) {
         serverPortfolioData = d;
       }
@@ -1669,8 +1687,17 @@
             Authorization: `Bearer ${serverSessionToken}`
           },
           body: JSON.stringify({ action: 'save_portfolio', portfolio: d })
-        }).then(r => {
-          if (r.ok) showToast('Sincronizado con el servidor Vercel / Git');
+        }).then(async r => {
+          if (r.ok) {
+            const resp = await r.json().catch(() => ({}));
+            if (resp && resp.portfolio) {
+              serverPortfolioData = resp.portfolio;
+              localStorage.setItem('portfolioData', JSON.stringify(resp.portfolio));
+            }
+            showToast('Guardado en la base de datos (Vercel)');
+          } else {
+            showToast('Guardado localmente (reintentando nube)', 'error');
+          }
         }).catch(() => {});
       }
       return true;
@@ -1779,7 +1806,33 @@
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) {
           serverSessionToken = data.token;
-          serverPortfolioData = data.portfolio && data.portfolio.profile ? data.portfolio : JSON.parse(JSON.stringify(defaultData));
+          let srvPortfolio = data.portfolio && data.portfolio.profile
+            ? ensureSchemaUpgraded(data.portfolio)
+            : JSON.parse(JSON.stringify(defaultData));
+
+          // Check if localStorage has newer unsynced edits from this browser
+          try {
+            const localRaw = localStorage.getItem('portfolioData');
+            if (localRaw) {
+              const localParsed = ensureSchemaUpgraded(JSON.parse(localRaw));
+              const localTs = Number(localParsed.updatedAt) || 0;
+              const srvTs = Number(srvPortfolio.updatedAt) || 0;
+              if (localTs > srvTs) {
+                srvPortfolio = localParsed;
+                fetch('/api/admin', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${serverSessionToken}`
+                  },
+                  body: JSON.stringify({ action: 'save_portfolio', portfolio: srvPortfolio })
+                }).catch(() => {});
+              }
+            }
+          } catch {}
+
+          serverPortfolioData = srvPortfolio;
+          localStorage.setItem('portfolioData', JSON.stringify(serverPortfolioData));
           serverMessages = Array.isArray(data.messages) ? data.messages : [];
           setLockoutState({ fails: 0, until: 0 });
           document.getElementById('pwInput').value = '';
@@ -1845,7 +1898,7 @@
   function toggleItemVisibility(collectionKey, id, field, renderFn) {
     const d = getData();
     const list = d[collectionKey] || [];
-    const item = list.find(x => x.id === id);
+    const item = list.find(x => Number(x.id) === Number(id));
     if (!item) return;
     const current = item[field] !== false;
     item[field] = !current;
@@ -1907,6 +1960,7 @@
       else if (action === 'del-ev') deleteEvent(id);
       else if (action === 'edit-cert') editCert(id);
       else if (action === 'del-cert') deleteCert(id);
+      else if (action === 'edit-tech') editTech(id);
       else if (action === 'del-tech') deleteTech(id);
       else if (action === 'del-msg') deleteMsg(id);
     });
@@ -1975,6 +2029,13 @@
     document.getElementById('profilePhotoPreview').src = safeImgSrc(p.photo) || 'img/Perfil/foto.jpeg';
   }
   function initProfileSection() {
+    document.getElementById('pPhotoVisible').addEventListener('change', e => {
+      const d = getData();
+      if (!d.profile) d.profile = {};
+      d.profile.photoVisible = e.target.checked;
+      saveData(d);
+      showToast(e.target.checked ? 'Foto de perfil visible' : 'Foto de perfil oculta');
+    });
     document.getElementById('saveProfileBtn').onclick = () => {
       const d = getData();
       if (!d.profile) d.profile = {};
@@ -1996,7 +2057,8 @@
   /* ── PROJECTS ── */
   function initProjectsSection() {
     document.getElementById('addProjectBtn').onclick = () => {
-      document.getElementById('projectFormPanel').classList.toggle('open');
+      const panel = document.getElementById('projectFormPanel');
+      panel.classList.add('open');
       document.getElementById('projectFormTitle').textContent = 'Agregar nuevo proyecto';
       document.getElementById('projTitle').value = '';
       document.getElementById('projUrl').value = '';
@@ -2008,6 +2070,7 @@
       document.getElementById('projImgVisible').checked = true;
       document.getElementById('projImgPreview').src = '';
       document.getElementById('projImgPreview').style.display = 'none';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     document.getElementById('cancelProjectBtn').onclick = () =>
       document.getElementById('projectFormPanel').classList.remove('open');
@@ -2064,7 +2127,7 @@
       showToast('La URL debe iniciar con https:// o ser #', 'error');
       return;
     }
-    const existing = editId ? (d.projects.find(p => p.id === editId) || {}) : {};
+    const existing = editId ? (d.projects.find(p => Number(p.id) === editId) || {}) : {};
     const item = {
       id: editId || nextId(d.projects || []),
       title,
@@ -2077,7 +2140,7 @@
     };
     if (!d.projects) d.projects = [];
     if (editId) {
-      const idx = d.projects.findIndex(p => p.id === editId);
+      const idx = d.projects.findIndex(p => Number(p.id) === editId);
       if (idx > -1) d.projects[idx] = item;
     } else {
       d.projects.push(item);
@@ -2092,9 +2155,10 @@
 
   function editProject(id) {
     const d = getData();
-    const p = d.projects.find(x => x.id === id);
+    const p = (d.projects || []).find(x => Number(x.id) === Number(id));
     if (!p) return;
-    document.getElementById('projectFormPanel').classList.add('open');
+    const panel = document.getElementById('projectFormPanel');
+    panel.classList.add('open');
     document.getElementById('projectFormTitle').textContent = 'Editar proyecto';
     document.getElementById('projEditId').value = p.id;
     document.getElementById('projTitle').value = p.title;
@@ -2107,12 +2171,13 @@
     const prev = document.getElementById('projImgPreview');
     prev.src = safeImgSrc(p.image);
     prev.style.display = p.image ? 'block' : 'none';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function deleteProject(id) {
     showConfirm('¿Eliminar este proyecto permanentemente?', () => {
       const d = getData();
-      d.projects = (d.projects || []).filter(p => p.id !== id);
+      d.projects = (d.projects || []).filter(p => Number(p.id) !== Number(id));
       saveData(d);
       renderProjectsList();
       renderDashboard();
@@ -2123,7 +2188,8 @@
   /* ── EVENTS ── */
   function initEventsSection() {
     document.getElementById('addEventBtn').onclick = () => {
-      document.getElementById('eventFormPanel').classList.toggle('open');
+      const panel = document.getElementById('eventFormPanel');
+      panel.classList.add('open');
       document.getElementById('eventFormTitle').textContent = 'Agregar nuevo evento';
       document.getElementById('evTitle').value = '';
       document.getElementById('evDate').value = '';
@@ -2135,6 +2201,7 @@
       document.getElementById('evImgVisible').checked = true;
       document.getElementById('evImgPreview').src = '';
       document.getElementById('evImgPreview').style.display = 'none';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     document.getElementById('cancelEventBtn').onclick = () =>
       document.getElementById('eventFormPanel').classList.remove('open');
@@ -2186,7 +2253,7 @@
     const editId = parseInt(document.getElementById('evEditId').value, 10);
     const title = document.getElementById('evTitle').value.trim();
     if (!title) { showToast('El título es obligatorio', 'error'); return; }
-    const existing = editId ? (d.events.find(e => e.id === editId) || {}) : {};
+    const existing = editId ? (d.events.find(e => Number(e.id) === editId) || {}) : {};
     const item = {
       id: editId || nextId(d.events || []),
       title,
@@ -2199,7 +2266,7 @@
     };
     if (!d.events) d.events = [];
     if (editId) {
-      const idx = d.events.findIndex(e => e.id === editId);
+      const idx = d.events.findIndex(e => Number(e.id) === editId);
       if (idx > -1) d.events[idx] = item;
     } else {
       d.events.push(item);
@@ -2214,9 +2281,10 @@
 
   function editEvent(id) {
     const d = getData();
-    const ev = d.events.find(x => x.id === id);
+    const ev = (d.events || []).find(x => Number(x.id) === Number(id));
     if (!ev) return;
-    document.getElementById('eventFormPanel').classList.add('open');
+    const panel = document.getElementById('eventFormPanel');
+    panel.classList.add('open');
     document.getElementById('eventFormTitle').textContent = 'Editar evento';
     document.getElementById('evEditId').value = ev.id;
     document.getElementById('evTitle').value = ev.title;
@@ -2229,12 +2297,13 @@
     const prev = document.getElementById('evImgPreview');
     prev.src = safeImgSrc(ev.image);
     prev.style.display = ev.image ? 'block' : 'none';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function deleteEvent(id) {
     showConfirm('¿Eliminar este evento permanentemente?', () => {
       const d = getData();
-      d.events = (d.events || []).filter(e => e.id !== id);
+      d.events = (d.events || []).filter(e => Number(e.id) !== Number(id));
       saveData(d);
       renderEventsList();
       renderDashboard();
@@ -2245,7 +2314,8 @@
   /* ── CERTIFICATIONS ── */
   function initCertsSection() {
     document.getElementById('addCertBtn').onclick = () => {
-      document.getElementById('certFormPanel').classList.toggle('open');
+      const panel = document.getElementById('certFormPanel');
+      panel.classList.add('open');
       document.getElementById('certFormTitle').textContent = 'Agregar certificación';
       document.getElementById('certTitle').value = '';
       document.getElementById('certImgData').value = '';
@@ -2254,6 +2324,7 @@
       document.getElementById('certImgVisible').checked = true;
       document.getElementById('certImgPreview').src = '';
       document.getElementById('certImgPreview').style.display = 'none';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     document.getElementById('cancelCertBtn').onclick = () =>
       document.getElementById('certFormPanel').classList.remove('open');
@@ -2302,7 +2373,7 @@
     const editId = parseInt(document.getElementById('certEditId').value, 10);
     const title = document.getElementById('certTitle').value.trim();
     if (!title) { showToast('El título es obligatorio', 'error'); return; }
-    const existing = editId ? (d.certifications.find(c => c.id === editId) || {}) : {};
+    const existing = editId ? (d.certifications.find(c => Number(c.id) === editId) || {}) : {};
     const item = {
       id: editId || nextId(d.certifications || []),
       title,
@@ -2312,7 +2383,7 @@
     };
     if (!d.certifications) d.certifications = [];
     if (editId) {
-      const idx = d.certifications.findIndex(c => c.id === editId);
+      const idx = d.certifications.findIndex(c => Number(c.id) === editId);
       if (idx > -1) d.certifications[idx] = item;
     } else {
       d.certifications.push(item);
@@ -2327,9 +2398,10 @@
 
   function editCert(id) {
     const d = getData();
-    const c = d.certifications.find(x => x.id === id);
+    const c = (d.certifications || []).find(x => Number(x.id) === Number(id));
     if (!c) return;
-    document.getElementById('certFormPanel').classList.add('open');
+    const panel = document.getElementById('certFormPanel');
+    panel.classList.add('open');
     document.getElementById('certFormTitle').textContent = 'Editar certificación';
     document.getElementById('certEditId').value = c.id;
     document.getElementById('certTitle').value = c.title;
@@ -2339,12 +2411,13 @@
     const prev = document.getElementById('certImgPreview');
     prev.src = safeImgSrc(c.image);
     prev.style.display = c.image ? 'block' : 'none';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function deleteCert(id) {
     showConfirm('¿Eliminar esta certificación permanentemente?', () => {
       const d = getData();
-      d.certifications = (d.certifications || []).filter(c => c.id !== id);
+      d.certifications = (d.certifications || []).filter(c => Number(c.id) !== Number(id));
       saveData(d);
       renderCertsList();
       renderDashboard();
@@ -2363,7 +2436,8 @@
     const label = document.getElementById('tLabel').value || 'JS';
     const name = document.getElementById('tName').value || 'Tecnología';
     const color = document.getElementById('tColor').value;
-    const textColor = document.querySelector('input[name="tTextColor"]:checked').value;
+    const checkedRadio = document.querySelector('input[name="tTextColor"]:checked');
+    const textColor = checkedRadio ? checkedRadio.value : '#fff';
     document.getElementById('techPreview').innerHTML = techBadgeHTML(label, name, color, textColor);
   }
   function initTechSection() {
@@ -2375,12 +2449,17 @@
     );
     updateTechPreview();
     document.getElementById('addTechBtn').onclick = () => {
-      document.getElementById('techFormPanel').classList.toggle('open');
+      const panel = document.getElementById('techFormPanel');
+      panel.classList.add('open');
+      document.getElementById('techFormTitle').textContent = 'Agregar tecnología';
+      document.getElementById('tEditId').value = '';
       document.getElementById('tName').value = '';
       document.getElementById('tLabel').value = '';
       document.getElementById('tColor').value = '#3b82f6';
+      document.getElementById('tVisible').checked = true;
       document.querySelector('input[name="tTextColor"][value="#fff"]').checked = true;
       updateTechPreview();
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     document.getElementById('cancelTechBtn').onclick = () =>
       document.getElementById('techFormPanel').classList.remove('open');
@@ -2402,8 +2481,9 @@
           ${techBadgeHTML(t.label, t.name, t.color, t.textColor)}
           <div class="action-btns">
             <button class="vis-pill ${isVis ? 'on' : 'off'}" data-action="toggle-vis" data-col="technologies" data-id="${id}" data-field="visible">
-              ${isVis ? '👁️ Visible' : '🙈 Oculta'}
+              ${isVis ? '👁️ Card Visible' : '🙈 Card Oculta'}
             </button>
+            <button class="btn btn-ghost btn-sm" data-action="edit-tech" data-id="${id}">✏️ Editar</button>
             <button class="btn btn-danger btn-sm" data-action="del-tech" data-id="${id}">🗑️</button>
           </div>
         </div>
@@ -2412,29 +2492,54 @@
   }
   function saveTech() {
     const d = getData();
+    const editId = parseInt(document.getElementById('tEditId').value, 10);
     const name = document.getElementById('tName').value.trim();
     const label = document.getElementById('tLabel').value.trim();
     if (!name || !label) { showToast('Nombre y abreviatura son obligatorios', 'error'); return; }
     if (!d.technologies) d.technologies = [];
-    d.technologies.push({
-      id: nextId(d.technologies),
+    const checkedRadio = document.querySelector('input[name="tTextColor"]:checked');
+    const item = {
+      id: editId || nextId(d.technologies),
       name,
       label,
       color: document.getElementById('tColor').value,
-      textColor: document.querySelector('input[name="tTextColor"]:checked').value,
-      visible: true
-    });
+      textColor: checkedRadio ? checkedRadio.value : '#fff',
+      visible: document.getElementById('tVisible').checked
+    };
+    if (editId) {
+      const idx = d.technologies.findIndex(t => Number(t.id) === editId);
+      if (idx > -1) d.technologies[idx] = item;
+    } else {
+      d.technologies.push(item);
+    }
     if (saveData(d)) {
       renderTechList();
       renderDashboard();
       document.getElementById('techFormPanel').classList.remove('open');
-      showToast('Tecnología agregada');
+      showToast(editId ? 'Tecnología actualizada' : 'Tecnología agregada');
     }
+  }
+  function editTech(id) {
+    const d = getData();
+    const t = (d.technologies || []).find(x => Number(x.id) === Number(id));
+    if (!t) return;
+    const panel = document.getElementById('techFormPanel');
+    panel.classList.add('open');
+    document.getElementById('techFormTitle').textContent = 'Editar tecnología';
+    document.getElementById('tEditId').value = t.id;
+    document.getElementById('tName').value = t.name || '';
+    document.getElementById('tLabel').value = t.label || '';
+    document.getElementById('tColor').value = /^#[0-9a-fA-F]{6}$/.test(t.color || '') ? t.color : '#3b82f6';
+    document.getElementById('tVisible').checked = t.visible !== false;
+    const targetRadio = document.querySelector(`input[name="tTextColor"][value="${t.textColor === '#000' ? '#000' : '#fff'}"]`);
+    if (targetRadio) targetRadio.checked = true;
+    updateTechPreview();
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   function deleteTech(id) {
     showConfirm('¿Eliminar esta tecnología?', () => {
       const d = getData();
-      d.technologies = (d.technologies || []).filter(t => t.id !== id);
+      d.technologies = (d.technologies || []).filter(t => Number(t.id) !== Number(id));
       saveData(d);
       renderTechList();
       renderDashboard();
@@ -2510,13 +2615,27 @@
       } catch {}
     }
     const d = getData();
-    d.messages = (d.messages || []).filter(m => m.id !== id);
+    d.messages = (d.messages || []).filter(m => Number(m.id) !== Number(id));
     saveData(d);
     renderContact();
     showToast('Mensaje eliminado');
   }
 
   function initContactSection() {
+    document.getElementById('contactEmailVis').addEventListener('change', e => {
+      const d = getData();
+      if (!d.profile) d.profile = {};
+      d.profile.emailVisible = e.target.checked;
+      saveData(d);
+      showToast(e.target.checked ? 'Botón de correo visible' : 'Botón de correo oculto');
+    });
+    document.getElementById('contactIgVis').addEventListener('change', e => {
+      const d = getData();
+      if (!d.profile) d.profile = {};
+      d.profile.instagramVisible = e.target.checked;
+      saveData(d);
+      showToast(e.target.checked ? 'Botón de Instagram visible' : 'Botón de Instagram oculto');
+    });
     document.getElementById('saveContactBtn').onclick = () => {
       const d = getData();
       if (!d.profile) d.profile = {};
@@ -2618,8 +2737,8 @@
 
     document.getElementById('resetDefaultBtn').onclick = () => {
       showConfirm('¿Restaurar todos los datos a los valores originales de fábrica?', () => {
-        localStorage.removeItem('portfolioData');
-        updateStorageMeter();
+        const fresh = JSON.parse(JSON.stringify(defaultData));
+        saveData(fresh);
         renderDashboard();
         showToast('Datos restaurados a valores originales');
       });
