@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-18T20:28:44.109Z",
+        "reason": "Claude triage: #lbImg is a hidden lightbox whose src is set by app.src.js when opened; no other img in index.html lacks src"
+      }
+    ]
+  }
+}
