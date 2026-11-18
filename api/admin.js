@@ -1,116 +1,187 @@
 const {
   BUNDLED_PORTFOLIO,
+  StorageError,
+  ConfigError,
   verifyAdminPassword,
   issueAdminToken,
   verifyAdminRequest,
   readStorageFile,
   writeStorageFile,
+  listStorageVersions,
+  readStorageVersion,
+  uploadImageDataUrl,
+  externalizeImages,
+  listMessages,
+  deleteMessage,
+  clearMessages,
   isAllowedOrigin,
-  isAiOrScraperBot
+  isAiOrScraperBot,
+  parseBody,
+  clientIp
 } = require('./_lib/security');
 
+const PORTFOLIO_PATH = 'api/_lib/portfolio.json';
+const MAX_PORTFOLIO_BYTES = 1024 * 1024; // sin imágenes en base64 el JSON pesa pocos KB
 const loginAttempts = new Map();
+
+async function loadPortfolio() {
+  const raw = await readStorageFile(PORTFOLIO_PATH, BUNDLED_PORTFOLIO);
+  if (!raw || typeof raw !== 'object' || !raw.profile) {
+    throw new StorageError('Los datos guardados no tienen un formato válido');
+  }
+  return raw;
+}
+
+function isValidPortfolio(p) {
+  return (
+    p && typeof p === 'object' &&
+    p.profile && typeof p.profile === 'object' &&
+    ['projects', 'events', 'certifications', 'technologies'].every(k => p[k] === undefined || Array.isArray(p[k]))
+  );
+}
+
+function sendError(res, err) {
+  if (err instanceof ConfigError) {
+    console.error('[admin] config:', err.message);
+    return res.status(500).json({ error: err.message, code: 'CONFIG' });
+  }
+  if (err instanceof StorageError) {
+    console.error('[admin] storage:', err.message, err.cause || '');
+    return res.status(503).json({
+      error: 'La base de datos no respondió. No se modificó nada; intenta de nuevo en unos segundos.',
+      detail: err.message,
+      code: 'STORAGE'
+    });
+  }
+  console.error('[admin] unexpected:', err);
+  return res.status(500).json({ error: 'Error interno del servidor', code: 'INTERNAL' });
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
-  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noai, noimageai, noarchive');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
 
-  if (isAiOrScraperBot(req)) {
-    return res.status(403).json({ error: 'Acceso denegado' });
-  }
+  if (isAiOrScraperBot(req)) return res.status(403).json({ error: 'Acceso denegado' });
+  if (!isAllowedOrigin(req)) return res.status(403).json({ error: 'Origen no autorizado' });
 
-  if (!isAllowedOrigin(req)) {
-    return res.status(403).json({ error: 'Origen no autorizado' });
-  }
-
-  if (req.method === 'GET') {
-    if (!verifyAdminRequest(req)) {
-      return res.status(401).json({ error: 'No autorizado' });
-    }
-    const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
-    const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
-    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
-    const messages = Array.isArray(rawMsgs) ? rawMsgs : [];
-    return res.status(200).json({ portfolio, messages });
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const action = body.action;
-
-  if (action === 'login') {
-    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
-    const now = Date.now();
-    const state = loginAttempts.get(ip) || { fails: 0, until: 0 };
-
-    if (state.until > now) {
-      const waitSec = Math.ceil((state.until - now) / 1000);
-      return res.status(429).json({ error: `Demasiados intentos. Bloqueado por ${waitSec}s.` });
+  try {
+    if (req.method === 'GET') {
+      if (!verifyAdminRequest(req)) return res.status(401).json({ error: 'No autorizado' });
+      const [portfolio, messages] = await Promise.all([loadPortfolio(), listMessages()]);
+      return res.status(200).json({ portfolio, messages, version: Number(portfolio.updatedAt) || 0 });
     }
 
-    if (!verifyAdminPassword(body.password || '')) {
-      state.fails += 1;
-      if (state.fails >= 5) {
-        state.until = now + 60 * 1000;
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const body = parseBody(req);
+    const action = body.action;
+
+    if (action === 'login') {
+      const ip = clientIp(req);
+      const now = Date.now();
+      const state = loginAttempts.get(ip) || { fails: 0, until: 0 };
+
+      if (state.until > now) {
+        const waitSec = Math.ceil((state.until - now) / 1000);
+        return res.status(429).json({ error: `Demasiados intentos. Bloqueado por ${waitSec}s.` });
       }
-      loginAttempts.set(ip, state);
-      return res.status(401).json({
-        error: state.until > now
-          ? 'Demasiados intentos fallidos. Bloqueado por 60s.'
-          : `Contraseña incorrecta (${state.fails}/5).`
-      });
+
+      if (!verifyAdminPassword(body.password || '')) {
+        state.fails += 1;
+        if (state.fails >= 5) state.until = now + 5 * 60 * 1000;
+        loginAttempts.set(ip, state);
+        await new Promise(r => setTimeout(r, 600)); // frena ataques de fuerza bruta
+        return res.status(401).json({
+          error: state.until > now
+            ? 'Demasiados intentos fallidos. Bloqueado por 5 minutos.'
+            : `Contraseña incorrecta (${state.fails}/5).`
+        });
+      }
+
+      loginAttempts.delete(ip);
+      const token = issueAdminToken(); // lanza ConfigError si falta ADMIN_SECRET
+      // Si la base de datos no responde NO se abre el panel: así nunca se edita
+      // (y luego se guarda) una copia vieja encima de los datos buenos.
+      const [portfolio, messages] = await Promise.all([loadPortfolio(), listMessages()]);
+      res.setHeader(
+        'Set-Cookie',
+        `qh_admin_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800; Secure`
+      );
+      return res.status(200).json({ ok: true, token, portfolio, messages, version: Number(portfolio.updatedAt) || 0 });
     }
 
-    loginAttempts.delete(ip);
-    const token = issueAdminToken();
-    res.setHeader(
-      'Set-Cookie',
-      `qh_admin_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=28800; Secure`
-    );
-
-    const raw = await readStorageFile('api/_lib/portfolio.json', BUNDLED_PORTFOLIO);
-    const portfolio = raw && raw.profile ? raw : BUNDLED_PORTFOLIO;
-    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
-    const messages = Array.isArray(rawMsgs) ? rawMsgs : [];
-    return res.status(200).json({ ok: true, token, portfolio, messages });
-  }
-
-  if (!verifyAdminRequest(req)) {
-    return res.status(401).json({ error: 'Sesión expirada o no autorizada' });
-  }
-
-  if (action === 'logout') {
-    res.setHeader('Set-Cookie', 'qh_admin_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
-    return res.status(200).json({ ok: true });
-  }
-
-  if (action === 'save_portfolio') {
-    const newPortfolio = body.portfolio;
-    if (!newPortfolio || typeof newPortfolio !== 'object') {
-      return res.status(400).json({ error: 'Datos inválidos' });
+    if (!verifyAdminRequest(req)) {
+      return res.status(401).json({ error: 'Sesión expirada o no autorizada', code: 'AUTH' });
     }
-    delete newPortfolio.messages;
-    newPortfolio.schemaVersion = 3;
-    newPortfolio.updatedAt = Math.max(Date.now(), Number(newPortfolio.updatedAt) || 0);
-    const result = await writeStorageFile('api/_lib/portfolio.json', newPortfolio);
-    return res.status(200).json({ ok: true, portfolio: newPortfolio, updatedAt: newPortfolio.updatedAt, ...result });
-  }
 
-  if (action === 'delete_message') {
-    const msgId = Number(body.id);
-    const rawMsgs = await readStorageFile('api/_lib/messages.json', []);
-    const messages = (Array.isArray(rawMsgs) ? rawMsgs : []).filter(m => Number(m.id) !== msgId);
-    await writeStorageFile('api/_lib/messages.json', messages);
-    return res.status(200).json({ ok: true, messages });
-  }
+    if (action === 'logout') {
+      res.setHeader('Set-Cookie', 'qh_admin_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0; Secure');
+      return res.status(200).json({ ok: true });
+    }
 
-  if (action === 'clear_messages') {
-    await writeStorageFile('api/_lib/messages.json', []);
-    return res.status(200).json({ ok: true, messages: [] });
-  }
+    if (action === 'save_portfolio') {
+      const incoming = body.portfolio;
+      if (!isValidPortfolio(incoming)) return res.status(400).json({ error: 'Datos inválidos' });
 
-  return res.status(400).json({ error: 'Acción desconocida' });
+      // Control de concurrencia optimista: solo se guarda si el cliente editó
+      // sobre la versión más reciente. Evita que una pestaña vieja (o datos
+      // cargados antes de un fallo) sobrescriba cambios más nuevos.
+      const current = await loadPortfolio();
+      const currentVersion = Number(current.updatedAt) || 0;
+      const baseVersion = Number(body.baseVersion);
+      if (!Number.isFinite(baseVersion) || baseVersion < currentVersion) {
+        return res.status(409).json({
+          error: 'Hay una versión más reciente guardada (¿otra pestaña o dispositivo?).',
+          code: 'CONFLICT',
+          portfolio: current,
+          version: currentVersion
+        });
+      }
+
+      delete incoming.messages;
+      await externalizeImages(incoming); // red de seguridad: ninguna imagen base64 llega al JSON
+      incoming.schemaVersion = 3;
+      incoming.updatedAt = Math.max(Date.now(), currentVersion + 1);
+
+      if (Buffer.byteLength(JSON.stringify(incoming)) > MAX_PORTFOLIO_BYTES) {
+        return res.status(413).json({ error: 'El portafolio es demasiado grande' });
+      }
+
+      await writeStorageFile(PORTFOLIO_PATH, incoming);
+      return res.status(200).json({ ok: true, portfolio: incoming, version: incoming.updatedAt });
+    }
+
+    if (action === 'upload_image') {
+      const url = await uploadImageDataUrl(body.dataUrl);
+      return res.status(200).json({ ok: true, url });
+    }
+
+    if (action === 'list_versions') {
+      const versions = await listStorageVersions(PORTFOLIO_PATH);
+      return res.status(200).json({ ok: true, versions });
+    }
+
+    if (action === 'restore_version') {
+      const snapshot = await readStorageVersion(PORTFOLIO_PATH, body.versionId);
+      if (!isValidPortfolio(snapshot)) return res.status(400).json({ error: 'La versión está dañada' });
+      const current = await loadPortfolio();
+      snapshot.updatedAt = Math.max(Date.now(), (Number(current.updatedAt) || 0) + 1);
+      await writeStorageFile(PORTFOLIO_PATH, snapshot);
+      return res.status(200).json({ ok: true, portfolio: snapshot, version: snapshot.updatedAt });
+    }
+
+    if (action === 'delete_message') {
+      await deleteMessage(body.id);
+      return res.status(200).json({ ok: true, messages: await listMessages() });
+    }
+
+    if (action === 'clear_messages') {
+      await clearMessages();
+      return res.status(200).json({ ok: true, messages: [] });
+    }
+
+    return res.status(400).json({ error: 'Acción desconocida' });
+  } catch (err) {
+    return sendError(res, err);
+  }
 };

@@ -837,6 +837,52 @@
 
     .toast.success { border-color: var(--success); color: #34d399; }
     .toast.error { border-color: var(--danger); color: #fca5a5; }
+    .toast.warning { border-color: var(--warning); color: #fcd34d; }
+
+    /* Indicador fijo de guardado */
+    .save-status {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .74rem;
+      font-weight: 600;
+      padding: .3rem .6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .save-status[data-state="saved"] { color: #34d399; border-color: rgba(16,185,129,.45); }
+    .save-status[data-state="saving"],
+    .save-status[data-state="pending"] { color: #fcd34d; border-color: rgba(245,158,11,.45); }
+    .save-status[data-state="error"] { color: #fca5a5; border-color: rgba(239,68,68,.55); }
+    .storage-box .save-status { width: 100%; justify-content: center; margin-bottom: .55rem; }
+
+    /* Historial de versiones */
+    .version-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: .5rem;
+      background: var(--bg-input);
+    }
+    .version-row small { color: var(--text-muted); margin-left: .5rem; }
+    .version-current {
+      font-size: .68rem;
+      margin-left: .45rem;
+      padding: .1rem .45rem;
+      border-radius: 999px;
+      background: rgba(16,185,129,.15);
+      color: #34d399;
+    }
 
     .modal-overlay {
       display: none;
@@ -924,8 +970,9 @@
     </nav>
 
     <div class="storage-box">
+      <div class="save-status" data-state="saved" role="status" aria-live="polite">✓ Sincronizado</div>
       <div style="display:flex;justify-content:space-between;font-size:0.74rem;color:var(--text-secondary)">
-        <span>Almacenamiento local</span>
+        <span>Tamaño de los datos</span>
         <span id="storageText">0 KB / 5 MB</span>
       </div>
       <div class="storage-bar-bg">
@@ -942,7 +989,7 @@
   <!-- TOPBAR (mobile) -->
   <div class="topbar">
     <button class="ham-admin" id="hamAdmin">☰</button>
-    <span style="font-weight:700">QH Admin</span>
+    <span class="save-status" data-state="saved" aria-hidden="true">✓</span>
     <a href="index.html" target="_blank" class="btn btn-ghost btn-sm">Ver sitio ↗</a>
   </div>
 
@@ -1307,19 +1354,30 @@
     <div class="section" id="s-backup">
       <div class="page-header">
         <div>
-          <h2>💾 Publicar a Git / Respaldo y Seguridad</h2>
-          <p>Herramientas para que tus cambios locales se guarden permanentemente cuando decidas subir tu página a GitHub.</p>
+          <h2>💾 Respaldo e historial</h2>
+          <p>Cada cambio se guarda automáticamente en la nube. Aquí puedes volver a una versión anterior o descargar una copia.</p>
         </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem">
+          <div>
+            <h3 style="font-size:1.05rem;margin-bottom:.25rem">🕘 Historial de versiones</h3>
+            <p style="color:var(--text-secondary);font-size:.86rem">Se conservan las últimas 15 versiones guardadas. Si algo se borró por error, restaura una anterior.</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="refreshVersionsBtn">⟳ Actualizar</button>
+        </div>
+        <div id="versionsList"></div>
       </div>
 
       <div class="form-grid">
         <div class="card">
-          <h3 style="font-size:1.05rem;margin-bottom:.5rem">⚡ 1. Copiar código de datos para Git</h3>
+          <h3 style="font-size:1.05rem;margin-bottom:.5rem">📦 Copia de seguridad</h3>
           <p style="color:var(--text-secondary);font-size:.86rem;margin-bottom:1.15rem">
-            Como <code>localStorage</code> solo vive en tu navegador, si algún día quieres subir tus cambios actuales a GitHub Pages para que todo el mundo los vea, copia este bloque o descarga el respaldo JSON:
+            Descarga una copia completa de tus datos en tu computadora, o importa una copia anterior (se guardará como una versión nueva).
           </p>
           <div style="display:flex;gap:.65rem;flex-wrap:wrap">
-            <button class="btn btn-primary" id="copyDefaultDataBtn">📋 Copiar bloque defaultData actualizado</button>
+            <button class="btn btn-ghost" id="copyDefaultDataBtn">📋 Copiar datos como código</button>
             <button class="btn btn-ghost" id="exportJsonBtn">📥 Descargar respaldo (.json)</button>
             <label class="btn btn-ghost" for="importJsonInput">📤 Importar respaldo (.json)</label>
             <input type="file" id="importJsonInput" accept="application/json" />
@@ -1327,9 +1385,10 @@
         </div>
 
         <div class="card">
-          <h3 style="font-size:1.05rem;margin-bottom:.5rem">🔐 2. Cambiar contraseña del Admin</h3>
+          <h3 style="font-size:1.05rem;margin-bottom:.5rem">🔐 Contraseña</h3>
           <p style="color:var(--text-secondary);font-size:.86rem;margin-bottom:1rem">
-            La contraseña protege la bóveda criptográfica con PBKDF2 y AES-256-GCM.
+            En el sitio publicado la contraseña es la variable <code>ADMIN_PASSWORD</code> de Vercel (cámbiala en Settings → Environment Variables).
+            Este formulario solo cambia la contraseña del modo local sin servidor.
           </p>
           <div class="form-group" style="margin-bottom:.85rem">
             <label>Nueva contraseña</label>

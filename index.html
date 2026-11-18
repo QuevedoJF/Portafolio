@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex, nofollow, noai, noimageai, noarchive" />
-  <meta name="googlebot" content="noindex, nofollow, noai, noimageai, noarchive" />
+  <meta name="robots" content="index, follow, noai, noimageai" />
+  <meta name="description" content="Portafolio de José Francisco Quevedo Hernández, desarrollador web. Proyectos, certificaciones, eventos y contacto." />
+  <meta name="theme-color" content="#09090b" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_MX" />
+  <meta property="og:title" content="José Francisco Quevedo Hernández — Desarrollador Web" />
+  <meta property="og:description" content="Desarrollo sitios y aplicaciones web. Mira mis proyectos y contáctame." />
+  <meta property="og:image" content="/img/Perfil/foto.jpeg" />
+  <meta name="twitter:card" content="summary" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline';" />
   <title>José Francisco Quevedo Hernández — Desarrollador Web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -323,10 +330,7 @@
       letter-spacing: -0.035em;
       line-height: 1.08;
       margin-bottom: 0.75rem;
-      background: linear-gradient(180deg, var(--text) 30%, var(--text-secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text);
     }
 
     .hero-role-wrap {
@@ -1224,13 +1228,13 @@
             <span class="status-dot"></span>
             <span>Disponible para nuevos proyectos</span>
           </div>
-          <h1 class="hero-name" id="heroName"></h1>
+          <h1 class="hero-name" id="heroName">José Francisco Quevedo Hernández</h1>
           <div class="hero-role-wrap">
             <span>&gt;</span>
             <span id="heroRole"></span>
             <span class="cursor-blink"></span>
           </div>
-          <p class="hero-bio" id="heroSubtitle"></p>
+          <p class="hero-bio" id="heroSubtitle">Desarrollo sitios y aplicaciones web.</p>
           <div class="hero-actions">
             <a href="#projects" class="btn btn-solid magnetic">Ver proyectos</a>
             <a href="#contact" class="btn btn-ghost magnetic">Hablar conmigo</a>
@@ -1251,7 +1255,7 @@
         <div class="hero-portrait-wrap" id="heroVisual">
           <div class="hero-portrait" id="tiltPortrait">
             <div class="hero-portrait-inner">
-              <img id="heroPhoto" src="" alt="" />
+              <img id="heroPhoto" src="img/Perfil/foto.jpeg" alt="Foto de José Francisco Quevedo Hernández" fetchpriority="high" />
             </div>
           </div>
         </div>
@@ -1410,7 +1414,7 @@
   <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
     <button class="lb-close" id="lbClose" aria-label="Cerrar">&times;</button>
-    <img id="lbImg" src="" alt="Imagen expandida" />
+    <img id="lbImg" alt="Imagen expandida" />
   </div>
 
   <div id="toastBox"></div>
