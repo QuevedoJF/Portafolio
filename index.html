@@ -16,7 +16,7 @@
   <title>José Francisco Quevedo Hernández — Desarrollador Web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #09090b;
@@ -69,7 +69,7 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
@@ -289,39 +289,15 @@
       font-weight: 500;
       color: var(--text-secondary);
       margin-bottom: 1.75rem;
-      position: relative;
-      overflow: hidden;
     }
 
-    .status-badge::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -120%;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-      animation: badgeShimmer 4s infinite;
-    }
-
-    @keyframes badgeShimmer {
-      0% { left: -120%; }
-      50%, 100% { left: 160%; }
-    }
-
+    /* Indicador estático: el texto ya comunica la disponibilidad */
     .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
       background: var(--emerald);
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: pulseRing 2s infinite;
-    }
-
-    @keyframes pulseRing {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--emerald) 22%, transparent);
     }
 
     .hero-name {
@@ -632,31 +608,7 @@
       font-weight: 500;
     }
 
-    /* ─── TECH MARQUEE + INTERACTIVE GRID ─── */
-    .marquee-wrap {
-      position: relative;
-      overflow: hidden;
-      padding: 0.5rem 0 1.75rem;
-      mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
-    }
-
-    .marquee-track {
-      display: flex;
-      gap: 0.85rem;
-      width: max-content;
-      animation: scrollMarquee 32s linear infinite;
-    }
-
-    .marquee-wrap:hover .marquee-track {
-      animation-play-state: paused;
-    }
-
-    @keyframes scrollMarquee {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-
+    /* ─── TECH GRID ─── */
     .stack-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1288,9 +1240,6 @@
           <h2 class="sec-title">Tecnologías</h2>
         </div>
         <p class="sec-subtitle">Lenguajes, frameworks y bases de datos que utilizo en el desarrollo diario.</p>
-      </div>
-      <div class="marquee-wrap">
-        <div class="marquee-track" id="techMarquee"></div>
       </div>
       <div class="stack-grid" id="techPills"></div>
     </section>
