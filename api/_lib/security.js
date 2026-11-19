@@ -182,7 +182,9 @@ function toPublicPortfolio(raw) {
       instagramHandle: igVisible ? (p.instagramHandle || '') : '',
       instagramVisible: igVisible,
       photo: photoVisible ? (p.photo || '') : '',
-      photoVisible
+      photoVisible,
+      location: typeof p.location === 'string' ? p.location.slice(0, 80) : '',
+      whatsapp: typeof p.whatsapp === 'string' ? p.whatsapp.replace(/\D/g, '').slice(0, 15) : ''
     },
     projects: (raw.projects || []).filter(x => x.visible !== false).map(sanitizeCard),
     events: (raw.events || []).filter(x => x.visible !== false).map(sanitizeCard),

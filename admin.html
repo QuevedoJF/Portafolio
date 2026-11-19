@@ -1207,6 +1207,8 @@
         <div class="form-panel-title" id="certFormTitle">Agregar certificación</div>
         <div class="form-grid">
           <div class="form-group full"><label>Título de la certificación o curso</label><input type="text" class="form-input" id="certTitle" /></div>
+          <div class="form-group"><label>Fecha (opcional)</label><input type="text" class="form-input" id="certDate" placeholder="Ej. 24 de abril de 2025" /></div>
+          <div class="form-group full"><label>Descripción (opcional, recomendada para hackathons)</label><textarea class="form-input" id="certDesc" rows="3" placeholder="Ej. Talent Land 2025, Guadalajara. Equipo de 4: construimos una app para… en 48 horas."></textarea></div>
           <div class="form-group full">
             <label>Imagen del certificado</label>
             <div class="photo-upload-area">
@@ -1322,6 +1324,14 @@
             <label>🔗 Enlace de tu Instagram</label>
             <input type="text" class="form-input" id="contactIgUrl" placeholder="https://instagram.com/tu_usuario" />
           </div>
+          <div class="form-group">
+            <label>📍 Ubicación (opcional)</label>
+            <input type="text" class="form-input" id="contactLocation" placeholder="Ej. Villahermosa, Tabasco" />
+          </div>
+          <div class="form-group">
+            <label>💬 WhatsApp (opcional, con lada)</label>
+            <input type="tel" class="form-input" id="contactWhatsapp" placeholder="Ej. 993 123 4567" />
+          </div>
           <div class="form-group full">
             <label>Visibilidad de redes y contacto</label>
             <div class="toggles-row">
@@ -1337,7 +1347,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn btn-primary" id="saveContactBtn">💾 Guardar Correo e Instagram</button>
+          <button class="btn btn-primary" id="saveContactBtn">💾 Guardar datos de contacto</button>
         </div>
       </div>
 
