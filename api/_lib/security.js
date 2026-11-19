@@ -168,7 +168,7 @@ function toPublicPortfolio(raw) {
   });
 
   return {
-    schemaVersion: 3,
+    schemaVersion: Number(raw.schemaVersion) || 3,
     updatedAt: raw.updatedAt || 0,
     profile: {
       name: p.name || '',

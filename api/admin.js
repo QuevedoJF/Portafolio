@@ -140,7 +140,7 @@ module.exports = async function handler(req, res) {
 
       delete incoming.messages;
       await externalizeImages(incoming); // red de seguridad: ninguna imagen base64 llega al JSON
-      incoming.schemaVersion = 3;
+      incoming.schemaVersion = Math.min(Math.max(3, Number(incoming.schemaVersion) || 3), 99);
       incoming.updatedAt = Math.max(Date.now(), currentVersion + 1);
 
       if (Buffer.byteLength(JSON.stringify(incoming)) > MAX_PORTFOLIO_BYTES) {

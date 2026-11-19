@@ -261,28 +261,6 @@
       align-items: center;
     }
 
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.32rem 0.85rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 1.75rem;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--emerald) 22%, transparent);
-    }
-
     .hero-name {
       font-size: clamp(2.3rem, 4.6vw, 3.6rem);
       font-weight: 700;
@@ -646,12 +624,25 @@
 
     .tools-list {
       list-style: none;
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .tools-group-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .tools-items {
+      list-style: none;
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
 
-    .tools-list li {
+    .tools-items li {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
@@ -1128,10 +1119,6 @@
     <section id="hero" aria-labelledby="heroName">
       <div class="hero-grid">
         <div>
-          <p class="status-badge">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>Disponible para proyectos y empleo</span>
-          </p>
           <h1 class="hero-name" id="heroName">José Francisco Quevedo Hernández</h1>
           <div class="hero-meta">
             <p class="hero-role" id="heroRole">Desarrollador web</p>
