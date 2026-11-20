@@ -411,15 +411,14 @@
 
     #hero, #main { scroll-margin-top: 64px; }
 
+    /* Solo opacidad: sin desplazamiento, así los saltos del menú caen exactos */
     .reveal-up {
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .reveal-up.in-view {
       opacity: 1;
-      transform: none;
     }
 
     .sec-header {
