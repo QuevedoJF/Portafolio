@@ -10,6 +10,27 @@ const {
 const rateMap = new Map();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+async function notifyByEmail(msg) {
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: process.env.CONTACT_FROM_EMAIL || 'Portafolio <onboarding@resend.dev>',
+      to: [process.env.CONTACT_NOTIFY_EMAIL],
+      reply_to: msg.email, // "Responder" en tu correo le contesta directo al visitante
+      subject: `Nuevo mensaje de ${msg.name.slice(0, 60)} (portafolio)`,
+      text: `${msg.name} <${msg.email}> te escribió desde tu portafolio:\n\n${msg.message}\n\n— ${msg.date}`,
+      html: `<p><strong>${escapeHtml(msg.name)}</strong> &lt;${escapeHtml(msg.email)}&gt; te escribió desde tu portafolio:</p>
+<blockquote style="border-left:3px solid #ccc;margin:0;padding:.5em 1em;white-space:pre-wrap">${escapeHtml(msg.message)}</blockquote>
+<p style="color:#666;font-size:12px">${escapeHtml(msg.date)} · Responde a este correo para contestarle directamente.</p>`
+    })
+  });
+  if (!r.ok) throw new Error('Resend HTTP ' + r.status);
+  return true;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
@@ -62,6 +83,16 @@ module.exports = async function handler(req, res) {
     console.error('[contact] storage:', err && err.message);
   }
 
+  // Aviso inmediato al dueño (no bloquea si falla): así ningún cliente se pierde
+  // aunque nadie abra el admin. Requiere RESEND_API_KEY y CONTACT_NOTIFY_EMAIL en Vercel.
+  let notified = false;
+  if (process.env.RESEND_API_KEY && process.env.CONTACT_NOTIFY_EMAIL) {
+    notified = await notifyByEmail(newMsg).catch(err => {
+      console.error('[contact] email:', err && err.message);
+      return false;
+    });
+  }
+
   let forwarded = false;
   if (process.env.FORMSPREE_ENDPOINT) {
     try {
@@ -75,7 +106,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Solo se confirma al visitante si el mensaje realmente quedó guardado o reenviado.
-  if (!stored && !forwarded) {
+  if (!stored && !forwarded && !notified) {
     return res.status(503).json({ error: 'No se pudo enviar el mensaje. Intenta de nuevo o escríbeme por correo.' });
   }
   return res.status(200).json({ ok: true });

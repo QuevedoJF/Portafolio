@@ -282,6 +282,22 @@
       gap: 0.3rem;
     }
 
+    .nav-badge {
+      margin-left: auto;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 700;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .nav-badge[hidden] { display: none; }
+
     .storage-box {
       margin: 0 0.5rem 0.65rem;
       padding: 0.75rem;
@@ -965,7 +981,7 @@
       <div class="nav-item" data-section="events"><span class="nav-icon">📅</span> Eventos</div>
       <div class="nav-item" data-section="certifications"><span class="nav-icon">🏆</span> Certificaciones</div>
       <div class="nav-item" data-section="technologies"><span class="nav-icon">🛠️</span> Tecnologías</div>
-      <div class="nav-item" data-section="contact"><span class="nav-icon">📬</span> Contacto & Bandeja</div>
+      <div class="nav-item" data-section="contact"><span class="nav-icon">📬</span> Contacto & Bandeja <span class="nav-badge" id="msgBadge" hidden></span></div>
       <div class="nav-item" data-section="backup"><span class="nav-icon">💾</span> Publicar / Respaldo</div>
     </nav>
 
@@ -1331,6 +1347,23 @@
           <div class="form-group">
             <label>💬 WhatsApp (opcional, con lada)</label>
             <input type="tel" class="form-input" id="contactWhatsapp" placeholder="Ej. 993 123 4567" />
+          </div>
+          <div class="form-group">
+            <label>🐙 GitHub (opcional)</label>
+            <input type="url" class="form-input" id="contactGithub" placeholder="https://github.com/tu_usuario" />
+          </div>
+          <div class="form-group">
+            <label>💼 LinkedIn (opcional)</label>
+            <input type="url" class="form-input" id="contactLinkedin" placeholder="https://www.linkedin.com/in/tu_perfil" />
+          </div>
+          <div class="form-group full">
+            <label>📄 CV en PDF (opcional, máx. 3 MB) — se publica al subirlo</label>
+            <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+              <label class="btn btn-ghost" for="contactCvInput">📤 Subir CV (PDF)</label>
+              <input type="file" id="contactCvInput" accept="application/pdf" style="display:none" />
+              <a id="contactCvLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none;color:var(--primary)">Ver CV actual ↗</a>
+              <button type="button" class="btn btn-ghost btn-sm" id="contactCvRemove" style="display:none">Quitar CV</button>
+            </div>
           </div>
           <div class="form-group full">
             <label>Visibilidad de redes y contacto</label>

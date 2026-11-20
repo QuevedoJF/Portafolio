@@ -13,12 +13,25 @@
   <link rel="canonical" href="https://portafolio-jade-eight-28.vercel.app/" />
   <meta property="og:url" content="https://portafolio-jade-eight-28.vercel.app/" />
   <meta property="og:site_name" content="Quevedo Hernández" />
-  <meta property="og:image" content="https://portafolio-jade-eight-28.vercel.app/img/Perfil/foto.jpeg" />
-  <meta property="og:image:type" content="image/jpeg" />
-  <meta property="og:image:width" content="1500" />
-  <meta property="og:image:height" content="1500" />
-  <meta property="og:image:alt" content="Foto de José Francisco Quevedo Hernández" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="https://portafolio-jade-eight-28.vercel.app/img/og-card.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="José Francisco Quevedo Hernández — Desarrollador web en Villahermosa, Tabasco" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "José Francisco Quevedo Hernández",
+    "jobTitle": "Desarrollador web",
+    "url": "https://portafolio-jade-eight-28.vercel.app/",
+    "image": "https://portafolio-jade-eight-28.vercel.app/img/og-card.png",
+    "address": { "@type": "PostalAddress", "addressLocality": "Villahermosa", "addressRegion": "Tabasco", "addressCountry": "MX" },
+    "sameAs": ["https://github.com/QuevedoJF"],
+    "knowsAbout": ["Desarrollo web", "JavaScript", "React", "Astro", "Node.js", "PHP", "Python", "Arduino", "ESP32"]
+  }
+  </script>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline';" />
   <title>José Francisco Quevedo Hernández — Desarrollador Web</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -349,6 +362,28 @@
       background: var(--surface-hover);
       border-color: var(--text-muted);
     }
+
+    .pro-links {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .pro-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: 44px;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .pro-links a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
 
     .hero-portrait {
       width: 270px;
@@ -1072,6 +1107,19 @@
 
       .contact-form-box { padding: 1.4rem; }
 
+      #eventsGrid .item-card { flex-direction: row; }
+      #eventsGrid .card-media {
+        flex: 0 0 104px;
+        aspect-ratio: auto;
+        border-bottom: 0;
+        border-right: 1px solid var(--border);
+      }
+      #eventsGrid .card-body { padding: 0.9rem 1rem; gap: 0.4rem; }
+      #eventsGrid .card-title { font-size: 0.98rem; }
+      #eventsGrid .card-desc { font-size: 0.86rem; }
+      #eventsGrid .tags-wrap { display: none; }
+      #eventsGrid .card-footer { justify-content: flex-end; }
+
       #toastBox { left: 1rem; right: 1rem; bottom: 1rem; max-width: none; }
     }
 
@@ -1134,6 +1182,7 @@
             <a href="#projects" class="btn btn-solid">Ver mis proyectos</a>
             <a href="#contact" class="btn btn-ghost">Escríbeme</a>
           </div>
+          <ul class="pro-links" id="heroProLinks" aria-label="Perfiles y CV" hidden></ul>
         </div>
 
         <div id="heroVisual">
@@ -1301,5 +1350,7 @@
   <div id="toastBox" role="status" aria-live="polite"></div>
 
   <script defer src="app.min.js"></script>
+  <!-- Vercel Speed Insights (velocidad real de los visitantes; ya está activo en el proyecto) -->
+  <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

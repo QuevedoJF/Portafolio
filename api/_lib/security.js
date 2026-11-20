@@ -152,6 +152,16 @@ function decryptServerPayload(envelope) {
 }
 
 /* ── 4. FILTRO PÚBLICO (OCULTA EN EL SERVIDOR LO QUE NO ES VISIBLE) ── */
+function httpsUrl(v) {
+  if (typeof v !== 'string') return '';
+  try {
+    const u = new URL(v.trim());
+    return u.protocol === 'https:' ? u.href.slice(0, 300) : '';
+  } catch {
+    return '';
+  }
+}
+
 function toPublicPortfolio(raw) {
   const p = raw.profile || {};
   const emailVisible = p.emailVisible !== false;
@@ -187,7 +197,10 @@ function toPublicPortfolio(raw) {
       photo: photoVisible ? (p.photo || '') : '',
       photoVisible,
       location: typeof p.location === 'string' ? p.location.slice(0, 80) : '',
-      whatsapp: typeof p.whatsapp === 'string' ? p.whatsapp.replace(/\D/g, '').slice(0, 15) : ''
+      whatsapp: typeof p.whatsapp === 'string' ? p.whatsapp.replace(/\D/g, '').slice(0, 15) : '',
+      github: httpsUrl(p.github),
+      linkedin: httpsUrl(p.linkedin),
+      cvUrl: httpsUrl(p.cvUrl)
     },
     projects: (raw.projects || []).filter(x => x.visible !== false).map(sanitizeCard),
     events: (raw.events || []).filter(x => x.visible !== false).map(sanitizeCard),
@@ -389,6 +402,7 @@ async function pruneOrphanMedia(retainedVersionBlobs) {
   const used = new Set();
   for (const v of versions) {
     if (v && v.profile && v.profile.photo) used.add(v.profile.photo);
+    if (v && v.profile && v.profile.cvUrl) used.add(v.profile.cvUrl);
     for (const col of ['projects', 'events', 'certifications']) {
       for (const item of (v && v[col]) || []) if (item.image) used.add(item.image);
     }
@@ -462,6 +476,25 @@ async function uploadImageDataUrl(dataUrl) {
     return created.url;
   } catch (err) {
     throw new StorageError('No se pudo subir la imagen', err);
+  }
+}
+
+/** CV en PDF: se valida la firma "%PDF-" y el tamaño (≤ 3 MB). */
+async function uploadPdfDataUrl(dataUrl) {
+  const m = /^data:application\/pdf;base64,([A-Za-z0-9+/=\s]+)$/.exec(String(dataUrl || ''));
+  if (!m) throw new StorageError('Solo se aceptan archivos PDF');
+  const buf = Buffer.from(m[1], 'base64');
+  if (!buf.length || buf.length > MAX_IMAGE_BYTES) throw new StorageError('El PDF supera 3 MB');
+  if (buf.slice(0, 5).toString('latin1') !== '%PDF-') throw new StorageError('El archivo no es un PDF válido');
+  if (!hasBlob()) throw new StorageError('Subir archivos requiere Vercel Blob');
+  const key = `${MEDIA_PREFIX}cv-${Date.now()}-${crypto.randomBytes(8).toString('hex')}.pdf`;
+  try {
+    const created = await withRetry(() =>
+      put(key, buf, { access: 'public', addRandomSuffix: false, contentType: 'application/pdf', cacheControlMaxAge: 3600 })
+    );
+    return created.url;
+  } catch (err) {
+    throw new StorageError('No se pudo subir el PDF', err);
   }
 }
 
@@ -731,6 +764,7 @@ module.exports = {
   pruneOrphanMedia,
   readStorageVersion,
   uploadImageDataUrl,
+  uploadPdfDataUrl,
   externalizeImages,
   addMessage,
   listMessages,

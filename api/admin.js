@@ -10,6 +10,7 @@ const {
   listStorageVersions,
   readStorageVersion,
   uploadImageDataUrl,
+  uploadPdfDataUrl,
   externalizeImages,
   listMessages,
   deleteMessage,
@@ -165,6 +166,11 @@ module.exports = async function handler(req, res) {
 
       await writeStorageFile(PORTFOLIO_PATH, incoming);
       return res.status(200).json({ ok: true, portfolio: incoming, version: incoming.updatedAt });
+    }
+
+    if (action === 'upload_document') {
+      const url = await uploadPdfDataUrl(body.dataUrl);
+      return res.status(200).json({ ok: true, url });
     }
 
     if (action === 'upload_image') {
