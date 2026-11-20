@@ -1387,7 +1387,6 @@
             Descarga una copia completa de tus datos en tu computadora, o importa una copia anterior (se guardará como una versión nueva).
           </p>
           <div style="display:flex;gap:.65rem;flex-wrap:wrap">
-            <button class="btn btn-ghost" id="copyDefaultDataBtn">📋 Copiar datos como código</button>
             <button class="btn btn-ghost" id="exportJsonBtn">📥 Descargar respaldo (.json)</button>
             <label class="btn btn-ghost" for="importJsonInput">📤 Importar respaldo (.json)</label>
             <input type="file" id="importJsonInput" accept="application/json" />
@@ -1395,17 +1394,12 @@
         </div>
 
         <div class="card">
-          <h3 style="font-size:1.05rem;margin-bottom:.5rem">🔐 Contraseña</h3>
+          <h3 style="font-size:1.05rem;margin-bottom:.5rem">🔐 Contraseña y restauración</h3>
           <p style="color:var(--text-secondary);font-size:.86rem;margin-bottom:1rem">
-            En el sitio publicado la contraseña es la variable <code>ADMIN_PASSWORD</code> de Vercel (cámbiala en Settings → Environment Variables).
-            Este formulario solo cambia la contraseña del modo local sin servidor.
+            La contraseña del panel es la variable <code>ADMIN_PASSWORD</code> de Vercel (Settings → Environment Variables).
+            Para cambiarla sin perder acceso a tus datos, guarda el valor anterior en <code>PREVIOUS_ADMIN_SECRETS</code>.
           </p>
-          <div class="form-group" style="margin-bottom:.85rem">
-            <label>Nueva contraseña</label>
-            <input type="password" class="form-input" id="newAdminPass" placeholder="Mínimo 6 caracteres" />
-          </div>
           <div style="display:flex;gap:.65rem;flex-wrap:wrap">
-            <button class="btn btn-primary" id="savePassBtn">🔑 Actualizar contraseña</button>
             <button class="btn btn-danger" id="resetDefaultBtn">🔄 Restaurar portafolio de fábrica</button>
           </div>
         </div>

@@ -354,6 +354,7 @@ async function writeStorageFile(relPath, dataObj) {
       if (merged.length > MAX_VERSIONS + PRUNE_SLACK) {
         await del(merged.slice(MAX_VERSIONS).map(b => b.url));
         lastListing.set(prefix, { at: Date.now(), blobs: merged.slice(0, MAX_VERSIONS) });
+        if (relPath === PORTFOLIO_FILE) await pruneOrphanMedia(merged.slice(0, MAX_VERSIONS)).catch(() => {});
       } else {
         lastListing.set(prefix, { at: Date.now(), blobs: merged });
       }
@@ -374,6 +375,30 @@ async function writeStorageFile(relPath, dataObj) {
       err
     );
   }
+}
+
+/* Imágenes huérfanas: al cambiar o borrar una imagen, la anterior quedaba para siempre en
+   Blob (espacio que se cobra). Se borran SOLO las que no usa ninguna de las versiones que
+   se conservan (para que restaurar siga funcionando) y que tienen más de 24 h. */
+const PORTFOLIO_FILE = 'api/_lib/portfolio.json';
+const MEDIA_PREFIX = 'qh-media-v1/';
+const MEDIA_GRACE_MS = 24 * 60 * 60 * 1000;
+
+async function pruneOrphanMedia(retainedVersionBlobs) {
+  const versions = await Promise.all(retainedVersionBlobs.map(b => readBlobData(b)));
+  const used = new Set();
+  for (const v of versions) {
+    if (v && v.profile && v.profile.photo) used.add(v.profile.photo);
+    for (const col of ['projects', 'events', 'certifications']) {
+      for (const item of (v && v[col]) || []) if (item.image) used.add(item.image);
+    }
+  }
+  const now = Date.now();
+  const orphans = (await listAll(MEDIA_PREFIX)).filter(
+    b => !used.has(b.url) && now - new Date(b.uploadedAt).getTime() > MEDIA_GRACE_MS
+  );
+  if (orphans.length) await del(orphans.map(b => b.url));
+  return orphans.length;
 }
 
 /** Historial de versiones (más reciente primero). */
@@ -695,6 +720,7 @@ module.exports = {
   readStorageFile,
   writeStorageFile,
   listStorageVersions,
+  pruneOrphanMedia,
   readStorageVersion,
   uploadImageDataUrl,
   externalizeImages,

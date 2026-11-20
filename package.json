@@ -1,11 +1,12 @@
 {
   "name": "portafolio",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Portafolio de José Francisco Quevedo Hernández (sitio estático + funciones en Vercel)",
   "scripts": {
-    "obfuscate": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings true --transform-object-keys true --debug-protection false && npx javascript-obfuscator admin.src.js --output admin.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings true --transform-object-keys true --debug-protection false",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build:app && npm run build:admin",
+    "build:app": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false",
+    "build:admin": "npx javascript-obfuscator admin.src.js --output admin.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false",
+    "obfuscate": "npm run build"
   },
   "repository": {
     "type": "git",
