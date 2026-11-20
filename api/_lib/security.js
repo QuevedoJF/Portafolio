@@ -113,7 +113,10 @@ function deriveKey(secret) {
 }
 
 function candidateSecrets() {
-  return [...new Set([process.env.ADMIN_SECRET, process.env.ADMIN_PASSWORD, LEGACY_SCRYPT_HASH].filter(Boolean))];
+  // PREVIOUS_ADMIN_SECRETS (separadas por coma): valores ANTERIORES de ADMIN_SECRET o
+  // ADMIN_PASSWORD. Permiten cambiar la contraseña sin perder acceso a los datos ya cifrados.
+  const previous = String(process.env.PREVIOUS_ADMIN_SECRETS || '').split(',').map(x => x.trim());
+  return [...new Set([process.env.ADMIN_SECRET, process.env.ADMIN_PASSWORD, ...previous, LEGACY_SCRYPT_HASH].filter(Boolean))];
 }
 
 function encryptServerPayload(obj) {
@@ -199,7 +202,34 @@ function toPublicPortfolio(raw) {
      en lugar de borrar todo lo anterior (lo que causaba carreras y pérdidas).
    • Si algo falla se LANZA un error: nada de /tmp ni datos por defecto. */
 const MAX_VERSIONS = 15;
+const PRUNE_SLACK = 5; // las versiones viejas se borran por lotes, no en cada guardado
 const memoryStore = new Map(); // relPath -> { data, updatedAt } (solo como respaldo de consistencia)
+
+/* Caché de contenido INMUTABLE: cada versión y cada mensaje tiene un nombre único que
+   nunca se reescribe, así que lo ya descargado y descifrado no se vuelve a pedir.
+   Solo se sigue consultando el listado (para enterarse de lo nuevo). */
+const CONTENT_CACHE_MAX = 400;
+const contentCache = new Map(); // pathname -> datos descifrados
+const lastListing = new Map(); // prefix -> { at, blobs } (para limpiar sin volver a listar)
+// El listado de Blob puede tardar en reflejar un borrado: se recuerda lo borrado aquí.
+const deletedPaths = new Set();
+function forget(blobs) {
+  for (const b of blobs) { deletedPaths.add(b.pathname); contentCache.delete(b.pathname); }
+  if (deletedPaths.size > 2000) deletedPaths.clear();
+}
+
+function cacheContent(pathname, data) {
+  if (contentCache.has(pathname)) contentCache.delete(pathname);
+  else if (contentCache.size >= CONTENT_CACHE_MAX) contentCache.delete(contentCache.keys().next().value);
+  contentCache.set(pathname, clone(data));
+}
+
+async function readBlobData(blob) {
+  if (contentCache.has(blob.pathname)) return clone(contentCache.get(blob.pathname));
+  const data = decryptServerPayload(await fetchBlobJson(blob.url));
+  cacheContent(blob.pathname, data);
+  return clone(data);
+}
 
 function toBlobPrefix(relPath) {
   return 'qh-vault-v4/' + path.basename(relPath) + '/';
@@ -228,6 +258,7 @@ async function listAll(prefix) {
   } while (cursor);
   // Los nombres empiezan con un timestamp de 15 dígitos -> orden lexicográfico = cronológico.
   out.sort((a, b) => b.pathname.localeCompare(a.pathname));
+  lastListing.set(prefix, { at: Date.now(), blobs: out });
   return out;
 }
 
@@ -268,7 +299,7 @@ async function readStorageFile(relPath, fallbackObj) {
 
     let data;
     try {
-      data = decryptServerPayload(await fetchBlobJson(blobs[0].url));
+      data = await readBlobData(blobs[0]);
     } catch (err) {
       throw err instanceof StorageError ? err : new StorageError('No se pudo leer la última versión', err);
     }
@@ -310,12 +341,22 @@ async function writeStorageFile(relPath, dataObj) {
       throw new StorageError('No se pudo guardar en Vercel Blob', err);
     }
     memoryStore.set(relPath, { data: cloned, updatedAt: Number(cloned && cloned.updatedAt) || 0 });
+    cacheContent(created.pathname, cloned);
 
-    // Limpieza: conservar solo las últimas MAX_VERSIONS (los errores aquí no son críticos).
+    // Limpieza por lotes: se reutiliza el listado reciente (no se vuelve a listar) y solo se
+    // borra cuando sobran más de PRUNE_SLACK versiones. Únicamente se borran versiones
+    // más viejas que las MAX_VERSIONS más recientes conocidas (los errores no son críticos).
     try {
-      const blobs = await listAll(prefix);
-      const old = blobs.slice(MAX_VERSIONS).map(b => b.url).filter(u => u !== created.url);
-      if (old.length) await del(old);
+      const known = lastListing.get(prefix);
+      const base = known && Date.now() - known.at < 60 * 1000 ? known.blobs : await listAll(prefix);
+      const merged = [{ pathname: created.pathname, url: created.url }, ...base.filter(b => b.pathname !== created.pathname)]
+        .sort((a, b) => b.pathname.localeCompare(a.pathname));
+      if (merged.length > MAX_VERSIONS + PRUNE_SLACK) {
+        await del(merged.slice(MAX_VERSIONS).map(b => b.url));
+        lastListing.set(prefix, { at: Date.now(), blobs: merged.slice(0, MAX_VERSIONS) });
+      } else {
+        lastListing.set(prefix, { at: Date.now(), blobs: merged });
+      }
     } catch {}
 
     return { persisted: 'vercel-blob', blobUrl: created.url };
@@ -338,7 +379,7 @@ async function writeStorageFile(relPath, dataObj) {
 /** Historial de versiones (más reciente primero). */
 async function listStorageVersions(relPath) {
   if (!hasBlob()) return [];
-  const blobs = await listAll(toBlobPrefix(relPath));
+  const blobs = (await listAll(toBlobPrefix(relPath))).slice(0, MAX_VERSIONS);
   return blobs.map(b => ({
     id: b.pathname,
     ts: Number((path.basename(b.pathname).match(/^(\d{10,15})/) || [])[1]) || new Date(b.uploadedAt).getTime(),
@@ -355,7 +396,7 @@ async function readStorageVersion(relPath, versionId) {
   }
   const blob = (await listAll(prefix)).find(b => b.pathname === versionId);
   if (!blob) throw new StorageError('La versión ya no existe');
-  return decryptServerPayload(await fetchBlobJson(blob.url));
+  return readBlobData(blob);
 }
 
 /* ── 6. IMÁGENES COMO ARCHIVOS SEPARADOS ──
@@ -457,15 +498,19 @@ function idFromInboxPath(p) {
 }
 
 async function listMessages() {
-  const legacy = await readStorageFile(LEGACY_MESSAGES, []);
+  // Bandeja antigua y nueva se consultan en paralelo
+  const [legacy, allBlobs] = await Promise.all([
+    readStorageFile(LEGACY_MESSAGES, []),
+    hasBlob() ? listAll(INBOX_PREFIX) : Promise.resolve([])
+  ]);
   const legacyList = Array.isArray(legacy) ? legacy : [];
   if (!hasBlob()) return legacyList;
 
-  const blobs = (await listAll(INBOX_PREFIX)).slice(0, MAX_MESSAGES);
+  const blobs = allBlobs.filter(b => !deletedPaths.has(b.pathname)).slice(0, MAX_MESSAGES);
   const msgs = await Promise.all(
     blobs.map(async b => {
       try {
-        return decryptServerPayload(await fetchBlobJson(b.url));
+        return await readBlobData(b);
       } catch {
         return { id: idFromInboxPath(b.pathname), name: '[No se pudo leer]', email: '', message: 'Este mensaje no se pudo descifrar.', date: '' };
       }
@@ -476,12 +521,12 @@ async function listMessages() {
 
 async function deleteMessage(id) {
   const msgId = Number(id);
-  if (hasBlob()) {
-    const blobs = await listAll(INBOX_PREFIX);
-    const urls = blobs.filter(b => idFromInboxPath(b.pathname) === msgId).map(b => b.url);
-    if (urls.length) await del(urls);
-  }
-  const legacy = await readStorageFile(LEGACY_MESSAGES, []);
+  const [blobs, legacy] = await Promise.all([
+    hasBlob() ? listAll(INBOX_PREFIX) : Promise.resolve([]),
+    readStorageFile(LEGACY_MESSAGES, [])
+  ]);
+  const doomed = blobs.filter(b => idFromInboxPath(b.pathname) === msgId);
+  if (doomed.length) { await del(doomed.map(b => b.url)); forget(doomed); }
   if (Array.isArray(legacy) && legacy.some(m => Number(m.id) === msgId)) {
     await writeStorageFile(LEGACY_MESSAGES, legacy.filter(m => Number(m.id) !== msgId));
   }
@@ -490,7 +535,7 @@ async function deleteMessage(id) {
 async function clearMessages() {
   if (hasBlob()) {
     const blobs = await listAll(INBOX_PREFIX);
-    if (blobs.length) await del(blobs.map(b => b.url));
+    if (blobs.length) { await del(blobs.map(b => b.url)); forget(blobs); }
   }
   const legacy = await readStorageFile(LEGACY_MESSAGES, []);
   if (Array.isArray(legacy) && legacy.length) await writeStorageFile(LEGACY_MESSAGES, []);
@@ -520,7 +565,7 @@ function isAllowedOrigin(req) {
   try {
     const url = new URL(origin);
     const host = url.host.toLowerCase();
-    const serverHost = String(req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase();
+    const serverHost = String(req.headers.host || '').toLowerCase();
     if (serverHost && host === serverHost) return true;
     const extra = String(process.env.ALLOWED_ORIGINS || '')
       .split(',')
@@ -554,12 +599,90 @@ function parseBody(req) {
 }
 
 function clientIp(req) {
-  return String(req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || 'unknown')
+  return String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || (req.socket && req.socket.remoteAddress) || 'unknown')
     .split(',')[0]
     .trim();
 }
 
+/* ── 9. LÍMITE DE INTENTOS DE LOGIN (persistente y compartido entre instancias) ──
+   Cada intento fallido se anota en Vercel Blob (con la IP convertida en un hash, nunca en
+   claro). Así el bloqueo vale para TODAS las instancias de Vercel, no solo para una. */
+const GUARD_PREFIX = 'qh-guard-v1/';
+const GUARD_WINDOW_MS = 15 * 60 * 1000;
+const GUARD_MAX_FAILS = 5;     // por IP dentro de la ventana -> bloqueo
+const GUARD_GLOBAL_SLOW = 20;  // fallos de todas las IPs en la ventana -> respuestas más lentas
+const guardMemory = new Map(); // respaldo si Blob no está disponible
+
+function ipKey(ip) {
+  return crypto.createHash('sha256').update('qh-guard:' + String(ip)).digest('hex').slice(0, 24);
+}
+
+function guardEntries(blobs, now) {
+  return blobs
+    .map(b => {
+      const m = path.basename(b.pathname).match(/^(\d{15})-([a-f0-9]{24})-/);
+      return m ? { ts: Number(m[1]), ip: m[2], url: b.url } : null;
+    })
+    .filter(Boolean)
+    .filter(e => now - e.ts < GUARD_WINDOW_MS);
+}
+
+async function loginGuardStatus(ip) {
+  const now = Date.now();
+  const key = ipKey(ip);
+  let entries;
+  if (hasBlob()) {
+    entries = guardEntries(await listAll(GUARD_PREFIX), now);
+  } else {
+    entries = (guardMemory.get('all') || []).filter(e => now - e.ts < GUARD_WINDOW_MS);
+  }
+  const mine = entries.filter(e => e.ip === key).sort((a, b) => b.ts - a.ts);
+  const blocked = mine.length >= GUARD_MAX_FAILS;
+  const retryAfterSec = blocked
+    ? Math.max(1, Math.ceil((mine[GUARD_MAX_FAILS - 1].ts + GUARD_WINDOW_MS - now) / 1000))
+    : 0;
+  return { blocked, retryAfterSec, ipFails: mine.length, globalFails: entries.length };
+}
+
+async function loginGuardFail(ip) {
+  const now = Date.now();
+  const entry = { ts: now, ip: ipKey(ip) };
+  if (!hasBlob()) {
+    const arr = (guardMemory.get('all') || []).filter(e => now - e.ts < GUARD_WINDOW_MS);
+    arr.push(entry);
+    guardMemory.set('all', arr);
+    return;
+  }
+  await put(`${GUARD_PREFIX}${String(now).padStart(15, '0')}-${entry.ip}-${crypto.randomBytes(4).toString('hex')}.json`, '{}', {
+    access: 'public',
+    addRandomSuffix: false,
+    contentType: 'application/json',
+    cacheControlMaxAge: 60
+  });
+  // Limpieza de anotaciones vencidas (no crítica)
+  try {
+    const old = (await listAll(GUARD_PREFIX))
+      .filter(b => { const m = path.basename(b.pathname).match(/^(\d{15})-/); return m && now - Number(m[1]) > GUARD_WINDOW_MS; })
+      .map(b => b.url);
+    if (old.length) await del(old);
+  } catch {}
+}
+
+async function loginGuardReset(ip) {
+  const key = ipKey(ip);
+  if (!hasBlob()) {
+    guardMemory.set('all', (guardMemory.get('all') || []).filter(e => e.ip !== key));
+    return;
+  }
+  const mine = (await listAll(GUARD_PREFIX)).filter(b => b.pathname.includes('-' + key + '-'));
+  if (mine.length) await del(mine.map(b => b.url));
+}
+
 module.exports = {
+  loginGuardStatus,
+  loginGuardFail,
+  loginGuardReset,
+  GUARD_GLOBAL_SLOW,
   BUNDLED_PORTFOLIO,
   StorageError,
   ConfigError,

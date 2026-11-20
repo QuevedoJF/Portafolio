@@ -17,7 +17,11 @@ const {
   isAllowedOrigin,
   isAiOrScraperBot,
   parseBody,
-  clientIp
+  clientIp,
+  loginGuardStatus,
+  loginGuardFail,
+  loginGuardReset,
+  GUARD_GLOBAL_SLOW
 } = require('./_lib/security');
 
 const PORTFOLIO_PATH = 'api/_lib/portfolio.json';
@@ -83,22 +87,33 @@ module.exports = async function handler(req, res) {
 
       if (state.until > now) {
         const waitSec = Math.ceil((state.until - now) / 1000);
-        return res.status(429).json({ error: `Demasiados intentos. Bloqueado por ${waitSec}s.` });
+        return res.status(429).json({ error: `Demasiados intentos. Intenta de nuevo en ${Math.ceil(waitSec / 60)} min.` });
+      }
+
+      // Bloqueo persistente (compartido entre instancias). Si Blob falla, sigue el de memoria.
+      const guard = await loginGuardStatus(ip).catch(() => null);
+      if (guard && guard.blocked) {
+        return res.status(429).json({ error: `Demasiados intentos fallidos. Intenta de nuevo en ${Math.ceil(guard.retryAfterSec / 60)} min.` });
       }
 
       if (!verifyAdminPassword(body.password || '')) {
         state.fails += 1;
-        if (state.fails >= 5) state.until = now + 5 * 60 * 1000;
+        if (state.fails >= 5) state.until = now + 15 * 60 * 1000;
         loginAttempts.set(ip, state);
-        await new Promise(r => setTimeout(r, 600)); // frena ataques de fuerza bruta
-        return res.status(401).json({
-          error: state.until > now
-            ? 'Demasiados intentos fallidos. Bloqueado por 5 minutos.'
-            : `Contraseña incorrecta (${state.fails}/5).`
+        await loginGuardFail(ip).catch(() => {});
+        const fails = Math.max(state.fails, ((guard && guard.ipFails) || 0) + 1);
+        // Muchos fallos desde muchas IPs: respuestas más lentas (frena ataques repartidos)
+        const slow = guard && guard.globalFails >= GUARD_GLOBAL_SLOW ? 2500 : 600;
+        await new Promise(r => setTimeout(r, slow));
+        return res.status(fails >= 5 ? 429 : 401).json({
+          error: fails >= 5
+            ? 'Demasiados intentos fallidos. Intenta de nuevo en 15 min.'
+            : `Contraseña incorrecta (${fails}/5).`
         });
       }
 
       loginAttempts.delete(ip);
+      loginGuardReset(ip).catch(() => {});
       const token = issueAdminToken(); // lanza ConfigError si falta ADMIN_SECRET
       // Si la base de datos no responde NO se abre el panel: así nunca se edita
       // (y luego se guarda) una copia vieja encima de los datos buenos.
@@ -140,7 +155,7 @@ module.exports = async function handler(req, res) {
 
       delete incoming.messages;
       await externalizeImages(incoming); // red de seguridad: ninguna imagen base64 llega al JSON
-      incoming.schemaVersion = Math.min(Math.max(3, Number(incoming.schemaVersion) || 3), 99);
+      incoming.schemaVersion = Math.min(Math.max(3, Number(incoming.schemaVersion) || 3, Number(current.schemaVersion) || 3), 99);
       incoming.updatedAt = Math.max(Date.now(), currentVersion + 1);
 
       if (Buffer.byteLength(JSON.stringify(incoming)) > MAX_PORTFOLIO_BYTES) {
@@ -166,6 +181,8 @@ module.exports = async function handler(req, res) {
       if (!isValidPortfolio(snapshot)) return res.status(400).json({ error: 'La versión está dañada' });
       const current = await loadPortfolio();
       snapshot.updatedAt = Math.max(Date.now(), (Number(current.updatedAt) || 0) + 1);
+      // Restaurar es fiel al contenido: no se re-aplican migraciones sobre lo restaurado
+      snapshot.schemaVersion = Math.max(Number(snapshot.schemaVersion) || 3, Number(current.schemaVersion) || 3);
       await writeStorageFile(PORTFOLIO_PATH, snapshot);
       return res.status(200).json({ ok: true, portfolio: snapshot, version: snapshot.updatedAt });
     }

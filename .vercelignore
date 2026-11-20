@@ -1,0 +1,5 @@
+# No publicar documentación interna ni configuración de herramientas
+PRODUCT.md
+*.md
+.impeccable
+*.src.js

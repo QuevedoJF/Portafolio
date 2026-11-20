@@ -1,4 +1,4 @@
-const { BUNDLED_PORTFOLIO, readStorageFile, toPublicPortfolio, isAiOrScraperBot, isAllowedOrigin } = require('./_lib/security');
+const { BUNDLED_PORTFOLIO, readStorageFile, toPublicPortfolio, isAiOrScraperBot, isAllowedOrigin, verifyAdminRequest } = require('./_lib/security');
 
 // Caché en memoria de la instancia (solo para lectura pública; el admin siempre lee directo).
 const MEMORY_TTL_MS = 10 * 1000;
@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   // ?fresh=… lo usa el admin ("Ver portafolio") para ver al instante lo recién guardado.
-  const wantsFresh = Boolean(req.query && req.query.fresh);
+  const wantsFresh = Boolean(req.query && req.query.fresh) && verifyAdminRequest(req);
 
   try {
     let body;

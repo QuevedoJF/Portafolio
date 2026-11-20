@@ -29,7 +29,7 @@
     {
       "source": "/admin.min.js",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "Cache-Control", "value": "no-cache" },
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
     },
