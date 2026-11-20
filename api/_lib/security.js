@@ -612,15 +612,23 @@ function clone(v) {
   return v === undefined ? v : JSON.parse(JSON.stringify(v));
 }
 
+/** Devuelve el cuerpo JSON o null si viene mal formado (Vercel lanza al leer req.body). */
 function parseBody(req) {
-  if (typeof req.body === 'string') {
+  let body;
+  try {
+    body = req.body;
+  } catch {
+    return null;
+  }
+  if (typeof body === 'string') {
     try {
-      return JSON.parse(req.body);
+      body = JSON.parse(body);
     } catch {
-      return {};
+      return null;
     }
   }
-  return req.body || {};
+  if (body == null) return {};
+  return typeof body === 'object' && !Array.isArray(body) ? body : null;
 }
 
 function clientIp(req) {

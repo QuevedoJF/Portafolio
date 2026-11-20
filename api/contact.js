@@ -33,6 +33,7 @@ module.exports = async function handler(req, res) {
   }
 
   const body = parseBody(req);
+  if (!body) return res.status(400).json({ error: 'Petición inválida' });
 
   // Honeypot silencioso para bots
   if (body._hp_security_check) return res.status(200).json({ ok: true });

@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Portafolio de José Francisco Quevedo Hernández (sitio estático + funciones en Vercel)",
   "scripts": {
-    "build": "npm run build:app && npm run build:admin",
-    "build:app": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false",
-    "build:admin": "npx javascript-obfuscator admin.src.js --output admin.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false",
-    "obfuscate": "npm run build"
+    "obfuscate": "npm run obfuscate:app && npm run obfuscate:admin",
+    "obfuscate:app": "npx javascript-obfuscator app.src.js --output app.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false",
+    "obfuscate:admin": "npx javascript-obfuscator admin.src.js --output admin.min.js --compact true --identifier-names-generator hexadecimal --string-array true --string-array-encoding base64 --string-array-threshold 0.8 --split-strings false --transform-object-keys false --debug-protection false"
   },
   "repository": {
     "type": "git",
@@ -21,6 +20,9 @@
   },
   "homepage": "https://github.com/QuevedoJF/Portafolio#readme",
   "dependencies": {
-    "@vercel/blob": "^2.8.2"
+    "@vercel/blob": "^2.9.0"
+  },
+  "overrides": {
+    "zod": "^4.6.6"
   }
 }
